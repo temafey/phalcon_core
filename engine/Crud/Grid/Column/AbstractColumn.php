@@ -1,0 +1,372 @@
+<?php
+/**
+ * @namespace
+ */
+namespace Engine\Crud\Grid\Column;
+
+use Engine\Crud\Grid\AbstractGrid as Grid;
+
+/**
+ * Class abstract grid column.
+ *
+ * @category   Engine
+ * @package    Crud
+ * @subpackage Grid
+ */
+abstract class AbstractColumn implements Column
+{
+    use \Engine\Crud\Tools\Filters,
+        \Engine\Crud\Tools\Validators,
+        \Engine\Crud\Tools\Attributes;
+
+	const FILTER = 'FILTER';
+	
+	/**
+	 * Container adapter column name.
+	 * @var string
+	 */
+	protected $_name;
+    
+    /**
+     * Column name in grid. 
+     * @var string
+     */
+	protected $_key;
+    
+	/**
+	 * Column title.
+	 * @var string
+	 */
+	protected $_title;
+	
+	/**
+	 * Column render type.
+	 * @var string
+	 */
+	protected $_type = 'default';
+
+    /**
+	 * Parent grid object.
+	 * @var \Engine\Crud\Grid\AbstractGrid
+	 */
+	protected $_grid;
+	
+	/**
+	 * Is column sortable
+	 * @var bool
+	 */
+	protected $_isSortable;
+
+    /**
+     * Sort direction
+     * @var string
+     */
+    protected $_sortDirection = Grid::DIRECTION_ASC;
+
+	/**
+	 * Is column hidden
+	 * @var bool
+	 */
+	protected $_isHidden;
+	
+	/**
+	 * Column width
+	 * @var integer
+	 */
+	protected $_width;
+	
+	/**
+     * Plugin loaders for filter and validator chains
+     * @var array
+     */
+    protected $_loaders = [];
+	
+	/**
+	 * Action link
+	 * @var string
+	 */
+	protected $_action = null;
+	
+	/**
+	 * Action param name
+	 * @var string
+	 */
+	protected $_actionParam = false;
+	
+	/**
+	 * Constructor 
+	 * 
+	 * @param string $title
+	 * @param string $name
+	 * @param bool $isSortable
+	 * @param bool $isHidden
+	 * @param integer $width
+	 */
+	public function __construct($title, $name = null, $isSortable = true, $isHidden = false, $width = 80) 
+	{
+		$this->_title = $title;
+		$this->_name = $name;
+		
+		$this->_isSortable = (bool) $isSortable;
+		$this->_isHidden = (bool) $isHidden;
+		$this->_width = intval($width);
+	}
+
+	/**
+	 * Render column
+	 * 
+	 * @param mixed $row
+	 * @return string
+	 */
+	abstract public function render($row);
+    
+	/**
+	 * Update grid container
+	 * 
+	 * @param \Engine\Crud\Container\Grid\Adapter $container
+	 * @return \Engine\Crud\Grid\Column\AbstractColumn
+	 */
+	abstract public function updateContainer(\Engine\Crud\Container\Grid\Adapter $container);
+	
+	/**
+	 * Set grid object and init grid column key.
+	 * 
+	 * @param \Engine\Crud\Grid\AbstractGrid $grid
+	 * @param string $key
+	 * @return \Engine\Crud\Grid\Column\AbstractColumn
+	 */
+	public function init(Grid $grid, $key)
+	{
+		$this->_grid = $grid;
+		$this->_key = $key;
+		if ($this->_name === null) {
+		    $this->_name = $key;
+		}
+		$this->_init();
+        $this->_initFilters();
+
+		return $this;
+	}
+	
+	/**
+	 * Update container data source
+	 * 
+	 * @param mixed $dataSource
+	 * @return \Engine\Crud\Grid\Column\AbstractColumn
+	 */
+	public function updateDataSource($dataSource)
+	{
+	}
+
+	/**
+     * Initialize field (used by extending classes)
+     *
+     * @return void
+     */
+	protected function _init()
+	{
+	}
+
+    /**
+     * Return column title.
+     *
+     * @return \Engine\Crud\Grid\AbstractGrid
+     */
+    public function getGrid()
+    {
+        return $this->_grid;
+    }
+
+    /**
+     * Returngrid object.
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->_title;
+    }
+    
+	/**
+	 * Return column render type.
+	 * 
+	 * @return string
+	 */
+	public function getType() 
+	{
+		return $this->_type;
+	}
+    
+	/**
+	 * Return column name.
+	 * 
+	 * @return string
+	 */
+	public function getName() 
+	{
+		return $this->_name;
+	}
+    
+	/**
+	 * Return key name.
+	 * 
+	 * @return string
+	 */
+	public function getKey() 
+	{
+		return $this->_key;
+	}
+	
+	/**
+	 * Check is column sortable.
+	 * 
+	 * @return bool
+	 */
+	public function isSortable() 
+	{
+		return $this->_isSortable;
+	}
+
+	/**
+	 * Is column hidden.
+	 * 
+	 * @return bool
+	 */
+	public function isHidden() 
+	{
+		return $this->_isHidden;
+	}
+
+    /**
+     * Check is column sort
+     *
+     * @return bool
+     */
+    public function isSorted()
+    {
+        return ($this->_grid->getSortKey() == $this->_key) ? true : false;
+    }
+
+
+    /**
+	 * Return column width
+	 *
+	 * @return integer	
+	 */
+	public function getWidth() 
+	{
+		return $this->_width;
+	}
+	
+	/**
+	 * Return current grid page number.
+	 * 
+	 * @return integer
+	 */
+	protected function _getPage() 
+	{
+		return $this->_grid->getPage();
+	}
+
+    /**
+     * Return column sort params
+     *
+     * @param boolean $withFilterParams
+     * @return array
+     */
+    public function getSortParams($withFilterParams = true)
+    {
+        $params = [];
+        $sortParamName = $this->_grid->getSortParamName();
+        $sortDirectionParamName = $this->_grid->getSortDirectionParamName();
+        $params[$sortParamName] = $this->_key;
+        $params[$sortDirectionParamName] = $this->toogleSortDirection();
+
+        $limit = $this->_grid->getLimit();
+        if ($limit != $this->_grid->getDefaultParam('limit')) {
+            $limitParamName = $this->_grid->getLimitParamName();
+            $params[$limitParamName] = $limit;
+        }
+
+        if ($withFilterParams) {
+            $params += $this->_grid->getFilterParams();
+        }
+
+        return $params;
+    }
+
+	/**
+	 * Return current grid sort direction param.
+	 * 
+	 * @return string
+	 */	
+	public function getSortDirection()
+	{
+        if ($this->isSorted()) {
+            return $this->_grid->getSortDirection();
+        }
+		return $this->_sortDirection;
+	}
+
+    /**
+     * Return current grid sort direction param.
+     *
+     * @return string
+     */
+    public function toogleSortDirection()
+    {
+        if ($this->isSorted()) {
+            return $this->_grid->toogleSortDirection();
+        }
+        return $this->_sortDirection;
+    }
+	
+	/**
+	 * Return column value by key
+	 * 
+	 * @param mixed $row
+	 * @return string|integer
+	 */
+	public function getValue($row)
+	{
+		$value = $row[$this->_key];
+		$value = $this->filter($value);
+		
+		return $value;
+	}
+	
+	/**
+	 * Return action for column
+	 * 
+	 * @return string
+	 */
+	public function getAction() 
+	{
+		return $this->_action;
+	}
+
+	/**
+	 * Return action param name
+	 * 
+	 * @return string
+	 */
+	public function getActionParam() 
+	{
+		return $this->_actionParam;
+	}
+
+	/**
+	 * Set action to grid column, with post param key name. Set param key name without "=".
+	 * 
+	 * @param string $action
+	 * @param string $actionParam
+	 * @return \Engine\Crud\Grid\Column\AbstractColumn
+	 */
+	public function setAction($action, $actionParam = false) 
+	{
+		$this->_action = $action;
+		$this->_actionParam = $actionParam;
+		
+		return $this;
+	}
+}

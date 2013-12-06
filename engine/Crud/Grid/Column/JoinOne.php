@@ -1,0 +1,132 @@
+<?php
+/**
+ * @namespace
+ */
+namespace Engine\Crud\Grid\Column;
+
+/**
+ * Join one column
+ *
+ * @uses       \Engine\Crud\Grid\Exception
+ * @uses       \Engine\Crud\Grid\Filter
+ * @uses       \Engine\Crud\Grid
+ * @category   Engine
+ * @package    Crud
+ * @subpackage Grid
+ */
+class JoinOne extends AbstractColumn 
+{
+	/**
+	 * Join path
+	 * @var array|string
+	 */
+	protected $_path;
+	
+	/**
+	 * Join column
+	 * @var string
+	 */
+	protected $_column;
+	
+	/**
+	 * Else join columns
+	 * @var array
+	 */
+	protected $_columns;
+	
+	/**
+	 * No value
+	 * @var string
+	 */
+	protected $_na = "---";
+
+	/**
+	 * Constructor
+	 * 
+	 * @param string $title
+	 * @param string|array $path
+	 * @param string $column
+	 * @param array $columns
+	 * @param bool $hidden
+	 * @param integer $width
+	 */
+	public function __construct(
+        $title,
+        $path,
+        $column = null,
+        $columns = null,
+        $isSortable = true,
+        $isHidden = false,
+        $width = 120,
+        $extraOptions = []
+    ) {
+		parent::__construct($title, $column, $isSortable, $isHidden, $width);
+		
+		$this->_path = $path;
+		$this->_column = $column;
+		$this->_columns = $columns;
+        $this->_extraOptions = $extraOptions;
+	}
+
+    /**
+     * Update grid container
+     *
+     * @param \Engine\Crud\Container\Grid\Adapter $container
+     * @return \Engine\Crud\Grid\Column\AbstractColumn
+     */
+    public function updateContainer(\Engine\Crud\Container\Grid\Adapter $container)
+    {
+        //$container->setColumn($this->_key, $this->_name);
+        return $this;
+    }
+
+
+	/**
+	 * Update container data source
+	 * 
+	 * @param \Engine\Crud\Container\Grid\Adapter $dataSource
+	 * @return \Engine\Crud\Grid\Column\JoinOne
+	 */
+	public function updateDataSource($dataSource)
+	{
+		$columns =  [$this->_key => $this->_column, $this->_key."_id" => "ID"];
+		if (!empty($this->_columns)) {
+		    $columns = (is_array($this->_columns)) ? array_merge($columns, $this->_columns) : array_merge($columns, [$this->_columns => $this->_columns]);
+		}
+		$dataSource->columnsJoinOne($this->_path, $columns);
+
+		return $this;
+	}
+
+    /**
+     * Return render value
+     * (non-PHPdoc)
+     * @see \Engine\Crud\Grid\Column\AbstractColumn::render()
+     * @param mixed $row
+     * @return string
+     */
+    public function render($row)
+    {
+		if (!isset($row[$this->_key])) {
+			 return $this->_na;
+		}
+		$value = $row[$this->_key];
+		if (isset($this->_extraOptions[$value])) {
+            $value = $this->_extraOptions[$value];
+        }
+
+		return $value ? $value : $this->_na;
+	}
+	
+	/**
+	 * Set empty value
+	 * 
+	 * @param string $na
+	 * @return \Engine\Crud\Grid\Column\JoinOne
+	 */
+	public function setEmptyValue($na)
+	{
+		$this->_na = $na;
+		return $this;
+	}
+}
