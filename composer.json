@@ -1,0 +1,11 @@
+{
+    "name": "temafey/phalcon-engine",
+    "type": "library",
+    "description": "Web project engine base on Phalcon framework",
+    "keywords": ["phalcon", "engine","core","crud","grid"],
+    "homepage": "https://github.com/temafey/phalcon_core",
+    "license": "MIT",
+    "require": {
+        "php": ">=5.5.0"
+    }
+}
