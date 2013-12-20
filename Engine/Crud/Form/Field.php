@@ -2,10 +2,10 @@
 /**
  * @namespace
  */
-namespace Engine\Crud\Form\Field;
+namespace Engine\Crud\Form;
 
-use Engine\Crud\Form\AbstractForm as Form;
-	
+use Engine\Crud\Form;
+
 /**
  * Form field
  *
@@ -13,7 +13,7 @@ use Engine\Crud\Form\AbstractForm as Form;
  * @package    Crud
  * @subpackage Form
  */
-abstract class AbstractField implements Field 
+abstract class Field implements FieldInterface
 {
     use \Engine\Crud\Tools\Filters,
         \Engine\Crud\Tools\Validators,
@@ -22,7 +22,7 @@ abstract class AbstractField implements Field
         \Engine\Crud\Tools\Attributes;
 	/**
 	 * Form
-	 * @var \Engine\Crud\Form\AbstractForm
+	 * @var \Engine\Crud\Form
 	 */
 	protected $_form;
 
@@ -90,9 +90,9 @@ abstract class AbstractField implements Field
 	/**
 	 * Set form object and init field key.
 	 * 
-	 * @param \Engine\Crud\Form\AbstractForm $form
+	 * @param \Engine\Crud\Form $form
 	 * @param string $key
-	 * @return \Engine\Crud\Form\Field\AbstractField
+	 * @return \Engine\Crud\Form\Field
 	 */
 	final public function init(Form $form, $key) 
 	{
@@ -190,7 +190,7 @@ abstract class AbstractField implements Field
 	/**
 	 * Not save field 
 	 * 
-	 * @return \Engine\Crud\Form\Field\AbstractField
+	 * @return \Engine\Crud\Form\Field
 	 */
 	public function notSave() 
 	{
@@ -202,7 +202,7 @@ abstract class AbstractField implements Field
      * Set required flag
      *
      * @param  bool $flag Default value is true
-     * @return \Engine\Crud\Form\Field\AbstractField
+     * @return \Engine\Crud\Form\Field
      */
     public function setRequired($flag = true)
     {
@@ -224,7 +224,7 @@ abstract class AbstractField implements Field
      * Set hidden flag
      *
      * @param  bool $flag Default value is true
-     * @return \Engine\Crud\Form\Field\AbstractField
+     * @return \Engine\Crud\Form\Field
      */
     public function setHidden($flag = true)
     {
@@ -246,7 +246,7 @@ abstract class AbstractField implements Field
      * Set not edit flag
      *
      * @param  bool $flag Default value is true
-     * @return \Engine\Crud\Form\Field\AbstractField
+     * @return \Engine\Crud\Form\Field
      */
     public function setNotEdit($flag = true)
     {
@@ -308,7 +308,7 @@ abstract class AbstractField implements Field
 	 * Set separator for explode field value
 	 *  
 	 * @param string $separator
-	 * @return \Engine\Crud\Form\Field\AbstractField
+	 * @return \Engine\Crud\Form\Field
 	 */
 	public function setSeparator($separator)
 	{
@@ -329,7 +329,7 @@ abstract class AbstractField implements Field
 	/**
 	 * Set id value when in parent form object execute loadData function
 	 * 
-	 * @return \Engine\Crud\Form\Field\AbstractField
+	 * @return \Engine\Crud\Form\Field
 	 */
 	public function setId($id)
 	{
@@ -353,7 +353,7 @@ abstract class AbstractField implements Field
 	/**
 	 * Return form
 	 * 
-	 * @return \Engine\Crud\Form\AbstractForm
+	 * @return \Engine\Crud\Form
 	 */
 	public function getForm()
 	{

@@ -4,8 +4,8 @@
  */
 namespace Engine\Crud\Decorator\Grid;
 
-use Engine\Crud\Decorator\AbstractDecorator as Decorator,
-	Engine\Crud\Grid\AbstractGrid as Grid,
+use Engine\Crud\Decorator,
+	Engine\Crud\Grid,
     Engine\Crud\Decorator\Helper;
 
 /**

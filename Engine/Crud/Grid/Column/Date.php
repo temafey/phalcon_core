@@ -4,7 +4,7 @@
  */
 namespace Engine\Crud\Grid\Column;
 
-use Engine\Crud\Grid\AbstractGrid as Grid;
+use Engine\Crud\Grid;
 	
 /**
  * Standart column
@@ -18,6 +18,12 @@ use Engine\Crud\Grid\AbstractGrid as Grid;
  */
 class Date extends Base
 {
+    /**
+     * Column type.
+     * @var string
+     */
+    protected $_type = 'date';
+
     /**
      * Sort direction
      * @var string
@@ -33,7 +39,7 @@ class Date extends Base
     /**
      * Return render value
      * (non-PHPdoc)
-     * @see \Engine\Crud\Grid\Column\AbstractColumn::render()
+     * @see \Engine\Crud\Grid\Column::render()
      * @param mixed $row
      * @return string
      */

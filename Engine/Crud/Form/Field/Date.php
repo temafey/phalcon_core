@@ -4,6 +4,8 @@
  */
 namespace Engine\Crud\Form\Field;
 
+use Engine\Crud\Form\Field;
+
 /**
  * Date field
  *
@@ -11,7 +13,7 @@ namespace Engine\Crud\Form\Field;
  * @package    Crud
  * @subpackage Form
  */
-class Date extends AbstractField
+class Date extends Field
 {
     /**
      * Form element type

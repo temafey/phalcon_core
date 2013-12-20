@@ -42,7 +42,13 @@ class Dispatcher extends AbstractService
             $dispatcher = new MvcDispatcher();
 
             //Attach a listener
-            $eventsManager->attach("dispatch:beforeException", function($event, \Phalcon\Mvc\Dispatcher $dispatcher, $exception) {
+            $eventsManager->attach("dispatch:beforeException", function($event, \Phalcon\Mvc\Dispatcher $dispatcher, $exception) use ($di, $config)   {
+
+                if ($config->application->debug && $di->has('logger')) {
+                    $logger = $di->get('logger');
+                    $logger->error($exception->getMessage());
+                }
+
                 //Handle 404 exceptions
                 if ($exception instanceof DispatchException) {
                     $dispatcher->forward([

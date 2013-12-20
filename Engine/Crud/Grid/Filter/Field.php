@@ -2,10 +2,9 @@
 /**
  * @namespace
  */
-namespace Engine\Crud\Grid\Filter\Field;
+namespace Engine\Crud\Grid\Filter;
 
 use Engine\Crud\Grid\Filter,
-    Engine\Crud\Grid\Filter\FieldInterface,
     Engine\Filter\SearchFilterInterface as Criteria,
     Engine\Crud\Container\AbstractContainer as Container;
 
@@ -16,7 +15,7 @@ use Engine\Crud\Grid\Filter,
  * @package    Crud
  * @subpackage Grid
  */
-abstract class AbstractField implements FieldInterface
+abstract class Field implements FieldInterface
 {
     use \Engine\Crud\Tools\Filters,
         \Engine\Crud\Tools\Validators,
@@ -78,7 +77,7 @@ abstract class AbstractField implements FieldInterface
 	 * 
 	 * @param \Engine\Crud\Grid\Filter $filter
 	 * @param string $key
-	 * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+	 * @return \Engine\Crud\Grid\Filter\Field
 	 */
 	public function init(\Engine\Crud\Grid\Filter $filter, $key)
 	{
@@ -133,7 +132,7 @@ abstract class AbstractField implements FieldInterface
      *
      * @param mixed $dataSource
      * @param \Engine\Crud\Container\AbstractContainer $container
-     * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+     * @return \Engine\Crud\Grid\Filter\Field
      */
     public function applyFilter($dataSource, Container $container)
     {
@@ -158,7 +157,7 @@ abstract class AbstractField implements FieldInterface
      * Set error messages
      *
      * @param  array|string $messages
-     * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+     * @return \Engine\Crud\Grid\Filter\Field
      */
     public function setErrorMessages($messages)
     {

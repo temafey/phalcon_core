@@ -4,6 +4,8 @@
  */
 namespace Engine\Crud\Grid\Column;
 
+use Engine\Crud\Grid\Column;
+
 /**
  * Join many column
  *
@@ -14,7 +16,7 @@ namespace Engine\Crud\Grid\Column;
  * @package    Crud
  * @subpackage Grid
  */
-class JoinMany extends AbstractColumn 
+class JoinMany extends Column
 {
 	/**
 	 * Join path
@@ -98,9 +100,21 @@ class JoinMany extends AbstractColumn
 	}
 
     /**
+     * Update grid container
+     *
+     * @param \Engine\Crud\Container\Grid\Adapter $container
+     * @return \Engine\Crud\Grid\Column
+     */
+    public function updateContainer(\Engine\Crud\Container\Grid\Adapter $container)
+    {
+        $container->setColumn($this->_key, $this->_name);
+        return $this;
+    }
+
+    /**
      * Return render value
      * (non-PHPdoc)
-     * @see \Engine\Crud\Grid\Column\AbstractColumn::render()
+     * @see \Engine\Crud\Grid\Column::render()
      * @param mixed $row
      * @return string
      */

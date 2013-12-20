@@ -2,12 +2,11 @@
 /**
  * @namespace
  */
-namespace Engine\Crud\Grid;
+namespace Engine\Crud;
 
-use Engine\Crud\Grid\Column\AbstractColumn,
+use Engine\Crud\Grid\Column,
     Engine\Crud\Grid\Filter,
-    Engine\Crud\Container\Container,
-    Engine\Crud\Container\Grid;
+    Engine\Crud\Container\Container;
 
 /**
  * Class for manage datas.
@@ -19,7 +18,7 @@ use Engine\Crud\Grid\Column\AbstractColumn,
  * @package    Crud
  * @subpackage Grid
  */
-abstract class AbstractGrid implements
+abstract class Grid implements
     \Phalcon\Events\EventsAwareInterface,
     \Phalcon\DI\InjectionAwareInterface,
     \ArrayAccess,
@@ -168,7 +167,7 @@ abstract class AbstractGrid implements
 	
 	/**
 	 * Form model
-	 * @var \Engine\Crud\Form\AbstractForm
+	 * @var \Engine\Crud\Form
 	 */
 	protected $_form = null;
 	
@@ -232,7 +231,7 @@ abstract class AbstractGrid implements
 			$this->_container = Container::factory($this, $config);
 		} else {
 			$config = [];
-			$config['adapter'] = (null === $this->_containerAdapter) ? self::DEFAULT_CONTAINER : $this->_containerAdapter;
+			$config['adapter'] = (null === $this->_containerAdapter) ? static::DEFAULT_CONTAINER : $this->_containerAdapter;
 			$config['model'] = $this->_containerModel;
 			$config['conditions'] = $this->_containerConditions;
 			$config['joins'] = $this->_containerJoins;
@@ -257,7 +256,7 @@ abstract class AbstractGrid implements
      */
     protected function _initDecorator()
     {
-        $this->_decorator = self::DEFAULT_DECORATOR;
+        $this->_decorator = static::DEFAULT_DECORATOR;
     }
 	
 	/**
@@ -282,7 +281,7 @@ abstract class AbstractGrid implements
 	protected function _setupGrid()
 	{
 		foreach ($this->_columns as $key => $column) {
-			if (!$column instanceof AbstractColumn) {
+			if (!$column instanceof Column) {
 			    throw new \Engine\Exception("Column '".$key."' not instance of Column interface");
 			}
 		    if ($column instanceof FormField) {		    	
@@ -376,7 +375,6 @@ abstract class AbstractGrid implements
 	 * 
 	 * @return array
 	 */
-	
 	public function getData() 
 	{
 		if (null === $this->_data) {
@@ -409,7 +407,7 @@ abstract class AbstractGrid implements
 	/**
 	 * Clear grid data
 	 * 
-	 * @return \Engine\Crud\Grid\AbstractGrid
+	 * @return \Engine\Crud\Grid
 	 */
 	public function clearData() 
 	{
@@ -655,7 +653,7 @@ abstract class AbstractGrid implements
 	 * Set count query flag
 	 * 
 	 * @param bool $flag
-	 * @return \Engine\Crud\Grid\AbstractGrid
+	 * @return \Engine\Crud\Grid
 	 */
 	public function setNoCountQuery($flag = false)
 	{
@@ -677,7 +675,7 @@ abstract class AbstractGrid implements
      * Set id param
      *
      * @param string $id
-     * @return \Engine\Crud\Grid\AbstractGrid
+     * @return \Engine\Crud\Grid
      */
     public function setId($id)
     {
@@ -689,7 +687,7 @@ abstract class AbstractGrid implements
      * Set grid params
      *
      * @param array $params
-     * @return \Engine\Crud\Grid\AbstractGrid
+     * @return \Engine\Crud\Grid
      */
     public function setParams(array $params)
     {
@@ -735,7 +733,7 @@ abstract class AbstractGrid implements
 	 * Set action
 	 * 
 	 * @param string $action
-	 * @return \Engine\Crud\Grid\AbstractGrid
+	 * @return \Engine\Crud\Grid
 	 */
 	public function setAction($action) 
 	{
@@ -747,7 +745,7 @@ abstract class AbstractGrid implements
 	 * Set title
 	 * 
 	 * @param string $title
-	 * @return \Engine\Crud\Grid\AbstractGrid
+	 * @return \Engine\Crud\Grid
 	 */
 	public function setTitle($title) 
 	{
@@ -759,7 +757,7 @@ abstract class AbstractGrid implements
 	 * Set sort param
 	 * 
 	 * @param string $sort
-	 * @return \Engine\Crud\Grid\AbstractGrid
+	 * @return \Engine\Crud\Grid
 	 */
 	public function setSort($sort) 
 	{
@@ -801,7 +799,7 @@ abstract class AbstractGrid implements
      */
     public function getSortParamName()
     {
-       return (null !== $this->_sortParamName) ? $this->_sortParamName : self::DEFAULT_PARAM_SORT_NAME;
+       return (null !== $this->_sortParamName) ? $this->_sortParamName : static::DEFAULT_PARAM_SORT_NAME;
     }
 	
 	/**
@@ -824,14 +822,14 @@ abstract class AbstractGrid implements
      */
     public function getSortDirectionParamName()
     {
-        return (null !== $this->_directionParamName) ? $this->_directionParamName : self::DEFAULT_PARAM_DIRECTION_NAME;
+        return (null !== $this->_directionParamName) ? $this->_directionParamName : static::DEFAULT_PARAM_DIRECTION_NAME;
     }
 
 	/**
 	 * Set direction param
 	 * 
 	 * @param string $direction
-	 * @return \Engine\Crud\Grid\AbstractGrid
+	 * @return \Engine\Crud\Grid
 	 */
 	public function setSortDirection($direction)
 	{
@@ -860,7 +858,7 @@ abstract class AbstractGrid implements
     public function toogleSortDirection()
     {
         $direction = (null === $this->_directionParamValue) ? $this->_defaultParams['direction'] : $this->_directionParamValue;
-        return ($direction == self::DIRECTION_DESC) ? self::DIRECTION_ASC : self::DIRECTION_DESC;
+        return ($direction == static::DIRECTION_DESC) ? static::DIRECTION_ASC : static::DIRECTION_DESC;
     }
 
     /**
@@ -870,14 +868,14 @@ abstract class AbstractGrid implements
      */
     public function getLimitParamName()
     {
-        return (null !== $this->_limitParamName) ? $this->_limitParamName : self::DEFAULT_PARAM_LIMIT_NAME;
+        return (null !== $this->_limitParamName) ? $this->_limitParamName : static::DEFAULT_PARAM_LIMIT_NAME;
     }
 	
 	/**
 	 * Set limit param
 	 * 
 	 * @param integer $limit
-	 * @return \Engine\Crud\Grid\AbstractGrid
+	 * @return \Engine\Crud\Grid
 	 */
 	public function setLimit($limit) 
 	{
@@ -905,14 +903,14 @@ abstract class AbstractGrid implements
      */
     public function getPageParamName()
     {
-        return (null !== $this->_pageParamName) ? $this->_pageParamName : self::DEFAULT_PARAM_PAGE_NAME;
+        return (null !== $this->_pageParamName) ? $this->_pageParamName : static::DEFAULT_PARAM_PAGE_NAME;
     }
 	
 	/**
 	 * Set page param
 	 * 
 	 * @param integer $page
-	 * @return \Engine\Crud\Grid\AbstractGrid
+	 * @return \Engine\Crud\Grid
 	 */
 	public function setPage($page) 
 	{
@@ -958,7 +956,7 @@ abstract class AbstractGrid implements
 	 * 
 	 * @param string $name
 	 * @param mixed $value
-	 * @return /Engine/Crud/Grid/AbstractGrid
+	 * @return /Engine/Crud/Grid/Grid
 	 */
 	public function setParam($name, $value)
 	{
@@ -971,7 +969,7 @@ abstract class AbstractGrid implements
 	 * 
 	 * @param string $name
 	 * @param mixed $value
-	 * @return /Engine/Crud/Grid/AbstractGrid
+	 * @return /Engine/Crud/Grid/Grid
 	 */
 	public function setFilterParam($name, $value)
 	{
@@ -1054,7 +1052,7 @@ abstract class AbstractGrid implements
 	 * Return column by name
 	 * 
 	 * @param string $name
-	 * @return \Engine\Crud\Grid\Column\AbstractColumn
+	 * @return \Engine\Crud\Grid\Column
 	 */
 	public function getColumnByName($name)
 	{
@@ -1140,7 +1138,7 @@ abstract class AbstractGrid implements
      * Return grid column
      *
      * @param  string $key The form column key.
-     * @return \Engine\Crud\Grid\Column\AbstractColumn
+     * @return \Engine\Crud\Grid\Column
      * @throws \Exception if the $key is not a column in the grid.
      */
     public function __get($key)

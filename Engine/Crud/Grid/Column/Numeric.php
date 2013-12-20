@@ -13,6 +13,17 @@ namespace Engine\Crud\Grid\Column;
  */
 class Numeric extends Base
 {
+    /**
+     * Column type.
+     * @var string
+     */
+    protected $_type = 'int';
+
+    /**
+     * Initialize field (used by extending classes)
+     *
+     * @return void
+     */
 	protected function _init()
 	{
 		$this->_filters = [

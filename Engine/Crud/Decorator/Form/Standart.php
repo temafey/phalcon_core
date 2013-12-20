@@ -4,8 +4,8 @@
  */
 namespace Engine\Crud\Decorator\Form;
 
-use Engine\Crud\Decorator\AbstractDecorator as Decorator,
-	Engine\Crud\Form\AbstractForm,
+use Engine\Crud\Decorator,
+	Engine\Crud\Form,
     Engine\Crud\Decorator\Helper,
     Engine\Crud\Form\Field;
 
@@ -73,10 +73,10 @@ class Standart extends Decorator
     /**
      * Render filter form field
      *
-     * @param \Engine\Crud\Form\Field\AbstractField $field
+     * @param \Engine\Crud\Form\Field $field
      * @return string
      */
-    public function renderField(Field\AbstractField $field)
+    public function renderField(Field\Field $field)
     {
         $helpers = $field->getHelpers();
         foreach ($helpers as $i => $helper) {

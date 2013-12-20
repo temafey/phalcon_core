@@ -62,7 +62,7 @@ class FileuploadImage extends Fileupload
 	
 	/**
 	 * (non-PHPdoc)
-	 * @see Crud\Form\Field.AbstractField::getRenderValue()
+	 * @see Crud\Form\Field.Field::getRenderValue()
 	 */
 	public function getRenderValue()
 	{

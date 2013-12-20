@@ -51,8 +51,8 @@ class Compound extends Standart
     public function _init()
 	{
 		foreach ( $this->_fields as $key => $field) {
-			if(!$field instanceof AbstractField) {
-                throw new \Engine\Exception('Compound filter field not instance of AbstractField');
+			if(!$field instanceof Field) {
+                throw new \Engine\Exception('Compound filter field not instance of Field');
             }
             $field->init($this->_filter, $key);
             if (is_array($this->_default) && isset($this->_default[$key])) {
@@ -84,7 +84,7 @@ class Compound extends Standart
      *
      * @param mixed $dataSource
      * @param \Engine\Crud\Container\AbstractContainer $container
-     * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+     * @return \Engine\Crud\Grid\Filter\Field
      */
     public function applyFilter($dataSource, Container $container)
     {

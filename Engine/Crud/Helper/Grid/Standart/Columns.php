@@ -4,8 +4,8 @@
  */
 namespace Engine\Crud\Helper\Grid\Standart;
 
-use Engine\Crud\Grid\AbstractGrid as Grid,
-    Engine\Crud\Grid\Column\AbstractColumn as Column;
+use Engine\Crud\Grid,
+    Engine\Crud\Grid\Column as Column;
 
 /**
  * Class grid columns helper
@@ -14,12 +14,12 @@ use Engine\Crud\Grid\AbstractGrid as Grid,
  * @package    Crud
  * @subpackage Helper
  */
-class Columns extends \Engine\Crud\Helper\AbstactHelper
+class Columns extends \Engine\Crud\Helper
 {
 	/**
-	 * Generates a widget to show a html grid
+	 * Generates grid table colums head
 	 *
-	 * @param \Engine\Crud\Grid\AbstractGrid $grid
+	 * @param \Engine\Crud\Grid $grid
 	 * @return string
 	 */
 	static public function _(Grid $grid)
@@ -58,7 +58,7 @@ class Columns extends \Engine\Crud\Helper\AbstactHelper
     /**
      * Create column sortable link
      *
-     * @param \Engine\Crud\Grid\Column\AbstractColumn $column
+     * @param \Engine\Crud\Grid\Column $column
      * @return string
      */
     static public function sortLink(Column $column)

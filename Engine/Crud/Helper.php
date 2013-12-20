@@ -2,16 +2,16 @@
 /**
  * @namespace
  */
-namespace Engine\Crud\Helper;
+namespace Engine\Crud;
 
 /**
- * Class AbstactHelper
+ * Class Helper
  *
  * @category   Engine
  * @package    Crud
  * @subpackage Helper
  */
-abstract class AbstactHelper extends \Phalcon\Tag
+abstract class Helper extends \Phalcon\Tag
 {
     /**
      * Crud helper end tag

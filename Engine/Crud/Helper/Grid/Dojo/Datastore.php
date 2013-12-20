@@ -11,15 +11,15 @@ namespace Engine\Crud\Helper\Grid\Dojo;
  * @package    Crud
  * @subpackage Helper
  */
-class Datastore extends \Engine\Crud\Helper\AbstactHelper
+class Datastore extends \Engine\Crud\Helper
 {
     /**
      * Generates a widget to show a dojo grid datastore
      *
-     * @param \Engine\Crud\Grid\AbstractGrid $grid
+     * @param \Engine\Crud\Grid $grid
      * @return string
      */
-    static public function _(\Engine\Crud\Grid\AbstractGrid $grid)
+    static public function _(\Engine\Crud\Grid $grid)
     {
         $code = '
         /*set up data store*/

@@ -4,6 +4,8 @@
  */
 namespace Engine\Crud\Form\Field;
 
+use Engine\Crud\Form\Field;
+
 /**
  * Form field
  *
@@ -11,7 +13,7 @@ namespace Engine\Crud\Form\Field;
  * @package    Crud
  * @subpackage Form
  */
-class ArrayToSelect extends AbstractField
+class ArrayToSelect extends Field
 {
 	/**
 	 * Element type
@@ -146,7 +148,7 @@ class ArrayToSelect extends AbstractField
      * Set nulled select option
      *
      * @param string|array $option
-     * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+     * @return \Engine\Crud\Grid\Filter\Field
      */
     public function setNullOption($option)
     {
@@ -158,7 +160,7 @@ class ArrayToSelect extends AbstractField
      * Set onchange action
      *
      * @param string $onchange
-     * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+     * @return \Engine\Crud\Grid\Filter\Field
      */
     public function setOnchangeAction($onchange)
     {

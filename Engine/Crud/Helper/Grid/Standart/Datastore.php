@@ -4,7 +4,7 @@
  */
 namespace Engine\Crud\Helper\Grid\Standart;
 
-use Engine\Crud\Grid\AbstractGrid as Grid;
+use Engine\Crud\Grid;
 
 /**
  * Class grid datastore helper
@@ -13,12 +13,12 @@ use Engine\Crud\Grid\AbstractGrid as Grid;
  * @package    Crud
  * @subpackage Helper
  */
-class Datastore extends \Engine\Crud\Helper\AbstactHelper
+class Datastore extends \Engine\Crud\Helper
 {
 	/**
-	 * Generates a widget to show a html grid
+	 * Generates grid table rows
 	 *
-	 * @param \Engine\Crud\Grid\AbstractGrid $grid
+	 * @param \Engine\Crud\Grid $grid
 	 * @return string
 	 */
 	static public function _(Grid $grid)

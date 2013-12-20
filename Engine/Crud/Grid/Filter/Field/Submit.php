@@ -4,7 +4,8 @@
  */
 namespace Engine\Crud\Grid\Filter\Field;
 
-use Engine\Filter\SearchFilterInterface as Criteria,
+use Engine\Crud\Grid\Filter\Field,
+    Engine\Filter\SearchFilterInterface as Criteria,
     Engine\Crud\Container\AbstractContainer as Container;
 
 /**
@@ -14,7 +15,7 @@ use Engine\Filter\SearchFilterInterface as Criteria,
  * @package    Crud
  * @subpackage Grid
  */
-class Submit extends AbstractField
+class Submit extends Field
 {
 	protected $_type = 'submit';
 	
@@ -53,7 +54,7 @@ class Submit extends AbstractField
      *
      * @param mixed $dataSource
      * @param \Engine\Crud\Container\AbstractContainer $container
-     * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+     * @return \Engine\Crud\Grid\Filter\Field
      */
     public function applyFilter($dataSource, Container $container)
     {

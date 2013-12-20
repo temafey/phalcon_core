@@ -4,7 +4,7 @@
  */
 namespace Engine\Crud\Helper\Form\Field;
 
-use Engine\Crud\Form\Field\AbstractField as Field;
+use Engine\Crud\Form\Field;
 
 /**
  * Class form field helper
@@ -13,12 +13,12 @@ use Engine\Crud\Form\Field\AbstractField as Field;
  * @package    Crud
  * @subpackage Helper
  */
-class Standart extends \Engine\Crud\Helper\AbstactHelper
+class Standart extends \Engine\Crud\Helper
 {
 	/**
 	 * Generates a widget to show a html grid filter
 	 *
-	 * @param \Engine\Crud\Form\Field\AbstractField $filter
+	 * @param \Engine\Crud\Form\Field $filter
 	 * @return string
 	 */
 	static public function _(Field $field)

@@ -4,10 +4,9 @@
  */
 namespace Engine\Crud\Grid\Column;
 
-use Crud\Grid\AbstractGrid,
-	Crud\Container\Grid as GridContainer,
-	Zend\Filter\Filter,
-	\Crud\Form\AbstractForm as Form;
+use Engine\Crud\Grid,
+    Engine\Crud\Container\Grid as GridContainer,
+    Engine\Crud\Form;
 	
 /**
  * Image join column
@@ -19,11 +18,11 @@ use Crud\Grid\AbstractGrid,
  * @package    Crud
  * @subpackage Grid
  */
-class FormField extends Standart 
+class FormField extends Base
 {	
 	/**
 	 * Form object for update table column.
-	 * @var \Engine\Crud\Form\AbstractForm
+	 * @var \Engine\Crud\Form
 	 */
 	protected $_form = null;
 
@@ -140,9 +139,9 @@ class FormField extends Standart
 	}
 	
 	/**
-	 * Set \Engine\Crud\Form\AbstractForm class name.
+	 * Set \Engine\Crud\Form class name.
 	 * 
-	 * @param string|\Crud\Form\AbstractForm $form
+	 * @param string|\Crud\Form\Form $form
 	 * @return \Engine\Crud\Grid\Column\FormColumn
 	 */
 	public function setForm($form)

@@ -2,9 +2,9 @@
 /**
  * @namespace
  */
-namespace Engine\Crud\Grid\Column;
+namespace Engine\Crud\Grid;
 
-use Engine\Crud\Grid\AbstractGrid,
+use Engine\Crud\Grid,
     Engine\Crud\Container\Grid as GridContainer,
 	Phalcon\Filter;
 	
@@ -15,7 +15,7 @@ use Engine\Crud\Grid\AbstractGrid,
  * @package    Crud
  * @subpackage Grid
  */
-interface Column
+interface ColumnInterface
 {
 	/**
 	 * Render column
@@ -29,7 +29,7 @@ interface Column
 	 * Update grid container
 	 * 
 	 * @param \Engine\Crud\Container\Grid\Adapter $container
-	 * @return \Engine\Crud\Grid\Column\Column
+	 * @return \Engine\Crud\Grid\ColumnInterface
 	 */
 	public function updateContainer(GridContainer\Adapter $container);
 	
@@ -37,7 +37,7 @@ interface Column
 	 * Update container data source
 	 * 
 	 * @param mixed $dataSource
-	 * @return \Engine\Crud\Grid\Column\Column
+	 * @return \Engine\Crud\Grid\ColumnInterface
 	 */
 	public function updateDataSource($dataSource);
 }

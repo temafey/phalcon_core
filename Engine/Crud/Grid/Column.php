@@ -2,9 +2,9 @@
 /**
  * @namespace
  */
-namespace Engine\Crud\Grid\Column;
+namespace Engine\Crud\Grid;
 
-use Engine\Crud\Grid\AbstractGrid as Grid;
+use Engine\Crud\Grid;
 
 /**
  * Class abstract grid column.
@@ -13,7 +13,7 @@ use Engine\Crud\Grid\AbstractGrid as Grid;
  * @package    Crud
  * @subpackage Grid
  */
-abstract class AbstractColumn implements Column
+abstract class Column implements ColumnInterface
 {
     use \Engine\Crud\Tools\Filters,
         \Engine\Crud\Tools\Validators,
@@ -40,14 +40,14 @@ abstract class AbstractColumn implements Column
 	protected $_title;
 	
 	/**
-	 * Column render type.
+	 * Column type.
 	 * @var string
 	 */
-	protected $_type = 'default';
+	protected $_type = 'string';
 
     /**
 	 * Parent grid object.
-	 * @var \Engine\Crud\Grid\AbstractGrid
+	 * @var \Engine\Crud\Grid
 	 */
 	protected $_grid;
 	
@@ -124,16 +124,16 @@ abstract class AbstractColumn implements Column
 	 * Update grid container
 	 * 
 	 * @param \Engine\Crud\Container\Grid\Adapter $container
-	 * @return \Engine\Crud\Grid\Column\AbstractColumn
+	 * @return \Engine\Crud\Grid\Column
 	 */
 	abstract public function updateContainer(\Engine\Crud\Container\Grid\Adapter $container);
 	
 	/**
 	 * Set grid object and init grid column key.
 	 * 
-	 * @param \Engine\Crud\Grid\AbstractGrid $grid
+	 * @param \Engine\Crud\Grid $grid
 	 * @param string $key
-	 * @return \Engine\Crud\Grid\Column\AbstractColumn
+	 * @return \Engine\Crud\Grid\Column
 	 */
 	public function init(Grid $grid, $key)
 	{
@@ -152,7 +152,7 @@ abstract class AbstractColumn implements Column
 	 * Update container data source
 	 * 
 	 * @param mixed $dataSource
-	 * @return \Engine\Crud\Grid\Column\AbstractColumn
+	 * @return \Engine\Crud\Grid\Column
 	 */
 	public function updateDataSource($dataSource)
 	{
@@ -170,7 +170,7 @@ abstract class AbstractColumn implements Column
     /**
      * Return column title.
      *
-     * @return \Engine\Crud\Grid\AbstractGrid
+     * @return \Engine\Crud\Grid
      */
     public function getGrid()
     {
@@ -360,7 +360,7 @@ abstract class AbstractColumn implements Column
 	 * 
 	 * @param string $action
 	 * @param string $actionParam
-	 * @return \Engine\Crud\Grid\Column\AbstractColumn
+	 * @return \Engine\Crud\Grid\Column
 	 */
 	public function setAction($action, $actionParam = false) 
 	{

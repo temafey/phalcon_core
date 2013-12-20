@@ -4,7 +4,7 @@
  */
 namespace Engine\Crud\Grid\Column;
 
-use Crud\Grid\AbstractGrid,
+use Crud\Grid\Grid,
 	Crud\Container\Grid as GridContainer,
 	Zend\Filter\Filter;
 	
@@ -76,7 +76,7 @@ class ImageJoinOne extends JoinOne
     /**
      * Return render value
      * (non-PHPdoc)
-     * @see \Engine\Crud\Grid\Column\AbstractColumn::render()
+     * @see \Engine\Crud\Grid\Column::render()
      * @param mixed $row
      * @return string
      */

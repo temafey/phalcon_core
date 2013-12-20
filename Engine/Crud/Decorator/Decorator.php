@@ -4,9 +4,9 @@
  */
 namespace Engine\Crud\Decorator;
 
-use	Engine\Crud\Grid\AbstractGrid as Grid,
+use	Engine\Crud\Grid,
     Engine\Crud\Grid\Filter,
-    Engine\Crud\Form\AbstractForm as Form;
+    Engine\Crud\Form;
 
 /**
  * Class Factory for grid decorators.
@@ -20,9 +20,9 @@ class Decorator
     /**
      * Factory for \Engine\Crud\Decorator classes.
      *
-     * @param  \Engine\Crud\Form\Field\AbstractField|\Engine\Crud\Form\AbstractForm|\Engine\Crud\Grid\AbstractGrid $element
+     * @param  \Engine\Crud\Form\Field|\Engine\Crud\Form|\Engine\Crud\Grid $element
      * @param  mixed $config
-     * @return \Engine\Crud\Decorator\AbstractDecorator
+     * @return \Engine\Crud\Decorator
      */
     public static function factory($element, array $config = [])
     {
@@ -72,7 +72,7 @@ class Decorator
         /*
          * Verify that the object created is a descendent of the abstract decorator type.
          */
-        if (!$decorator instanceof AbstractDecorator) {
+        if (!$decorator instanceof \Engine\Crud\Decorator) {
             throw new \RuntimeException("Decorator class '$decoratorName' does not implements Crud\Decorator\AbstractDecorator");
         }
 

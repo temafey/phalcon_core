@@ -4,21 +4,21 @@
  */
 namespace Engine\Crud\Helper\Grid\Standart;
 
-use Engine\Crud\Grid\AbstractGrid as Grid;
+use Engine\Crud\Grid;
 
 /**
- * Class grid datastore helper
+ * Class grid paginator helper
  *
  * @category   Engine
  * @package    Crud
  * @subpackage Helper
  */
-class Paginator extends \Engine\Crud\Helper\AbstactHelper
+class Paginator extends \Engine\Crud\Helper
 {
     /**
-     * Generates a widget to show a html grid
+     * Generates grid paginate code
      *
-     * @param \Engine\Crud\Grid\AbstractGrid $grid
+     * @param \Engine\Crud\Grid $grid
      * @return string
      */
     static public function _(Grid $grid)

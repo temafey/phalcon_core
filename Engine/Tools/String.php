@@ -506,16 +506,23 @@ class String
         $outtext = preg_replace("/[^а-яА-Яa-zA-Z0-9\s\,\.\-\n\r\t@\/\_\(\)]/","",$outtext);
         
         return $outtext;
-    } 
-    
-    static function formspecialchars($var)
+    }
+
+    /**
+     * Remove special chars in string
+     *
+     * @param array|string $var
+     * @return array|string
+     */
+    public static function formSpecialChars($var)
     {
         $pattern = '/&(#)?[a-zA-Z0-9]{0,};/';
        
         if (is_array($var)) {    // If variable is an array
             $out = array();      // Set output as an array
-            foreach ($var as $key => $v) {     
-                $out[$key] = self::formspecialchars($v);         // Run formspecialchars on every element of the array and return the result. Also maintains the keys.
+            foreach ($var as $key => $v) {
+                // Run formSpecialChars on every element of the array and return the result. Also maintains the keys.
+                $out[$key] = self::formSpecialChars($v);
             }
         } else {
             $out = $var;
@@ -527,5 +534,45 @@ class String
         }
        
         return $out;
-    } 
+    }
+
+    /**
+     * Validate json string
+     *
+     * @param $string
+     * @return bool
+     */
+    public static function isJson($string)
+    {
+        json_decode($string);
+        $message = json_last_error();
+        switch ($message) {
+            case JSON_ERROR_NONE:
+                $error = ''; // JSON is valid
+                break;
+            case JSON_ERROR_DEPTH:
+                $error = 'Maximum stack depth exceeded.';
+                break;
+            case JSON_ERROR_STATE_MISMATCH:
+                $error = 'Underflow or the modes mismatch.';
+                break;
+            case JSON_ERROR_CTRL_CHAR:
+                $error = 'Unexpected control character found.';
+                break;
+            case JSON_ERROR_SYNTAX:
+                $error = 'Syntax error, malformed JSON.';
+                break;
+            // only PHP 5.3+
+            case JSON_ERROR_UTF8:
+                $error = 'Malformed UTF-8 characters, possibly incorrectly encoded.';
+                break;
+            default:
+                $error = 'Unknown JSON error occured.';
+                break;
+        }
+
+        return ($message == JSON_ERROR_NONE);
+    }
+
+
 }

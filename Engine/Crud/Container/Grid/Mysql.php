@@ -6,7 +6,7 @@ namespace Engine\Crud\Container\Grid;
 
 use Engine\Crud\Container\AbstractContainer as Container,
     Engine\Crud\Container\Grid\Adapter as GridContainer,
-    Engine\Crud\Grid\AbstractGrid as Grid,
+    Engine\Crud\Grid,
 	Engine\Mvc\Model,
     Engine\Mvc\Model\Query\Builder;
 
@@ -21,7 +21,7 @@ class Mysql extends Container implements GridContainer
 {	
 	/**
 	 * Grid object
-	 * @var \Engine\Crud\Grid\AbstractGrid
+	 * @var \Engine\Crud\Grid
 	 */
 	protected $_grid;
 	
@@ -40,10 +40,10 @@ class Mysql extends Container implements GridContainer
     /**
      * Constructor
      *
-     * @param \Engine\Crud\Grid\AbstractGrid $grid
+     * @param \Engine\Crud\Grid $grid
      * @param array $options
      */
-    public function __construct(\Engine\Crud\Grid\AbstractGrid $grid, $options = [])
+    public function __construct(\Engine\Crud\Grid $grid, $options = [])
 	{
 		$this->_grid = $grid;
 		if (!is_array($options)) {

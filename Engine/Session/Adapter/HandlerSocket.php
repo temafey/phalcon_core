@@ -1,24 +1,20 @@
 <?php
-
 /**
- * HandlerSocket session handler
- *
- * Table schema :
- * CREATE TABLE `php_session` (
- *   `id`       varchar(32) NOT NULL DEFAULT '',
- *   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
- *   `data`     text,
- *   PRIMARY KEY (`id`),
- *   KEY `modified` (`modified`)
- * ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8;
+ * @namespace
  */
-
 namespace Engine\Session\Adapter;
 
-use \Phalcon\Session\Adapter,
-    \Phalcon\Session\AdapterInterface,
-    \Phalcon\Session\Exception;
+use Phalcon\Session\Adapter,
+    Phalcon\Session\AdapterInterface,
+    Phalcon\Session\Exception;
 
+/**
+ * Class HandlerSocket
+ *
+ * @category    Engine
+ * @package     Session
+ * @subpackege  Adapter
+ */
 class HandlerSocket extends Adapter implements AdapterInterface
 {
     /**
