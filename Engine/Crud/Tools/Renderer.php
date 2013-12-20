@@ -17,7 +17,7 @@ trait Renderer
 {
 	/**
 	 * Decorator
-	 * @var \Engine\Crud\Decorator\AbstractDecorator
+	 * @var \Engine\Crud\Decorator
 	 */
 	protected $_decorator = null;
 
@@ -126,7 +126,7 @@ trait Renderer
 	/**
 	 * Instantiate a decorator based on class name
 	 *
-	 * @return \Engine\Crud\Decorator\AbstractDecorator
+	 * @return \Engine\Crud\Decorator
 	 */
 	public function getDecorator()
 	{

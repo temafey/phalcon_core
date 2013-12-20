@@ -4,6 +4,8 @@
  */
 namespace Engine\Crud\Form\Field;
 
+use Engine\Crud\Form\Field;
+
 /**
  * Mail field
  *
@@ -11,7 +13,7 @@ namespace Engine\Crud\Form\Field;
  * @package    Crud
  * @subpackage Form
  */
-class Mail extends AbstractField
+class Mail extends Field
 {
     /**
      * Form element type

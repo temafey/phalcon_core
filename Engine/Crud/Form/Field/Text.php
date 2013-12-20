@@ -3,7 +3,9 @@
  * @namespace
  */
 namespace Engine\Crud\Form\Field;
-	
+
+use Engine\Crud\Form\Field;
+
 /**
  * Text field
  *
@@ -11,7 +13,7 @@ namespace Engine\Crud\Form\Field;
  * @package    Crud
  * @subpackage Form
  */
-class Text extends AbstractField 
+class Text extends Field
 {
     /**
      * Form element type

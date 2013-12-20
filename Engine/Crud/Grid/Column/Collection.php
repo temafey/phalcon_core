@@ -47,7 +47,7 @@ class Collection extends Base
     /**
      * Return render value
      * (non-PHPdoc)
-     * @see \Engine\Crud\Grid\Column\AbstractColumn::render()
+     * @see \Engine\Crud\Grid\Column::render()
      * @param mixed $row
      * @return string
      */

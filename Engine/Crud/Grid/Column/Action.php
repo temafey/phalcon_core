@@ -4,7 +4,8 @@
  */
 namespace Engine\Crud\Grid\Column;
 
-use Engine\Crud\Grid\AbstractGrid,
+use Engine\Crud\Grid\Column,
+    Engine\Crud\Grid,
     Engine\Crud\Container\Grid as GridContainer,
     Phalcon\Filter;
 
@@ -15,7 +16,7 @@ use Engine\Crud\Grid\AbstractGrid,
  * @package    Crud
  * @subpackage Grid
  */
-class Action extends AbstractColumn
+class Action extends Column
 {
     /**
      * Action template
@@ -56,7 +57,7 @@ class Action extends AbstractColumn
      * Update grid container
      *
      * @param \Engine\Crud\Container\Grid\Adapter $container
-     * @return \Engine\Crud\Grid\Column\AbstractColumn
+     * @return \Engine\Crud\Grid\Column
      */
     public function updateContainer(\Engine\Crud\Container\Grid\Adapter $container)
     {
@@ -66,7 +67,7 @@ class Action extends AbstractColumn
     /**
      * Return render value
      * (non-PHPdoc)
-     * @see \Engine\Crud\Grid\Column\AbstractColumn::render()
+     * @see \Engine\Crud\Grid\Column::render()
      * @param mixed $row
      * @return string
      */

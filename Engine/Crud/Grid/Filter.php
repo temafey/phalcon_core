@@ -131,7 +131,7 @@ class Filter
      */
     protected function _initDecorator()
     {
-        $this->_decorator = self::DEFAULT_DECORATOR;
+        $this->_decorator = static::DEFAULT_DECORATOR;
     }
 
     /**
@@ -209,7 +209,7 @@ class Filter
      * @param  string $type
      * @param  string $key
      * @param  array $options
-     * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+     * @return \Engine\Crud\Grid\Filter\Field
      */
     public function createField($type, $key, $options = null)
     {
@@ -241,7 +241,7 @@ class Filter
     /**
      * Add new field
      * 
-     * @param \Engine\Crud\Grid\Filter\Field\AbstractField|string $field
+     * @param \Engine\Crud\Grid\Filter\Field|string $field
      * @param string $key
      * @param array $options
      */
@@ -457,7 +457,7 @@ class Filter
      * Return filter field
      *
      * @param  string $key The filter field key.
-     * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+     * @return \Engine\Crud\Grid\Filter\Field
      * @throws \Exception if the $key is not a field in the filter.
      */
     public function __get($key)

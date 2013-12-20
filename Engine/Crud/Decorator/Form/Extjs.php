@@ -4,8 +4,8 @@
  */
 namespace Engine\Crud\Decorator\Form;
 
-use Crud\Decorator\AbstractDecorator as Decorator,
-	Crud\Form\AbstractForm as Form;
+use Crud\Decorator\Decorator,
+	Crud\Form\Form;
 
 /**
  * Class Extjs decorator for grid.

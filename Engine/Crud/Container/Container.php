@@ -4,8 +4,8 @@
  */
 namespace Engine\Crud\Container;
 
-use	Engine\Crud\Grid\AbstractGrid as Grid,
-    Engine\Crud\Form\AbstractForm as Form;
+use	Engine\Crud\Grid,
+    Engine\Crud\Form;
 /**
  * Class Factory for grid containers.
  *

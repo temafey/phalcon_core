@@ -1,31 +1,22 @@
 <?php
 /**
- * Phalcon Framework
- *
- * This source file is subject to the New BSD License that is bundled
- * with this package in the file docs/LICENSE.txt.
- *
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@phalconphp.com so we can send you a copy immediately.
- *
- * @category    Phalcon
- * @package     Phalcon_Session_Adapter_Memcache
- * @copyright   Copyright (c) 2013 meets-ecommerce GmbH (http://meets-ecommerce.de)
- * @author      Daniel Matuschewsky <dm@meets-ecommerce.de>
+ * @namespace
  */
-
 namespace Engine\Session\Adapter;
 
-use Phalcon;
+
+use Phalcon\Session\Adapter,
+    Phalcon\Session\AdapterInterface,
+    Phalcon\Session\Exception;
 
 /**
- * Memcache session adapter for Phalcon framework
+ * Class Memcache
  *
- * @category    Phalcon
- * @package     Phalcon_Session_Adapter_Memcache
+ * @category    Engine
+ * @package     Session
+ * @subpackege  Adapter
  */
-class Memcache extends Phalcon\Session\Adapter implements Phalcon\Session\AdapterInterface
+class Memcache extends Adapter implements AdapterInterface
 {
     /**
      * Default option for memcache port

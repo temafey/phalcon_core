@@ -4,7 +4,7 @@
  */
 namespace Engine\Crud\Helper\Form\Field\Standart;
 
-use Engine\Crud\Form\Field as Field;
+use Engine\Crud\Form\Field;
 
 /**
  * Class grid Form field helper
@@ -13,15 +13,15 @@ use Engine\Crud\Form\Field as Field;
  * @package    Crud
  * @subpackage Helper
  */
-class Element extends \Engine\Crud\Helper\AbstactHelper
+class Element extends \Engine\Crud\Helper
 {
 	/**
 	 * Generates a widget to show a html grid Form
 	 *
-	 * @param \Engine\Crud\Form\Field\AbstractField $Form
+	 * @param \Engine\Crud\Form\Field $Form
 	 * @return string
 	 */
-	static public function _(Field\AbstractField $field)
+	static public function _(Field\Field $field)
 	{
         $element = $field->getElement();
         if ($field instanceof Field\Submit) {

@@ -19,19 +19,20 @@
 */
 namespace Engine\Session\Adapter;
 
-use Phalcon\Db;
-use Phalcon\Session\Adapter;
-use Phalcon\Session\AdapterInterface;
-use Phalcon\Session\Exception;
+use Phalcon\Db,
+    Phalcon\Session\Adapter,
+    Phalcon\Session\AdapterInterface,
+    Phalcon\Session\Exception;
 
 /**
- * Phalcon\Session\Adapter\Database
+ * Class Database
  *
- * Database adapter for Phalcon\Session
+ * @category    Engine
+ * @package     Session
+ * @subpackege  Adapter
  */
 class Database extends Adapter implements AdapterInterface
 {
-
     /**
      * Flag to check if session is destroyed.
      *

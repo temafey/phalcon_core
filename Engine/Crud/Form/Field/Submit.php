@@ -4,6 +4,8 @@
  */
 namespace Engine\Crud\Form\Field;
 
+use Engine\Crud\Form\Field;
+
 /**
  * Submit Form field
  *
@@ -11,7 +13,7 @@ namespace Engine\Crud\Form\Field;
  * @package    Crud
  * @subpackage Grid
  */
-class Submit extends AbstractField
+class Submit extends Field
 {
 	protected $_type = 'submit';
 	

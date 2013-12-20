@@ -3,7 +3,9 @@
  * @namespace
  */
 namespace Engine\Crud\Form\Field;
-	
+
+use Engine\Crud\Form\Field;
+
 /**
  * File field
  *
@@ -11,7 +13,7 @@ namespace Engine\Crud\Form\Field;
  * @package    Crud
  * @subpackage Form
  */
-class FileUpload extends AbstractField
+class FileUpload extends Field
 {
 	/**
 	 * Form element type

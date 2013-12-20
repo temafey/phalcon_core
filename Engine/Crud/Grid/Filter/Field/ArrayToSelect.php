@@ -122,7 +122,7 @@ class ArrayToSelect extends Standart
 	 * Set filter options array
 	 * 
 	 * @param array $options
-	 * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+	 * @return \Engine\Crud\Grid\Filter\Field
 	 */
 	public function setOptions(array $options)
 	{
@@ -134,7 +134,7 @@ class ArrayToSelect extends Standart
 	 * Set nulled select option
 	 * 
 	 * @param string|array $option
-	 * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+	 * @return \Engine\Crud\Grid\Filter\Field
 	 */
 	public function setNullOption($option)
 	{
@@ -146,7 +146,7 @@ class ArrayToSelect extends Standart
 	 * Set onchange action
 	 * 
 	 * @param string $onchange
-	 * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+	 * @return \Engine\Crud\Grid\Filter\Field
 	 */
 	public function setOnchangeAction($onchange)
 	{

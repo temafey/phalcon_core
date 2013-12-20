@@ -2,23 +2,23 @@
 /**
  * @namespace
  */
-namespace Engine\Crud\Form;
+namespace Engine\Crud;
 
-use Engine\Forms\Form,
-	Engine\Crud\Form\Field as Field,
+use Engine\Forms\Form as EngineForm,
+	Engine\Crud\Form\Field,
 	Engine\Crud\Container\Container;
 		
 /**
  * Class for manage datas.
  *
  * @uses       \Engine\Crud\Form\Exception
- * @uses       \Engine\Crud\Form\Field\Field
+ * @uses       \Engine\Crud\Form\Field
  * @uses       \Engine\Forms\Form
  * @category   Engine
  * @package    Crud
  * @subpackage Form
  */
-abstract class AbstractForm implements
+abstract class Form implements
     \Phalcon\Events\EventsAwareInterface,
     \Phalcon\DI\InjectionAwareInterface
 {
@@ -187,7 +187,7 @@ abstract class AbstractForm implements
 			$this->_container = Container::factory($this, $config);
 		} else {
 			$config = [];
-			$config['adapter'] = (null === $this->_containerAdapter) ? self::DEFAULT_CONTAINER : $this->_containerAdapter;
+			$config['adapter'] = (null === $this->_containerAdapter) ? static::DEFAULT_CONTAINER : $this->_containerAdapter;
 			$config['model'] = $this->_containerModel; 
 			$this->_container = Container::factory($this, $config);
 		}
@@ -200,7 +200,7 @@ abstract class AbstractForm implements
      */
     protected function _initDecorator()
     {
-        $this->_decorator = self::DEFAULT_DECORATOR;
+        $this->_decorator = static::DEFAULT_DECORATOR;
     }
 	
     /**
@@ -249,7 +249,7 @@ abstract class AbstractForm implements
 	/**
 	 * Initialize form elements
 	 * 
-	 * @return \Engine\Crud\Form\AbstractForm
+	 * @return \Engine\Crud\Form
 	 */
 	public function initForm()
 	{
@@ -257,7 +257,7 @@ abstract class AbstractForm implements
             return $this;
         }
 
-		$this->_form = new Form();
+		$this->_form = new EngineForm();
 		$fieldNames = [];
     	foreach ($this->_fields as $key => $field) {
             if ($this->_id === null) {
@@ -308,7 +308,7 @@ abstract class AbstractForm implements
 	 * 
 	 * @param array $data
 	 * @param bool $fromFieldName
-	 * @return \Engine\Crud\Form\AbstractForm
+	 * @return \Engine\Crud\Form
 	 */
 	public function setData(array $data, $fromFieldName = false) 
 	{
@@ -341,7 +341,7 @@ abstract class AbstractForm implements
 				$field->setValue($values);
 				$data['translations'][$key] = $field->getValue();
 			} else {*/
-            if ($field instanceof Field\AbstractField) {
+            if ($field instanceof Field\Field) {
 				$key = ($fromFieldName) ? $field->getName() : $field->getKey();
 				$formName = $field->getKey();
 				if (isset($data[$key])) {
@@ -357,7 +357,7 @@ abstract class AbstractForm implements
 	 * Load data from container
 	 * 
 	 * @param integer|string $id
-	 * @return \Engine\Crud\Form\AbstractForm
+	 * @return \Engine\Crud\Form
 	 */
 	public function loadData($id)
 	{
@@ -404,7 +404,7 @@ abstract class AbstractForm implements
 	/**
 	 * Clear form data and set null value into all form fields.
 	 * 
-	 * @return \Engine\Crud\Form\AbstractForm
+	 * @return \Engine\Crud\Form
 	 */
 	public function clearData() 
 	{		
@@ -427,7 +427,7 @@ abstract class AbstractForm implements
 	 * 
 	 * @param string $key
 	 * @param string $value
-	 * @return \Engine\Crud\Form\AbstractForm
+	 * @return \Engine\Crud\Form
 	 */
 	public function addAdditionalValue($key, $value) 
 	{
@@ -440,7 +440,7 @@ abstract class AbstractForm implements
 	 * Set additional data array
 	 * 
 	 * @param array $data
-	 * @return \Engine\Crud\Form\AbstractForm
+	 * @return \Engine\Crud\Form
 	 */
 	public function setAdditionalData(array $data) 
 	{
@@ -775,7 +775,7 @@ abstract class AbstractForm implements
 	 * Return if exists Field by form field key
 	 * 
 	 * @param string $name
-	 * @return \Engine\Crud\Form\Field\AbstractField
+	 * @return \Engine\Crud\Form\Field
 	 */
 	public function getFieldByKey($key) 
 	{
@@ -795,7 +795,7 @@ abstract class AbstractForm implements
 	 * Return if exists form field by field name
 	 * 
 	 * @param string $name
-	 * @return \Engine\Crud\Form\Field\AbstractField
+	 * @return \Engine\Crud\Form\Field
 	 */
 	public function getFieldByName($name) 
 	{
@@ -842,7 +842,7 @@ abstract class AbstractForm implements
     /**
      * return form's fields
      * 
-     * @return \Engine\Crud\Form\AbstractField
+     * @return \Engine\Crud\Form\Field
      */
     
     public function getFields()
@@ -883,7 +883,7 @@ abstract class AbstractForm implements
                 $name = $key;
             }
 
-            if (is_string($spec) || ($spec instanceof Field\AbstractField)) {
+            if (is_string($spec) || ($spec instanceof Field\Field)) {
                 $this->addElement($spec, $name);
                 continue;
             }
@@ -934,7 +934,7 @@ abstract class AbstractForm implements
      *
      * @param  string $type
      * @param  array $options
-     * @return \Engine\Crud\Form\Field\AbstractField
+     * @return \Engine\Crud\Form\Field
      */
     public function createField($type, array $options = null)
     {
@@ -963,10 +963,10 @@ abstract class AbstractForm implements
     /**
      * Add new field
      * 
-     * @param \Engine\Crud\Form\Field\Field|string $field
+     * @param \Engine\Crud\Form\Field|string $field
      * @param string $key
      * @param array $options
-     * @return \Engine\Crud\Form\AbstractForm
+     * @return \Engine\Crud\Form
      */
     public function addField($field, $key = null, array $options = [])
     {
@@ -1048,7 +1048,7 @@ abstract class AbstractForm implements
      * Return form field
      *
      * @param  string $key The form field key.
-     * @return \Engine\Crud\Form\Field\AbstractField
+     * @return \Engine\Crud\Form\Field
      * @throws \Exception if the $key is not a field in the form.
      */
     public function __get($key)

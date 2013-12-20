@@ -4,9 +4,8 @@
  */
 namespace Engine\Crud\Grid\Column;
 
-use Crud\Grid\AbstractGrid,
-	Crud\Container\Grid as GridContainer,
-	Zend\Filter\Filter;
+use Engine\Crud\Grid,
+    Engine\Crud\Container\Grid as GridContainer;
 	
 /**
  * Image join column
@@ -74,7 +73,7 @@ class Image extends Base
     /**
      * Return render value
      * (non-PHPdoc)
-     * @see \Engine\Crud\Grid\Column\AbstractColumn::render()
+     * @see \Engine\Crud\Grid\Column::render()
      * @param mixed $row
      * @return string
      */

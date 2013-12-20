@@ -58,7 +58,7 @@ class Primary extends Standart
      *
      * @param mixed $dataSource
      * @param \Engine\Crud\Container\AbstractContainer $container
-     * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+     * @return \Engine\Crud\Grid\Filter\Field
      */
     public function applyFilter($dataSource, Container $container)
     {

@@ -11,15 +11,15 @@ namespace Engine\Crud\Helper\Grid;
  * @package    Crud
  * @subpackage Helper
  */
-class Dojo extends \Engine\Crud\Helper\AbstactHelper
+class Dojo extends \Engine\Crud\Helper
 {
 	/**
 	 * Generates a widget to show a html grid
 	 *
-	 * @param \Engine\Crud\Grid\AbstractGrid $grid
+	 * @param \Engine\Crud\Grid $grid
 	 * @return string
 	 */
-	static public function _(\Engine\Crud\Grid\AbstractGrid $grid)
+	static public function _(\Engine\Crud\Grid $grid)
 	{
         $code = '
     require([\'dojo/_base/lang\', \'dojox/grid/DataGrid\', \'dojo/data/ItemFileWriteStore\', \'dojo/dom\', \'dojo/domReady!\'],

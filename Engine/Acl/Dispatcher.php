@@ -52,7 +52,7 @@ class Dispatcher
         $access = $action;
 
         // check admin area
-        if (substr($controller, 0, 5) == 'admin') {
+        if ($module == 'admin' || $module == 'cms') {
             if ($acl->isAllowed($viewer->getRole(), Service::ACL_ADMIN_AREA, '*') != \Phalcon\Acl::ALLOW) {
                 return $dispatcher->forward([
                     'module' => \Engine\Application::$defaultModule,

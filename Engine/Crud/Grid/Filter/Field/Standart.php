@@ -4,7 +4,8 @@
  */
 namespace Engine\Crud\Grid\Filter\Field;
 
-use Engine\Filter\SearchFilterInterface as Criteria,
+use Engine\Crud\Grid\Filter\Field,
+    Engine\Filter\SearchFilterInterface as Criteria,
     Engine\Crud\Container\AbstractContainer as Container;
 
 /**
@@ -14,7 +15,7 @@ use Engine\Filter\SearchFilterInterface as Criteria,
  * @package    Crud
  * @subpackage Grid
  */
-class Standart extends AbstractField
+class Standart extends Field
 {
     /**
      * Element type

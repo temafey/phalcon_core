@@ -2,7 +2,7 @@
 /**
  * @namespace
  */
-namespace Engine\Crud\Decorator;
+namespace Engine\Crud;
 
 /**
  * Class decorator.
@@ -11,7 +11,7 @@ namespace Engine\Crud\Decorator;
  * @package    Crud
  * @subpackage Decorator
  */
-abstract class AbstractDecorator
+abstract class Decorator
 {
   /**
      * Placement constants
@@ -26,7 +26,7 @@ abstract class AbstractDecorator
     protected $_placement = 'APPEND';
 
     /**
-     * @var \Engine\Crud\Form\Field\AbstractField|\Engine\Crud\Form\AbstractForm|\Engine\Crud\Grid\AbstractGrid
+     * @var \Engine\Crud\Form\Field|\Engine\Crud\Form|\Engine\Crud\Grid
      */
     protected $_element;
 
@@ -136,17 +136,17 @@ abstract class AbstractDecorator
     /**
      * Set current form element
      *
-     * @param  \Engine\Crud\Form\Field\AbstractField|\Crud\Form\AbstractForm|\Crud\Grid\AbstractGrid $element
+     * @param  \Engine\Crud\Form\Field|\Crud\Form\Form|\Crud\Grid\Grid $element
      * @return \Engine\Crud\Decorator\AbstractDecorator
      * @throws \InvalidArgumentException on invalid element type
      */
     public function setElement($element)
     {
         if (
-                !$element instanceof \Engine\Crud\Grid\AbstractGrid
+                !$element instanceof \Engine\Crud\Grid
             &&  !$element instanceof \Engine\Crud\Grid\Filter
-            &&  !$element instanceof \Engine\Crud\Form\AbstractForm
-            &&  !$element instanceof \Engine\Crud\Form\Field\AbstractField
+            &&  !$element instanceof \Engine\Crud\Form
+            &&  !$element instanceof \Engine\Crud\Form\Field
         ) {
             throw new \InvalidArgumentException('Invalid element type passed to decorator');
         }
@@ -158,11 +158,11 @@ abstract class AbstractDecorator
     /**
      * Retrieve current element
      *
-     * @return  \Engine\Crud\Grid\AbstractGrid
+     * @return  \Engine\Crud\Grid
      *          \Engine\Crud\Grid\Filter
-     *          \Engine\Crud\Grid\Filter\Field\AbstractField
-     *          \Engine\Crud\Form\AbstractForm
-     *          \Engine\Crud\Form\Field\AbstractField
+     *          \Engine\Crud\Grid\Filter\Field
+     *          \Engine\Crud\Form
+     *          \Engine\Crud\Form\Field
      */
     public function getElement()
     {
@@ -180,8 +180,8 @@ abstract class AbstractDecorator
         if (null !== ($placementOpt = $this->getOption('placement'))) {
             $placementOpt = strtoupper($placementOpt);
             switch ($placementOpt) {
-                case self::APPEND:
-                case self::PREPEND:
+                case static::APPEND:
+                case static::PREPEND:
                     $placement = $this->_placement = $placementOpt;
                     break;
                 case false:

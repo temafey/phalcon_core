@@ -4,7 +4,8 @@
  */
 namespace Engine\Crud\Form\Field;
 
-use \Phalcon\Forms\Element;
+use Engine\Crud\Form\Field,
+    Phalcon\Forms\Element;
 
 /**
  * Checkbox field
@@ -13,7 +14,7 @@ use \Phalcon\Forms\Element;
  * @package    Crud
  * @subpackage Form
  */
-class Checkbox extends AbstractField
+class Checkbox extends Field
 {
 	/**
 	 * Form element type

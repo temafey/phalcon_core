@@ -4,7 +4,8 @@
  */
 namespace Engine\Crud\Grid\Column;
 
-use Engine\Crud\Grid\AbstractGrid as Grid,
+use Engine\Crud\Grid\Column,
+    Engine\Crud\Grid,
     Engine\Crud\Container\Grid as GridContainer,
     Phalcon\Filter;
 
@@ -15,7 +16,7 @@ use Engine\Crud\Grid\AbstractGrid as Grid,
  * @package    Crud
  * @subpackage Grid
  */
-class Compound extends AbstractColumn
+class Compound extends Column
 {
     /**
      * Columns
@@ -48,16 +49,16 @@ class Compound extends AbstractColumn
     /**
      * Set grid object and init grid column key.
      *
-     * @param \Engine\Crud\Grid\AbstractGrid $grid
+     * @param \Engine\Crud\Grid $grid
      * @param string $key
-     * @return \Engine\Crud\Grid\Column\AbstractColumn
+     * @return \Engine\Crud\Grid\Column
      */
     public function init(Grid $grid, $key)
     {
         parent::init($grid, $key);
         foreach ($this->_columns as $k => $column) {
-            if (!$column instanceof AbstractColumn) {
-                throw new \Engine\Exception("Column '{$k}' not instance of AbstractColumn");
+            if (!$column instanceof Column) {
+                throw new \Engine\Exception("Column '{$k}' not instance of Column");
             }
             $column->init($grid, $k);
         }
@@ -67,7 +68,7 @@ class Compound extends AbstractColumn
     /**
      * Return render value
      * (non-PHPdoc)
-     * @see \Engine\Crud\Grid\Column\AbstractColumn::render()
+     * @see \Engine\Crud\Grid\Column::render()
      * @param mixed $row
      * @return string
      */
@@ -101,7 +102,7 @@ class Compound extends AbstractColumn
      * Update grid container
      *
      * @param \Engine\Crud\Container\Grid\Adapter $container
-     * @return \Engine\Crud\Grid\Column\AbstractColumn
+     * @return \Engine\Crud\Grid\Column
      */
     public function updateContainer(\Engine\Crud\Container\Grid\Adapter $container)
     {
@@ -125,7 +126,7 @@ class Compound extends AbstractColumn
      * Return column by key
      *
      * @param string$key
-     * @return \Engine\Crud\Grid\Column\AbstractColumn
+     * @return \Engine\Crud\Grid\Column
      */
     public function getColumn($key)
     {

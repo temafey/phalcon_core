@@ -185,7 +185,7 @@ trait FormElements
     /**
      * Clear field
      *
-     * @return \Engine\Crud\Form\Field\AbstractField
+     * @return \Engine\Crud\Form\Field
      */
     public function clearField()
     {
@@ -202,7 +202,7 @@ trait FormElements
      * Set error message
      *
      * @param  string $message
-     * @return \Engine\Crud\Grid\Filter\Field\AbstractField
+     * @return \Engine\Crud\Grid\Filter\Field
      */
     public function setErrorMessage($message)
     {

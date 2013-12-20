@@ -4,11 +4,11 @@
  */
 namespace Engine\Crud\Decorator;
 
-use	Engine\Crud\Grid\AbstractGrid as Grid,
+use	Engine\Crud\Grid,
     Engine\Crud\Grid\Filter,
-    Engine\Crud\Grid\Filter\Field\AbstractField as FilterField,
-    Engine\Crud\Form\AbstractForm as Form,
-    Engine\Crud\Form\Field\AbstractField as FormField;
+    Engine\Crud\Grid\Filter\Field as FilterField,
+    Engine\Crud\Form,
+    Engine\Crud\Form\Field as FormField;
 
 /**
  * Class Factory for grid helpers.

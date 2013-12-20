@@ -13,7 +13,7 @@ use Engine\Crud\Grid\Filter;
  * @package    Crud
  * @subpackage Helper
  */
-class Standart extends \Engine\Crud\Helper\AbstactHelper
+class Standart extends \Engine\Crud\Helper
 {
 	/**
 	 * Generates a widget to show a html grid filter

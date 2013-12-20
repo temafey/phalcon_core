@@ -6,7 +6,7 @@ namespace Engine\Crud\Container\Form;
 
 use Engine\Crud\Container\AbstractContainer as Container,
     Engine\Crud\Container\Form\Adapter as FormContainer,
-    Engine\Crud\Form\AbstractForm as Form,
+    Engine\Crud\Form,
     Engine\Mvc\Model;
 
 /**
@@ -20,7 +20,7 @@ class Mysql extends Container implements FormContainer
 {
     /**
 	 * Form object
-	 * @var \Engine\Crud\Form\AbstractForm
+	 * @var \Engine\Crud\Form
 	 */
 	protected $_form;
 

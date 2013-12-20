@@ -4,14 +4,16 @@
  */
 namespace Engine\Session\Adapter;
 
-use \Phalcon\Session\Adapter,
-	\Phalcon\Session\AdapterInterface,
-	\Phalcon\Session\Exception;
+use Phalcon\Session\Adapter,
+	Phalcon\Session\AdapterInterface,
+	Phalcon\Session\Exception;
 
 /**
- * Phalcon\Session\Adapter\Redis
+ * Class Redis
  *
- * Database adapter for Phalcon\Session
+ * @category    Engine
+ * @package     Session
+ * @subpackege  Adapter
  */
 class Redis extends Adapter implements AdapterInterface
 {

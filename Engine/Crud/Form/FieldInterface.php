@@ -2,7 +2,7 @@
 /**
  * @namespace
  */
-namespace Engine\Crud\Form\Field;
+namespace Engine\Crud\Form;
 
 /**
  * Interface of grid filter field
@@ -11,7 +11,7 @@ namespace Engine\Crud\Form\Field;
  * @package    Crud
  * @subpackage Form
  */
-interface Field 
+interface FieldInterface
 {
     /**
      * Return field save data
