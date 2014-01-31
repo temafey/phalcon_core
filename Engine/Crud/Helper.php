@@ -22,4 +22,13 @@ abstract class Helper extends \Phalcon\Tag
     {
         return '';
     }
+
+    /**
+     * Return
+     * @return string
+     */
+    static public function getSeparator()
+    {
+        return PHP_EOL;
+    }
 } 

@@ -19,6 +19,12 @@ use Engine\Crud\Grid,
  */
 class Image extends Base
 {
+    /**
+     * Column type.
+     * @var string
+     */
+    protected $_type = 'image';
+
 	/**
 	 * Image path template
 	 * @var string
@@ -57,12 +63,19 @@ class Image extends Base
 	 * @param string $template
 	 * @param string $alt
 	 * @param bool $isHidden
-	 * @param integer $width
-	 * @param integer $height
+	 * @param int $width
+	 * @param int $height
 	 */
-	public function __construct($title, $column = null, $template = null, $alt = null, $isHidden = false, $width = 85, $height = null) 
-	{
-		parent::__construct($title, $column, false, $isHidden, $width);
+	public function __construct(
+        $title,
+        $column = null,
+        $template = null,
+        $alt = null,
+        $isHidden = false,
+        $width = 85,
+        $height = null
+    ) {
+		parent::__construct($title, $column, false, $isHidden, $width, false, null);
 		
 		$this->_template = $template;
 		$this->_alt = $alt;
@@ -99,30 +112,28 @@ class Image extends Base
         $fullPath = realpath(DOCUMENT_ROOT.$image);
         $alt = '';
 
-        if (file_exists($fullPath)) {
-            $src = ' src="' . $image . '"';
-			$alt = ($alt) ? ' alt="' . $alt . '"' : "";
-            $width = 'width: ' . $this->width .'px;';
-            if($this->height) {
-                $height = 'height: ' . $this->height .'px;';
-            } else {
-                $height = '';
-            }
-
-            $endTag = ' />';
-
-
-            // build the element
-            $xhtml = '<img '
-            . $src
-            . $alt
-            . ' style="' . $width . $height . 'margin: auto;"'
-            . $endTag;
-
-            return $xhtml;
-        } else {
-            return false;
+        if (!file_exists($fullPath)) {
+            return 'Image not exists';
         }
+        $src = ' src="' . $image . '"';
+        $alt = ($alt) ? ' alt="' . $alt . '"' : "";
+        $width = 'width: ' . $this->width .'px;';
+        if($this->height) {
+            $height = 'height: ' . $this->height .'px;';
+        } else {
+            $height = '';
+        }
+
+        $endTag = ' />';
+
+        // build the element
+        $xhtml = '<img '
+        . $src
+        . $alt
+        . ' style="' . $width . $height . 'margin: auto;"'
+        . $endTag;
+
+        return $xhtml;
         
 	}
 }

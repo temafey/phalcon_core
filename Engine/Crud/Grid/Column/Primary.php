@@ -13,14 +13,13 @@ namespace Engine\Crud\Grid\Column;
  */
 class Primary extends Base
 {
-
     /**
      * Constructor
      *
      * @param string $title
      * @param bool $isSortable
      * @param bool $isHidden
-     * @param integer $width
+     * @param int $width
      */
     public function __construct($title, $isSortable = true, $isHidden = false, $width = 80)
     {
@@ -28,6 +27,7 @@ class Primary extends Base
 
         $this->_isSortable = (bool) $isSortable;
         $this->_isHidden = (bool) $isHidden;
+        $this->_isEditable = false;
         $this->_width = intval($width);
     }
 

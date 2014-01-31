@@ -26,9 +26,9 @@ class Primary extends Field
 	 *
      * @param string $label
 	 * @param string $desc
-	 * @param integer $width
+	 * @param int $width
 	 */
-	public function __construct($label = null, $desc = null, $width = 200)
+	public function __construct($label = null, $desc = null, $width = 280)
     {
 		parent::__construct($label, false, $desc, false, $width, null);
         $this->setAttrib('readonly');

@@ -23,7 +23,7 @@ class Submit extends Field
      * Constructor
 	 *
 	 * @param string $title
-	 * @param integer $width
+	 * @param int $width
 	 */
 	public function __construct($label = null, $width = 60)
 	{

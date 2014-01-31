@@ -59,7 +59,7 @@ abstract class Decorator
      * Set options
      *
      * @param  array $options
-     * @return \Engine\Crud\Decorator\AbstractDecorator
+     * @return \Engine\Crud\Decorator
      */
     public function setOptions(array $options)
     {
@@ -72,7 +72,7 @@ abstract class Decorator
      *
      * @param  string $key
      * @param  mixed $value
-     * @return \Engine\Crud\Decorator\AbstractDecoratorAbstractDecorator
+     * @return \Engine\Crud\Decorator
      */
     public function setOption($key, $value)
     {
@@ -125,7 +125,7 @@ abstract class Decorator
     /**
      * Clear all options
      *
-     * @return \Engine\Crud\Decorator\AbstractDecoratorAbstractDecorator
+     * @return \Engine\Crud\Decorator\Decorator
      */
     public function clearOptions()
     {
@@ -136,8 +136,8 @@ abstract class Decorator
     /**
      * Set current form element
      *
-     * @param  \Engine\Crud\Form\Field|\Crud\Form\Form|\Crud\Grid\Grid $element
-     * @return \Engine\Crud\Decorator\AbstractDecorator
+     * @param  \Engine\Crud\Form\Field|\Egnine\Crud\Form|\Engine\Crud\Grid $element
+     * @return \Engine\Crud\Decorator\Decorator
      * @throws \InvalidArgumentException on invalid element type
      */
     public function setElement($element)

@@ -36,7 +36,7 @@ class Standart extends Field
 	 * @param string $name
 	 * @param string $desc
 	 * @param string $criteria
-	 * @param integer $width
+	 * @param int $width
 	 */
 	public function __construct(
         $label = null,

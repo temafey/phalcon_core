@@ -68,7 +68,7 @@ class Viewer extends \Phalcon\Session\Bag
     /**
      * Set viewer id
      *
-     * @param integer $id
+     * @param int $id
      * @return
      */
     public function setId($id)

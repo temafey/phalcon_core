@@ -18,6 +18,12 @@ use Engine\Crud\Grid\Column;
  */
 class JoinOne extends Column
 {
+    /**
+     * Column type.
+     * @var string
+     */
+    protected $_type = 'collection';
+
 	/**
 	 * Join path
 	 * @var array|string
@@ -50,7 +56,7 @@ class JoinOne extends Column
 	 * @param string $column
 	 * @param array $columns
 	 * @param bool $hidden
-	 * @param integer $width
+	 * @param int $width
 	 */
 	public function __construct(
         $title,
@@ -59,10 +65,12 @@ class JoinOne extends Column
         $columns = null,
         $isSortable = true,
         $isHidden = false,
-        $width = 120,
-        $extraOptions = []
+        $width = 200,
+        $extraOptions = [],
+        $isEditable = true,
+        $fieldKey = null
     ) {
-		parent::__construct($title, $column, $isSortable, $isHidden, $width);
+		parent::__construct($title, $column, $isSortable, $isHidden, $width, $isEditable, $fieldKey);
 		
 		$this->_path = $path;
 		$this->_column = $column;
@@ -118,17 +126,5 @@ class JoinOne extends Column
         }
 
 		return $value ? $value : $this->_na;
-	}
-	
-	/**
-	 * Set empty value
-	 * 
-	 * @param string $na
-	 * @return \Engine\Crud\Grid\Column\JoinOne
-	 */
-	public function setEmptyValue($na)
-	{
-		$this->_na = $na;
-		return $this;
 	}
 }

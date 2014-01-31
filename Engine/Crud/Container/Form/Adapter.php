@@ -24,7 +24,7 @@ interface Adapter
 	/**
 	 * Return data array
 	 * 
-	 * @param integer $id
+	 * @param int $id
 	 * @return array
 	 */
 	public function loadData($id);
@@ -41,7 +41,7 @@ interface Adapter
 	 * Update item
 	 * 
 	 * @param array $data
-	 * @param integer $id
+	 * @param int $id
 	 * @return bool
 	 */
 	public function update($id, array $data);

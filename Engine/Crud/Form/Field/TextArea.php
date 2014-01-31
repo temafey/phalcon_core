@@ -54,7 +54,7 @@ class TextArea extends Text
         $name = false,
         $desc = null,
         $required = false,
-        $width = 200,
+        $width = 280,
         $default = null,
         $length = false,
         $height = 100,

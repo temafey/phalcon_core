@@ -212,7 +212,7 @@ class Mysql extends Container implements FormContainer
 	/**
 	 * Return data array
 	 * 
-	 * @param integer $id
+	 * @param int $id
 	 * @return array
 	 */
 	public function loadData($id)
@@ -243,7 +243,7 @@ class Mysql extends Container implements FormContainer
 			    return $results;
 			}
 		} catch (\Exception $e) {
-			return array ('error' => $e->getMessage());
+			return ['error' => $e->getMessage()];
 		}
 		$db->commit();
 		

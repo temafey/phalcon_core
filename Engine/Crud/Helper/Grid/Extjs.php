@@ -18,7 +18,7 @@ class Extjs extends BaseHelper
 {
     /**
      * Is create js file prototype
-     * @var boolen
+     * @var boolean
      */
     protected static $_createJs = true;
 
@@ -37,10 +37,32 @@ class Extjs extends BaseHelper
             extend: 'Ext.grid.Panel',
             store: '".static::getStoreName()."',
             alias: 'widget.".static::$_module.ucfirst(static::$_prefix)."Grid',
-            width: 700,
-            height: 500,
-            requires: ['Ext.grid.plugin.CellEditing', 'Ext.form.field.*'],
-            itemId: '".static::$_module.ucfirst(static::$_prefix)."Grid',";
+            ";
+
+        $width = $grid->getWidth();
+        if ($width) {
+            $code .= "width: ".$width.",
+            ";
+        }
+        $height = $grid->getHeight();
+        if ($width) {
+            $code .= "height: ".$height.",
+            ";
+        }
+
+        $code .= "requires: [";
+        $editType = $grid->getEditingType();
+        $requires = [];
+        if ($editType) {
+            $requires[] = "'Ext.grid.plugin.".ucfirst($editType)."Editing'";
+
+        }
+        $requires[] = "'Ext.form.field.*'";
+        $code .= implode(",", $requires);
+        $code .= "],
+            ";
+
+        $code .= "itemId: '".static::$_module.ucfirst(static::$_prefix)."Grid',";
 
 		return $code;
 	}

@@ -68,6 +68,18 @@ abstract class Column implements ColumnInterface
 	 * @var bool
 	 */
 	protected $_isHidden;
+
+    /**
+     * Is column can be editing
+     * @var bool
+     */
+    protected $_isEditable;
+
+    /**
+     * Form field key
+     * @var string
+     */
+    protected $_fieldKey;
 	
 	/**
 	 * Column width
@@ -100,15 +112,26 @@ abstract class Column implements ColumnInterface
 	 * @param string $name
 	 * @param bool $isSortable
 	 * @param bool $isHidden
-	 * @param integer $width
+	 * @param int $width
+     * @param bool $isEditable
+     * @param string $fieldKey
 	 */
-	public function __construct($title, $name = null, $isSortable = true, $isHidden = false, $width = 80) 
-	{
+	public function __construct(
+        $title,
+        $name = null,
+        $isSortable = true,
+        $isHidden = false,
+        $width = 160,
+        $isEditable = true,
+        $fieldKey = null
+    ) {
 		$this->_title = $title;
 		$this->_name = $name;
 		
 		$this->_isSortable = (bool) $isSortable;
 		$this->_isHidden = (bool) $isHidden;
+        $this->_isEditable = (bool) $isEditable;
+        $this->_fieldKey = $fieldKey;
 		$this->_width = intval($width);
 	}
 
@@ -178,6 +201,21 @@ abstract class Column implements ColumnInterface
     }
 
     /**
+     * Return form field
+     *
+     * @return \Engine\Crud\Form\Field
+     */
+    public function getField()
+    {
+        $fieldKey = $this->getFieldKey();
+        if (!$form = $this->_grid->getForm()) {
+            return false;
+        }
+
+        return $form->getFieldByKey($fieldKey);
+    }
+
+    /**
      * Returngrid object.
      *
      * @return string
@@ -216,6 +254,16 @@ abstract class Column implements ColumnInterface
 	{
 		return $this->_key;
 	}
+
+    /**
+     * Return form key name.
+     *
+     * @return string
+     */
+    public function getFieldKey()
+    {
+        return ($this->_fieldKey) ? $this->_fieldKey : $this->getKey();
+    }
 	
 	/**
 	 * Check is column sortable.
@@ -238,6 +286,16 @@ abstract class Column implements ColumnInterface
 	}
 
     /**
+     * Is column can be editing
+     *
+     * @return mixed
+     */
+    public function isEditable()
+    {
+        return $this->_isEditable;
+    }
+
+    /**
      * Check is column sort
      *
      * @return bool
@@ -246,7 +304,6 @@ abstract class Column implements ColumnInterface
     {
         return ($this->_grid->getSortKey() == $this->_key) ? true : false;
     }
-
 
     /**
 	 * Return column width
@@ -271,7 +328,7 @@ abstract class Column implements ColumnInterface
     /**
      * Return column sort params
      *
-     * @param boolean $withFilterParams
+     * @param bool $withFilterParams
      * @return array
      */
     public function getSortParams($withFilterParams = true)

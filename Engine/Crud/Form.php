@@ -9,7 +9,7 @@ use Engine\Forms\Form as EngineForm,
 	Engine\Crud\Container\Container;
 		
 /**
- * Class for manage datas.
+ * Class for manage data.
  *
  * @uses       \Engine\Crud\Form\Exception
  * @uses       \Engine\Crud\Form\Field
@@ -19,6 +19,7 @@ use Engine\Forms\Form as EngineForm,
  * @subpackage Form
  */
 abstract class Form implements
+    \ArrayAccess,
     \Phalcon\Events\EventsAwareInterface,
     \Phalcon\DI\InjectionAwareInterface
 {
@@ -134,6 +135,12 @@ abstract class Form implements
 	 * @var bool
 	 */
 	private $_isUpdateData = false;
+
+    /**
+     * Template for generate form item link
+     * @var string
+     */
+    protected $_linkTemplate = false;
 
     /**
      * Constructor
@@ -302,18 +309,33 @@ abstract class Form implements
     {
         return $this->_title;
     }
+
+    /**
+     * Return form primary field
+     *
+     * @return \Engine\Crud\Form\Field\Primary
+     */
+    public function getPrimaryField()
+    {
+        foreach ($this->_fields as $field) {
+            if ($field instanceof Field\Primary) {
+                return $field;
+            }
+        }
+
+        return false;
+    }
 	
 	/**
 	 * Set form data.
 	 * 
 	 * @param array $data
-	 * @param bool $fromFieldName
+	 * @param bool $useFormFieldName
 	 * @return \Engine\Crud\Form
 	 */
-	public function setData(array $data, $fromFieldName = false) 
+	public function setData(array $data, $useFormFieldName = false)
 	{
 		$data = $this->fixData($data);
-		
 		foreach ($this->_fields as $field) {			
 			if (null !== $this->_id) {
 				$field->setId($this->_id);
@@ -341,9 +363,9 @@ abstract class Form implements
 				$field->setValue($values);
 				$data['translations'][$key] = $field->getValue();
 			} else {*/
-            if ($field instanceof Field\Field) {
-				$key = ($fromFieldName) ? $field->getName() : $field->getKey();
-				$formName = $field->getKey();
+            if ($field instanceof Field) {
+				$key = ($useFormFieldName) ? $field->getName() : $field->getKey();
+				$formFieldKey = $field->getKey();
 				if (isset($data[$key])) {
 					$field->setValue($data[$key]);
 				}
@@ -384,6 +406,19 @@ abstract class Form implements
 		
 		return $data;
 	}
+
+    /**
+     * Generate form item link from link template
+     *
+     * @return string
+     */
+    public function getLink()
+    {
+        if (!$this->_linkTemplate) {
+            return false;
+        }
+        return \Engine\Tools\String::generateStringTemplate($this->_linkTemplate, $this->getData(), "{", "}");
+    }
 	
 	/**
 	 * Return data array with rendered values
@@ -407,8 +442,8 @@ abstract class Form implements
 	 * @return \Engine\Crud\Form
 	 */
 	public function clearData() 
-	{		
-		$this->_data = [];
+	{
+        $this->_loadData = [];
 		$this->_addData = [];
 		if (empty($this->_fields)) {
 			return $this;
@@ -549,19 +584,21 @@ abstract class Form implements
      * @params array $data
      * @return integer|bool
      */
-	final public function saveData(array $data, $validate = true) 
+	final public function save(array $data = [], $validate = true)
 	{
 		if (!$this->isFormCreated()) {
 	        throw new \Engine\Exception('Form not init!');
 	    }
-	    
-	    if ($validate) {
-	    	if(!$this->isValid($data)) {
-	    		return false;
-	    	}
-	    }
-	    
-	    $this->setData($data);
+
+        if (!empty($data)) {
+            if ($validate) {
+                if(!$this->isValid($data)) {
+                    return ['error' => 'Data not valid'];
+                }
+            }
+            $this->setData($data);
+        }
+
 		$this->_preSave();
 
 		$data = [];
@@ -586,7 +623,6 @@ abstract class Form implements
 				$data[] = ['model' => $d['model'], 'data' => $d['data']];
 			}
 		}
-		
 		$saveData = array_merge($this->_addData, $saveData);
 	    if (null !== $this->_id) {
 	        $result = $this->_update($this->_id, $saveData);
@@ -672,7 +708,7 @@ abstract class Form implements
     /**
      * Update some field
      * 
-     * @param integer $id
+     * @param int $id
      * @param array $data
      * @return array|bool
      */
@@ -718,8 +754,14 @@ abstract class Form implements
 	 * @param string|array $ids
 	 * @return string
 	 */
-	public function delete($id)
+	public function delete($id = null)
 	{
+        if (null === $id) {
+            if (null === $this->_id) {
+                return false;
+            }
+            $id = $this->_id;
+        }
 	    return $this->_container->delete($id);
 	}
 	
@@ -732,7 +774,7 @@ abstract class Form implements
 	public function duplicate($ids) 
 	{
 		if(!is_array($ids)) {
-			$ids = array($ids);
+			$ids = [$ids];
 		}
 		$primary = $this->_container->getModel()->getPrimary();
 		$new = [];
@@ -752,9 +794,9 @@ abstract class Form implements
 			$result = $form->saveData($data);
 			if($result === false) {
 				print_r($form->getErrors());die;
-				throw new Exception("Data no duplicate with error");
+				throw new \Engine\Exception("Data no duplicate with error");
 			} elseif(is_array($result)) {
-				throw new Exception("Data no duplicate with error ".$result['error']);
+				throw new \Engine\Exception("Data no duplicate with error ".$result['error']);
 			} 
 			$new[] = $result;
 		}
@@ -779,8 +821,8 @@ abstract class Form implements
 	 */
 	public function getFieldByKey($key) 
 	{
-		if(isset($this->fields[$key])){
-			return $this->fields[$key];
+		if(isset($this->_fields[$key])){
+			return $this->_fields[$key];
 		}
 		
 		return false;
@@ -1043,19 +1085,116 @@ abstract class Form implements
 		$this->setAutoloadMethodPrefix('_setup');
 		$this->_runResourceMethods();
 	}
-	
-	/**
-     * Return form field
+
+    /**
+     * Set value to form field
+     *
+     * @param string $key The form field key.
+     * @param mixed $value
+     * @return \Engine\Crud\Form
+     * @throws \Exception if the $key is not a field in the form.
+     */
+    public function offsetSet($key, $value)
+    {
+        if (is_null($key)) {
+            throw new \Engine\Exception("Key can not be null");
+        } elseif (!isset($this->_fields[$key])) {
+            throw new \Engine\Exception("Field with key \"$key\" not exists");
+        }
+        $this->_fields[$key]->setValue($value);
+
+        return $this;
+    }
+
+    /**
+     * Whether a field exists in the form
+     *
+     * @param string $offset
+     * @return bool
+     */
+    public function __isset($key)
+    {
+        return isset($this->_fields[$key]);
+    }
+
+    /**
+     * $key to unset, this function depricated!
+     *
+     * @param string $offset
+     */
+    public function __unset($key)
+    {
+        throw new \Engine\Exception("Can not unset field in the form");
+    }
+
+    /**
+     * Return form field value
      *
      * @param  string $key The form field key.
-     * @return \Engine\Crud\Form\Field
+     * @return mixed
      * @throws \Exception if the $key is not a field in the form.
      */
     public function __get($key)
     {
-        if (!array_key_exists($key, $this->_fields)) {
+        if (!isset($this->_fields[$key])) {
             throw new \Engine\Exception("Field \"$key\" is not in the form");
         }
-        return $this->_fields[$key];
+        return $this->_fields[$key]->getValue();
+    }
+
+    /**
+     * Set value to form field
+     *
+     * @param string $key The form field key.
+     * @param mixed $value
+     * @return \Engine\Crud\Form
+     * @throws \Exception if the $key is not a field in the form.
+     */
+    public function __set($key, $value)
+    {
+        if (is_null($key)) {
+            throw new \Engine\Exception("Key can not be null");
+        } elseif (!isset($this->_fields[$key])) {
+            throw new \Engine\Exception("Field with key \"$key\" not exists");
+        }
+        $this->_fields[$key]->setValue($value);
+
+        return $this;
+    }
+
+    /**
+     * Whether a field exists in the form
+     *
+     * @param string $offset
+     * @return bool
+     */
+    public function offsetExists($key)
+    {
+        return isset($this->_fields[$key]);
+    }
+
+    /**
+     * $key to unset, this function depricated!
+     *
+     * @param string $offset
+     */
+    public function offsetUnset($key)
+    {
+        throw new \Engine\Exception("Can not unset field in the form");
+    }
+
+    /**
+     * Return form field value
+     *
+     * @param  string $key The form field key.
+     * @return mixed
+     * @throws \Exception if the $key is not a field in the form.
+     */
+    public function offsetGet($key)
+    {
+        if (!isset($this->_fields[$key])) {
+            throw new \Engine\Exception("Field \"$key\" is not in the form");
+        }
+        return $this->_fields[$key]->getValue();
     }
 }

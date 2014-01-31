@@ -69,10 +69,20 @@ class Path extends AbstractFilter
 			if ($joinPath) {
 				throw new \Engine\Exception('Could not filter embedded one-to-many rule: '.reset(array_keys($joinPath)));
 			}
-			$this->_filter->filterWhere($dataSourceIn);
+			$where = $this->_filter->filterWhere($dataSourceIn);
+            $dataSourceIn->andWhere($where);
+            $dataSourceIn->columnsId();
 			$alias = $dataSource->getCorrelationName($fields);
+            $result = $dataSourceIn->getQuery()->execute()->toArray();
+            if (count($result) == 0) {
+                return false;
+            }
+            $ids = [];
+            foreach ($result as $row) {
+                $ids[] = $row['id'];
+            }
 
-			return $alias.".".$fields." IN (".$dataSourceIn->getPhql().")";
+			return "(".$alias.".".$fields." IN (".implode($ids, ",")."))";
 		}
 
 		return $this->_filter->filterWhere($dataSource);

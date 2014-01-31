@@ -91,7 +91,7 @@ class Multiselect
                 $options[$category][$item ['id']] = trim($item['name']) ? $item['name'] : $emptyItem;
             }
         } else {
-            $queryBuilder->orderNatural();
+            $queryBuilder->orderNatural(true);
             //$select->order('name');
             $result = $queryBuilder->getPhql();
             $data = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result;
@@ -190,11 +190,14 @@ class Multiselect
         return $value;
     }
 
-    static function getNameById(&$multiOptions, $id = null, $default = 'n/a') {
-        if ($id == null)
+    static function getNameById(&$multiOptions, $id = null, $default = 'n/a')
+    {
+        if ($id == null) {
             return $default;
-        if ($multiOptions == null)
+        }
+        if ($multiOptions == null) {
             return $default;
+        }
         foreach ($multiOptions as $key => $value) {
             if (is_array($value)) {
                 if (isset($value [$id])) {
@@ -206,6 +209,7 @@ class Multiselect
                 }
             }
         }
+
         return $default;
     }
 

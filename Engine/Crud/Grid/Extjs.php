@@ -21,6 +21,12 @@ abstract class Extjs extends Grid
     const DEFAULT_DECORATOR = 'Extjs';
 
     /**
+     * Content managment system module router prefix
+     * @var string
+     */
+    protected $_modulePrefix = 'cms';
+
+    /**
      * Extjs module name
      * @var string
      */
@@ -31,6 +37,28 @@ abstract class Extjs extends Grid
      * @var string
      */
     protected $_key;
+
+    /**
+     * Grid height
+     * @var int
+     */
+    protected $_height = 400;
+
+    /**
+     * Grid edititng type (row,cell,false)
+     * @var string
+     */
+    protected $_editType = 'row';
+
+    /**
+     * Get grid action
+     *
+     * @return string
+     */
+    public function getModulePrefix()
+    {
+        return $this->_modulePrefix;
+    }
 
     /**
      * Return extjs module name
@@ -62,7 +90,7 @@ abstract class Extjs extends Grid
         if (!empty($this->_action)) {
             return $this->_action;
         }
-        return "cms/".$this->getModuleName()."/".$this->getKey();
+        return $this->_modulePrefix."/".$this->getModuleName()."/".$this->getKey();
     }
 
     /**
@@ -77,6 +105,28 @@ abstract class Extjs extends Grid
         }
 
         return json_encode($this->_data);
+    }
+
+    /**
+     * Return datas with rendered values.
+     *
+     * @return array
+     */
+    public function getDataWithRenderValues()
+    {
+        if (null === $this->_data) {
+            $this->_setData();
+        }
+        $data = $this->_data;
+        foreach ($data[$this->_key] as $i => $row) {
+            $values = [];
+            foreach ($this->_columns as $key => $column) {
+                $values[$key] = $column->render($row);
+            }
+            $data[$this->_key][$i] = $values;
+        }
+
+        return json_encode($data);
     }
 
     /**
@@ -162,5 +212,40 @@ abstract class Extjs extends Grid
     protected function _beforeRender()
     {
 
+    }
+
+    /**
+     * Return grid width
+     *
+     * @return integer
+     */
+    public function getWidth()
+    {
+        $width = 20;
+        foreach ($this->_columns as $column) {
+            $width += $column->getWidth();
+        }
+
+        return $width;
+    }
+
+    /**
+     * Return grid height
+     *
+     * @return integer
+     */
+    public function getHeight()
+    {
+        return $this->_height;
+    }
+
+    /**
+     * Return grid editing type
+     *
+     * @return string
+     */
+    public function getEditingType()
+    {
+        return $this->_editType;
     }
 } 

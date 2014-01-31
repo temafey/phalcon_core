@@ -59,7 +59,7 @@ class Password extends Field
         $cryptType = 'blowfish',
         $required = true,
         $notEdit = false,
-        $width = 200
+        $width = 280
     ) {
 		parent::__construct($label, $name, $description, $required, $notEdit, $width);
 
@@ -88,6 +88,16 @@ class Password extends Field
         ];
 
 	}
+
+    /**
+     * Return minimum chars length
+     *
+     * @return int
+     */
+    public function getMinLength()
+    {
+        return $this->_length;
+    }
 
     /**
      * Return field save data

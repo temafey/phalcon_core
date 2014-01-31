@@ -69,14 +69,18 @@ class Builder extends PhBuilder
      */
     public function setColumn($column, $alias = null)
     {
-        if ($alias === null || is_numeric($alias)) {
-            $alias = $column;
+        if ($alias == $column || is_numeric($alias)) {
+            $alias = null;
         } elseif ($alias === false) {
             $this->_columns[] = $column;
             return $this;
         }
         $model = $this->getAlias();
-        $this->_columns[$alias] = $model.".".$column;
+        if (null === $alias) {
+            $this->_columns[] = $model.".".$column;
+        } else {
+            $this->_columns[$alias] = $model.".".$column;
+        }
 
         return $this;
     }
@@ -254,7 +258,8 @@ class Builder extends PhBuilder
             $orderPre = [];
             foreach ($order as $i => $key){
                 $direction[$i] = ($direction[$i] ^ $reverse) ? "ASC" : "DESC";
-                $orderPre[] = $key." ".$direction[$i];
+                $alias = $this->getCorrelationName($key);
+                $orderPre[] = $alias.".".$key." ".$direction[$i];
             }
             $this->orderBy(implode(",", $orderPre));
         }

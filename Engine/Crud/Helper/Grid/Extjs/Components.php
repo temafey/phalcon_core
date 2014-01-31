@@ -23,18 +23,44 @@ class Components extends BaseHelper
 	 */
 	static public function _(Grid $grid)
 	{
+
         $code = "
             initComponent : function() {
-                this.cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
-                    clicksToEdit: 2
-                });
-                this.plugins = this.cellEditing;
-                this.columns = this.columnsGet();
-                this.tbar    = this.tbarGet();
-                this.bbar    = this.bbarGet();
-                this.callParent();
-            },";
+                var me = this;
+                ";
 
+        $editType = $grid->getEditingType();
+        if ($editType) {
+            $code .= "me.cellEditing = Ext.create('Ext.grid.plugin.".ucfirst($editType)."Editing', {
+                    clicksToEdit: 2,
+                    listeners: {
+                        scope: me,
+                        edit: me.onEdit
+                    }
+                });
+                me.plugins = me.cellEditing;";
+        }
+
+        $code .= "
+                me.columns = me.columnsGet();
+                me.tbar    = me.tbarGet();
+                me.bbar    = me.bbarGet();
+
+                me.callParent(arguments);
+            },
+
+            afterRender: function() {
+                var me = this;
+                me.callParent(arguments);
+                me.textField = me.down('textfield[name=searchField]');
+            },
+            ";
+        /*        me.on('selectionchange', me.onSelect, this);
+                me.on('celldblclick', me.onDbClick, this);
+                me.on('cellclick', me.onClick, this);
+                me.on('keypress', me.onKeyPress, this);
+            },";
+        */
         return $code;
 	}
 }

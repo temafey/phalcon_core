@@ -126,7 +126,7 @@ class Twig extends Engine implements EngineInterface
      *
      * @param string $path
      * @param array $params
-     * @param boolean $mustClean
+     * @param bool $mustClean
      */
     public function render($path, $params, $mustClean=false)
     {

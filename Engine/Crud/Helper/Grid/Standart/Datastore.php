@@ -26,7 +26,7 @@ class Datastore extends \Engine\Crud\Helper
         $code = '
             <tbody>';
         $data = $grid->getDataWithRenderValues();
-        foreach ($data as $row) {
+        foreach ($data['data'] as $row) {
             $rowCode = '
                 <tr>';
             foreach($row as $value) {

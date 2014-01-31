@@ -76,7 +76,7 @@ class Standart extends Decorator
      * @param \Engine\Crud\Form\Field $field
      * @return string
      */
-    public function renderField(Field\Field $field)
+    public function renderField(Field $field)
     {
         $helpers = $field->getHelpers();
         foreach ($helpers as $i => $helper) {

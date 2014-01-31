@@ -5,7 +5,7 @@
 namespace Engine\Crud\Grid\Column;
 
 /**
- * Number column
+ * Class Collection
  *
  * @uses       \Engine\Crud\Grid\Exception
  * @uses       \Engine\Crud\Grid\Filter
@@ -16,6 +16,12 @@ namespace Engine\Crud\Grid\Column;
  */
 class Collection extends Base
 {
+    /**
+     * Column type.
+     * @var string
+     */
+    protected $_type = 'collection';
+
 	/**
 	 * Collection option array
 	 * @var array
@@ -27,20 +33,30 @@ class Collection extends Base
 	 * @var string
 	 */
 	protected $_na = "-";
-	
-	/**
-	 * Constructor
-	 * 
-	 * @param string $title
-	 * @param string $name
-	 * @param array $options
-	 * @param boolean $isSortable
-	 * @param boolean $isHidden
-	 * @param integer $width
-	 */
-	public function __construct($title, $name = null, array $options = [], $isSortable = true, $isHidden = false, $width = 120)
-	{
-		parent::__construct($title, $name, $isSortable, $isHidden, $width);
+
+    /**
+     * Constructor
+     *
+     * @param string $title
+     * @param string $name
+     * @param array $options
+     * @param bool $isSortable
+     * @param bool $isHidden
+     * @param int $width
+     * @param bool $isEditable
+     * @param string $fieldKey
+     */
+    public function __construct(
+        $title,
+        $name = null,
+        array $options = [],
+        $isSortable = true,
+        $isHidden = false,
+        $width = 200,
+        $isEditable = true,
+        $fieldKey = null
+    ) {
+		parent::__construct($title, $name, $isSortable, $isHidden, $width, $isEditable, $fieldKey);
 		$this->_options = $options;
 	}
 
@@ -88,4 +104,14 @@ class Collection extends Base
 	    $this->_options = $options;
 	    return $this;
 	}
+
+    /**
+     * Return collection options
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->_options;
+    }
 }

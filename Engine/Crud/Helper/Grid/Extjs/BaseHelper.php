@@ -17,7 +17,7 @@ class BaseHelper extends \Engine\Crud\Helper
 {
     /**
      * Is create js file prototype
-     * @var boolen
+     * @var boolean
      */
     protected static $_createJs = false;
 
@@ -36,13 +36,21 @@ class BaseHelper extends \Engine\Crud\Helper
     /**
      * Init helper
      *
-     * @param \Engine\Crud\Grid\Extjs $grid
+     * @param \Engine\Crud\Grid\Extjs|\Engine\Crud\Form\Extjs $element
      * @return string
      */
-    public static function init(Grid $grid)
+    public static function init($element)
     {
-        static::$_module = $grid->getModuleName();
-        static::$_prefix = $grid->getKey();
+        static::$_module = $element->getModuleName();
+
+        $prefix = explode("-", $element->getKey());
+        foreach ($prefix as $i => &$word) {
+            if ($i === 0) {
+                continue;
+            }
+            $word = ucfirst($word);
+        }
+        static::$_prefix =implode("", $prefix);
     }
 
     /**
@@ -62,7 +70,17 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function getGridName()
     {
-        return static::$_module.".view.".ucfirst(static::$_prefix)."Grid";
+        return ucfirst(static::$_module).".view.".static::$_prefix.".Grid";
+    }
+
+    /**
+     * Return form object name
+     *
+     * @return string
+     */
+    public static function getFormName()
+    {
+        return ucfirst(static::$_module).".view.".static::$_prefix.".Form";
     }
 
     /**
@@ -72,7 +90,7 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function getWinName()
     {
-        return static::$_module.".view.".ucfirst(static::$_prefix)."Win";
+        return ucfirst(static::$_module).".view.".static::$_prefix.".Win";
     }
 
     /**
@@ -82,7 +100,7 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function getModelName()
     {
-        return static::$_module.".model.".ucfirst(static::$_prefix);
+        return ucfirst(static::$_module).".model.".ucfirst(static::$_prefix);
     }
 
     /**
@@ -92,7 +110,7 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function getStoreName()
     {
-        return static::$_module.".store.".ucfirst(static::$_prefix);
+        return ucfirst(static::$_module).".store.".ucfirst(static::$_prefix);
     }
 
     /**
@@ -102,7 +120,7 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function getStoreLocalName()
     {
-        return static::$_module.".store.".ucfirst(static::$_prefix)."Local";
+        return ucfirst(static::$_module).".store.".ucfirst(static::$_prefix)."Local";
     }
 
     /**
@@ -112,13 +130,13 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function getControllerName()
     {
-        return static::$_module.".controller.".ucfirst(static::$_prefix);
+        return ucfirst(static::$_module).".controller.".ucfirst(static::$_prefix);
     }
 
     /**
      * Is create js file prototype
      *
-     * @return boolen
+     * @return boolean
      */
     public static function createJs()
     {

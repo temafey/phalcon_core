@@ -20,7 +20,7 @@ class Search extends Standart
 	 * Search filter fields
 	 * @var array
 	 */
-	protected $_fields = array();
+	protected $_fields = [];
 	
 	/**
 	 * Constuctor
@@ -29,9 +29,9 @@ class Search extends Standart
 	 * @param string $name
 	 * @param array $fields
 	 * @param string $desc
-	 * @param integer $width
+	 * @param int $width
 	 * @param string $default
-	 * @param integer $length
+	 * @param int $length
 	 */
 	public function __construct(
         $label = null,
@@ -42,8 +42,8 @@ class Search extends Standart
         $default = null,
         $length = 255)
 	{
-		parent::__construct( $label, $name,$desc, Criteria::CRITERIA_EQ, $width, $default, $length);
-		$this->_fields = $fields;
+		parent::__construct($label, $name, $desc, Criteria::CRITERIA_EQ, $width, $default, $length);
+        $this->_fields = $fields;
 	}
 
     /**
@@ -61,17 +61,19 @@ class Search extends Standart
 		if (!is_array($values)) {
 			$values = $this->_parseValue($values);
 		}
-
 		$filters = [];
 		foreach ($values as $sub_values){
-			$sub_filters = array();
+			$sub_filters = [];
 			foreach ($sub_values as $value){
 				if (empty($value)) {
 					continue;
 				}
 				$value = trim($value);
-				$tmp_filters = array();
-				foreach($this->_fields as $filterSetting) {
+				$tmp_filters = [];
+				foreach($this->_fields as $field => $filterSetting) {
+                    if (!is_array($filterSetting) && !is_array($filterSetting)) {
+                        $filterSetting = ((int) $field !== $field) ? [$field => $filterSetting] : [$filterSetting => Criteria::CRITERIA_LIKE];
+                    }
 					if (isset($filterSetting['path'])) {
 						$tmp_filters[] = $container->getFilter('path', $filterSetting['path'], $container->getFilter('search', $filterSetting['filters'], $value));
 					} elseif (isset($filterSetting['cache'])) {
@@ -80,9 +82,11 @@ class Search extends Standart
 							$tmp_filters[] = $cfilter;
 							break; 
 						}
-					}
+					} else {
+                        $tmp_filters[] = $container->getFilter('search', $filterSetting, $value);
+                    }
 				}
-				if (!is_array($tmp_filters)) {
+				if (empty($tmp_filters)) {
 					continue;
 				}
 				$sub_filters[] = $container->getFilter('compound', 'OR', $tmp_filters);
@@ -92,6 +96,7 @@ class Search extends Standart
 			}
 			$filters[] = $container->getFilter('compound', 'AND', $sub_filters);
 		}
+
 		if (count($filters) == 0) {
 			return false;
 		}
@@ -107,7 +112,7 @@ class Search extends Standart
 	 */
 	protected function _parseValue($value)
 	{		
-		if(strpos($value, ';') !== false){
+		if (strpos($value, ';') !== false) {
 			$values = array();
 			$tmp_values = explode(';', $value);
 			foreach ($tmp_values as $value){
@@ -128,7 +133,7 @@ class Search extends Standart
 	protected function _subParseValue($value)
 	{
 		$values = array();
-		if(strpos($value, ',') !== false){
+		if (strpos($value, ',') !== false) {
 			return explode(',', $value);			
 		} else {
 			return array($value);

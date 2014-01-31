@@ -68,7 +68,7 @@ class ArrayToSelect extends Field
         $options = [],
         $desc = null,
         $required = false,
-        $width = 200,
+        $width = 280,
         $default = null
     ) {
 		parent::__construct($label, $name, $desc, $required, $width, $default);

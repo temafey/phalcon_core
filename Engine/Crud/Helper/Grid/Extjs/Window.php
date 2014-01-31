@@ -17,7 +17,7 @@ class Window extends BaseHelper
 {
     /**
      * Is create js file prototype
-     * @var boolen
+     * @var boolean
      */
     protected static $_createJs = true;
 

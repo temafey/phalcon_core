@@ -238,16 +238,6 @@ abstract class Grid implements
 			$this->_container = Container::factory($this, $config);
 		}
 	}
-	
-    /**
-     * Return grid container adapter
-     *
-     * @return \Engine\Crud\Container\Grid\Adapter
-     */
-    public function getContainer()
-    {
-    	return $this->_container;
-    }
 
     /**
      * Initialize decorator
@@ -257,6 +247,25 @@ abstract class Grid implements
     protected function _initDecorator()
     {
         $this->_decorator = static::DEFAULT_DECORATOR;
+    }
+
+    /**
+     * Initialize form
+     *
+     * @return void
+     */
+    protected function _initForm()
+    {
+        if (!$this->_form) {
+            $grid = get_class($this);
+            $form = str_replace("\\Grid\\", "\\Form\\", $grid);
+            if (class_exists($form)) {
+                $this->_form = $form;
+            }
+        }
+        if (is_string($this->_form)) {
+            $this->_form = new $this->_form;
+        }
     }
 	
 	/**
@@ -369,6 +378,16 @@ abstract class Grid implements
 		$data = $this->_container->getData($dataSource);
 		$this->_paginate($data);
 	}
+
+    /**
+     * Return grid container adapter
+     *
+     * @return \Engine\Crud\Container\Grid\Adapter
+     */
+    public function getContainer()
+    {
+        return $this->_container;
+    }
 	
 	/**
 	 * Return grid fetching data
@@ -395,13 +414,23 @@ abstract class Grid implements
 	}
 
     /**
-     * Return filer
+     * Return filter
      *
      * @return \Engine\Crud\Grid\Filter
      */
     public function getFilter()
     {
         return $this->_filter;
+    }
+
+    /**
+     * Return form
+     *
+     * @return \Engine\Crud\Form
+     */
+    public function getForm()
+    {
+        return $this->_form;
     }
 	
 	/**
@@ -425,13 +454,13 @@ abstract class Grid implements
 		if (null === $this->_data) {
 			$this->_setData();
 		}
-		$data = [];
-		foreach ($this->_data['data'] as $i => $row) {
+		$data = $this->_data;
+		foreach ($data['data'] as $i => $row) {
             $values = [];
 			foreach ($this->_columns as $key => $column) {
                 $values[$key] = $column->render($row);
 			}
-            $data[] = $values;
+            $data['data'][$i] = $values;
 		}
 		
 		return $data;
@@ -874,7 +903,7 @@ abstract class Grid implements
 	/**
 	 * Set limit param
 	 * 
-	 * @param integer $limit
+	 * @param int $limit
 	 * @return \Engine\Crud\Grid
 	 */
 	public function setLimit($limit) 
@@ -909,7 +938,7 @@ abstract class Grid implements
 	/**
 	 * Set page param
 	 * 
-	 * @param integer $page
+	 * @param int $page
 	 * @return \Engine\Crud\Grid
 	 */
 	public function setPage($page) 

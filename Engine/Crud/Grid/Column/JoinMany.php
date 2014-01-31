@@ -66,8 +66,8 @@ class JoinMany extends Column
 	 * @param string $column
 	 * @param string $orderBy
 	 * @param string $separator
-	 * @param integer $count
-	 * @param integer $width
+	 * @param int $count
+	 * @param int $width
 	 */
 	public function __construct(
         $title,
@@ -76,9 +76,9 @@ class JoinMany extends Column
         $orderBy = null,
         $separator = null,
         $count = null,
-        $width = 120
+        $width = 200
     ) {
-		parent::__construct($title, null, true, false, $width);
+		parent::__construct($title, null, true, false, $width, false, null);
 		
 		$this->_path = $path;
 		$this->_column = $column;

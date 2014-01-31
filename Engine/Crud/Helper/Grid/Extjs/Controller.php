@@ -17,7 +17,7 @@ class Controller extends BaseHelper
 {
     /**
      * Is create js file prototype
-     * @var boolen
+     * @var boolean
      */
     protected static $_createJs = true;
 
@@ -35,61 +35,53 @@ class Controller extends BaseHelper
         $code = "
         Ext.define('".static::getControllerName()."', {
             extend: 'Ext.app.Controller',
-            views: ['".$prefix."Win', '".$prefix."Grid'],
-            models: ['".$prefix."'],
-            stores: ['".$prefix."', '".$prefix."Local'],
+            ";
+        $code .= "requires: [";
+        $code .= "'".static::getStoreLocalName()."',";
+        $code .= "'".static::getStoreName()."',";
+        $code .= "'".static::getGridName()."',";
+        $code .= "'".static::getFormName()."'";
+        $code .= "],";
+        $code .= "
             init: function(){
-                var storeLocal = this.getStore('".static::getStoreLocalName()."');
-                var store = this.getStore('".static::getStoreName()."');
-                storeLocal.addListener('load', function(){
+                this.storeLocal = this.getStore('".static::getStoreLocalName()."');
+                this.store = this.getStore('".static::getStoreName()."');
+                this.grid = this.getView('".static::getGridName()."');
+                this.form = this.getView('".static::getFormName()."');
+                /*this.storeLocal.addListener('load', function(){
                        this._onPingSuccess();
                     }, this);
-
-                storeLocal.load();
+                this.storeLocal.load();*/
+                this.store.load();
+                this.activeStore = this.store;
             },
             _onPingSuccess: function(){
-                var win             = this.getView('".static::getWinName()."').create();
-                var localStore      = this.getStore('".static::getStoreLocalName()."');
-                var store           = this.getStore('".static::getStoreName()."');
-                var grid            = win.getComponent('".static::getGridName()."');
-
-                win.setTitle('".$title."');
-                win.show();
-
-                var localCnt = localStore.getCount();
+                localCnt = this.storeLocal.getCount();
 
                 if (localCnt > 0){
                     for (i = 0; i < localCnt; i++){
-                        var localRecord = localStore.getAt(i);
+                        var localRecord = this.storeLocal.getAt(i);
                         var deletedId   = localRecord.data.id;
                         delete localRecord.data.id;
                         store.add(localRecord.data);
                         localRecord.data.id = deletedId;
                     }
-                    store.sync();
+                    this.store.sync();
                     for (i = 0; i < localCnt; i++){
-                        localStore.removeAt(0);
+                        this.localStore.removeAt(0);
                     }
                 }
 
-                store.load();
-                grid.reconfigure(store);
-                grid.store.autoSync = true;
+                this.store.load();
+                this.activeStore = this.store;
             },
 
             _onPingFailure: function(){
-                var win             = this.getView('".static::getWinName()."').create();
-                var localStore      = this.getStore('".static::getStoreLocalName()."');
-                var grid            = win.getComponent('".static::getGridName()."');
-
-                win.setTitle('".$title."');
-                win.show();
-                grid.bbar.bindStore(localStore);
-                grid.reconfigure(localStore);
-                grid.store.autoSync = true;
+                this.activeStore = this.storeLocal;
             }
 
-        });";
+        });
+        ";
 
         return $code;
     }

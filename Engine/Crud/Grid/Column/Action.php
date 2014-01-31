@@ -19,6 +19,12 @@ use Engine\Crud\Grid\Column,
 class Action extends Column
 {
     /**
+     * Column type.
+     * @var string
+     */
+    protected $_type = 'action';
+
+    /**
      * Action template
      * @var string
      */
@@ -44,9 +50,9 @@ class Action extends Column
      * @param string $icon
      * @param int $width
      */
-    public function __construct($template, $title, $icon = null, $width = 80)
+    public function __construct($template, $title, $icon = null, $width = 160)
     {
-        parent::__construct(null, null, false, false, $width);
+        parent::__construct(null, null, false, false, $width, false, null);
 
         $this->_template = $template;
         $this->_templateTitle = $title;

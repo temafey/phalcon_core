@@ -54,8 +54,8 @@ class ArrayToSelect extends Standart
      * @param array $options
 	 * @param string $desc
 	 * @param string $criteria
-	 * @param integer $width
-	 * @param integer $default
+	 * @param int $width
+	 * @param int $default
 	 */
 	public function __construct(
         $label = null,

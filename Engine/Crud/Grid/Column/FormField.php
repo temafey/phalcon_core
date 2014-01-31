@@ -27,7 +27,7 @@ class FormField extends Base
 	protected $_form = null;
 
 	/**
-	 * @var \Zend\Form\Element
+	 * @var
 	 */
 	protected $_element;
 
@@ -48,11 +48,11 @@ class FormField extends Base
 	 * 
 	 * @param string $title
 	 * @param string $name
-	 * @param boolean $isSortable
+	 * @param bool $isSortable
 	 * @param array $attibutes
-	 * @param integer $width
+	 * @param int $width
 	 */
-	public function __construct($title, $name = null, $isSortable = true, array $attibutes = [], $width = 120)
+	public function __construct($title, $name = null, $isSortable = true, array $attibutes = [], $width = 200)
 	{
 		parent::__construct($title, $name, $isSortable, false, $width);
 		$this->_attibutes = $attibutes;
@@ -118,7 +118,7 @@ class FormField extends Base
 	/**
 	 * Update column in database by primary key.
 	 * 
-	 * @param integer $id
+	 * @param int $id
 	 * @param string $value
 	 */
 	public function updateField($id, $value)

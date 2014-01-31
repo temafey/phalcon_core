@@ -407,8 +407,8 @@ class String
 	 * @param string $host
 	 * @param array $data
 	 * @param string $templateHref
-	 * @param string $tempalteTitle
-	 * @param string $tempalteDesc
+	 * @param string $templateTitle
+	 * @param string $templateDesc
 	 * @param string $templateClass
 	 * @param string $templateId
 	 * @param string $templateHrefTitle
@@ -416,8 +416,18 @@ class String
 	 * @param string|array $attribs
 	 * @return string 
 	 */
-	static function generateLink($host, $data, $templateHref, $tempalteTitle, $tempalteDesc = null, $templateClass = null, $templateId = null, $tempalteHrefTitle = null, $target = null, $attribs = null) 
-	{
+	static function generateLink(
+        $host,
+        $data,
+        $templateHref,
+        $templateTitle,
+        $templateDesc = null,
+        $templateClass = null,
+        $templateId = null,
+        $templateHrefTitle = null,
+        $target = null,
+        $attribs = null
+    ) {
 	    $link = '<a href="';
 	    $p = strlen($host)-1;
 	    if ($host[$p] == '/') {
@@ -443,9 +453,9 @@ class String
 	        $link .= '"';
 	    }
 	    
-	    if (null !== $tempalteHrefTitle) {
+	    if (null !== $templateHrefTitle) {
 	        $link .= ' title="';
-	        $link .= self::generateStringTemplate($tempalteHrefTitle, $data, '{', '}');
+	        $link .= self::generateStringTemplate($templateHrefTitle, $data, '{', '}');
 	        $link .= '"';
 	    }
 	    
@@ -468,11 +478,11 @@ class String
 	    }
 	    
 	    $link .= '>';
-	    $link .= self::generateStringTemplate($tempalteTitle, $data, '{', '}');
+	    $link .= self::generateStringTemplate($templateTitle, $data, '{', '}');
 	    $link .= '</a>';
 	    
-	    if (null !== $tempalteDesc) {
-	        $link .= self::generateStringTemplate($tempalteDesc, $data, '{', '}');
+	    if (null !== $templateDesc) {
+	        $link .= self::generateStringTemplate($templateDesc, $data, '{', '}');
 	    }
 	    
 	    return $link;

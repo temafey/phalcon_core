@@ -157,7 +157,7 @@ class Many2Many extends Field
 	 * @param string $name
 	 * @param string $description
 	 * @param bool $required
-	 * @param integer $width
+	 * @param int $width
 	 * @param array $default
 	 * @param bool $saveAllParents
 	 * @param string $modelParentField
@@ -172,7 +172,7 @@ class Many2Many extends Field
         $name = null,
         $description = null,
         $required = false,
-        $width = 200,
+        $width = 280,
         $default = null,
         $saveAllParents = false ,
         $modelParentField = null,

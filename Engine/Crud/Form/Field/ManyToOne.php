@@ -103,10 +103,10 @@ class ManyToOne extends ArrayToSelect
         $optionName =  null,
         $desc = null,
         $required = false,
-        $width = 200,
+        $width = 280,
         $default = null
     ) {
-		parent::__construct($label, $name, $desc, $required, $width, $default);
+		parent::__construct($label, $name, [], $desc, $required, $width, $default);
 
         $this->_model = $model;
         $this->_optionName = $optionName;
@@ -127,6 +127,16 @@ class ManyToOne extends ArrayToSelect
             $relation = array_shift($relations);
             $this->_name = $relation->getFields();
         }
+    }
+
+    /**
+     * Return field model class name
+     *
+     * @return string
+     */
+    public function getModel()
+    {
+        return (is_object($this->_model)) ? get_class($this->_model) : $this->_model;
     }
 
     /**

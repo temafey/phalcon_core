@@ -34,15 +34,15 @@ class Text extends Field
 	 * @param string $name
 	 * @param string $desc
 	 * @param string $criteria
-	 * @param integer $width
-	 * @param integer $length
+	 * @param int $width
+	 * @param int $length
 	 */
 	public function __construct(
         $label = null,
         $name = false,
         $desc = null,
         $required = false,
-        $width = 200,
+        $width = 280,
         $default = null,
         $length = 255
     ) {

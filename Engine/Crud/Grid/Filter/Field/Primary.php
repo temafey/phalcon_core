@@ -22,7 +22,7 @@ class Primary extends Standart
      * @param string $title
      * @param string $desc
      * @param string $criteria
-     * @param integer $width
+     * @param int $width
      */
     public function __construct(
         $label = null,

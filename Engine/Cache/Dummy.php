@@ -38,7 +38,7 @@ class Dummy extends \Phalcon\Cache\Backend
     /**
      * Stops the frontend without store any cached content
      *
-     * @param boolean $stopBuffer
+     * @param bool $stopBuffer
      */
     public function stop($stopBuffer=null)
     {
@@ -120,7 +120,7 @@ class Dummy extends \Phalcon\Cache\Backend
      * @param int|string $keyName
      * @param string $content
      * @param long $lifetime
-     * @param boolean $stopBuffer
+     * @param bool $stopBuffer
      */
     public function save($keyName=null, $content=null, $lifetime=null, $stopBuffer=null)
     {

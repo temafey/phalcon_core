@@ -20,6 +20,12 @@ use Crud\Grid\Grid,
  */
 class ImageJoinOne extends JoinOne 
 {
+    /**
+     * Column type.
+     * @var string
+     */
+    protected $_type = 'image';
+
 	/**
 	 * Image path template
 	 * @var string
@@ -60,12 +66,21 @@ class ImageJoinOne extends JoinOne
 	 * @param string $alt
 	 * @param array $columns
 	 * @param bool $isHidden
-	 * @param integer $width
-	 * @param integer $height
+	 * @param int $width
+	 * @param int $height
 	 */
-	public function __construct($title, $path = null, $column = null, $template = null, $alt = null, $columns = null, $isHidden = false, $width = 85, $height = null) 
-	{
-		parent::__construct($title, $path, $column, $columns, false, $isHidden, $width);
+	public function __construct(
+        $title,
+        $path = null,
+        $column = null,
+        $template = null,
+        $alt = null,
+        $columns = null,
+        $isHidden = false,
+        $width = 85,
+        $height = null
+    ) {
+		parent::__construct($title, $path, $column, $columns, false, $isHidden, $width, false, null);
 		
 		$this->_template = $template;
 		$this->_alt = $alt;

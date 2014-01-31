@@ -47,11 +47,21 @@ class PasswordConfirm extends Field
         $description = null,
         $required = true,
         $notEdit = false,
-        $width = 200
+        $width = 280
     ) {
         parent::__construct($label, false, $description, $required, $notEdit, $width);
 
         $this->_confirmField = $confirmField;
+    }
+
+    /**
+     * Return confirm field key
+     *
+     * @return string
+     */
+    public function getConfirmKey()
+    {
+        return $this->_confirmField;
     }
 
     /**

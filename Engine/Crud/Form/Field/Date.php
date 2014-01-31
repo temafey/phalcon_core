@@ -54,12 +54,14 @@ class Date extends Field
         $name = false,
         $startDate = null,
         $endDate = null,
-        $format = 'Y-m-d h:i:s',
+        $format = 'Y-m-d H:i:s',
         $description = null,
+        $width = 280,
         $required = false,
+        $default = null,
         $notEdit = false
     ) {
-		parent::__construct ($label, $name, $description, $required, $notEdit);
+		parent::__construct($label, $name, $description, $required, $width, $default);
 
         $this->_startDate = $startDate;
         $this->_endDate = $endDate;
@@ -100,7 +102,7 @@ class Date extends Field
 
         $value = $this->getValue();
         $date = new \DateTime($value);
-        $value = $date->format($this->_format);
+        $value = $date->format('Y-m-d H:i:s');
 
         $data = [];
         $data['model'] = 'default';
@@ -124,4 +126,34 @@ class Date extends Field
 
 		return parent::setValue($value);
 	}
+
+    /**
+     * Return format of date
+     *
+     * @return string
+     */
+    public function getFormat()
+    {
+        return $this->_format;
+    }
+
+    /**
+     * Return min date that can be set
+     *
+     * @return string
+     */
+    public function getMinValue()
+    {
+        return $this->_startDate;
+    }
+
+    /**
+     * Return max date that can be set
+     *
+     * @return string
+     */
+    public function getMaxValue()
+    {
+        return $this->_endDate;
+    }
 }

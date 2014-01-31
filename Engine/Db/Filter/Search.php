@@ -60,7 +60,7 @@ class Search extends AbstractFilter
 				$column = $model->getPrimary();
 			} elseif ($column === self::COLUMN_NAME) {
 			    $alias = $dataSource->getAlias();
-				$column = $model->getNameExpr($alias, true);
+				$column = $model->getNameExpr();$t = true;
 			} else {
 			    $alias = $dataSource->getCorrelationName($column);
 			}
@@ -71,7 +71,7 @@ class Search extends AbstractFilter
 			} elseif ($criteria === self::CRITERIA_BEGINS) {
 				$where[] = "$alias.$column LIKE $exprBegins";
 			} elseif ($criteria === self::CRITERIA_MORE) {
-				$where[] = "$alias.$column > $exprEq";
+				$where[] = "`$alias`.`$column` > $exprEq";
 			} elseif ($criteria === self::CRITERIA_LESS) {
 				$where[] = "$alias.$column < $exprEq";
 			}

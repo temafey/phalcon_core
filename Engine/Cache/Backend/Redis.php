@@ -71,7 +71,7 @@ class Redis extends Backend implements BackendInterface
      * @param string $keyName
      * @param string $content
      * @param int $lifetime
-     * @param boolean $stopBuffer
+     * @param bool $stopBuffer
      * @throws \Phalcon\Cache\Exception
      */
 	public function save($keyName=null, $content=null, $lifetime=null, $stopBuffer=true)

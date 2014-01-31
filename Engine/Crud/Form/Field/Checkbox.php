@@ -20,7 +20,7 @@ class Checkbox extends Field
 	 * Form element type
 	 * @var string
 	 */
-	protected $_type = 'checkbox';
+	protected $_type = 'check';
 	
 	/**
      * Value when checked
@@ -59,7 +59,7 @@ class Checkbox extends Field
         $uncheckedValue = 0,
         $desc = null,
         $required = false,
-        $width = 200,
+        $width = 280,
         $length = 255
     ) {
         parent::__construct($label, $name, $desc, $required, $width, $checked);

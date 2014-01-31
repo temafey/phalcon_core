@@ -303,8 +303,8 @@ class IpCheck
 	/**
 	 * Check equal
 	 * 
-	 * @param integer $ip
-	 * @param integer $value
+	 * @param int $ip
+	 * @param int $value
 	 */
 	private function _checkEqual($ip, $value)
 	{
@@ -314,9 +314,9 @@ class IpCheck
 	/**
 	 * Check interval
 	 * 
-	 * @param integer $ip
-	 * @param integer $from
-	 * @param integer $to
+	 * @param int $ip
+	 * @param int $from
+	 * @param int $to
 	 * return bool
 	 */
 	private function _checkInterval($ip, $from, $to)

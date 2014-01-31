@@ -69,14 +69,14 @@ abstract class Field implements FieldInterface
 	 * @param string $name
 	 * @param string $desc
 	 * @param string $criteria
-	 * @param integer $width
+	 * @param int $width
 	 */
 	public function __construct(
         $label = null,
         $name = false,
         $desc = null,
         $required = false,
-        $width = 200,
+        $width = 280,
         $default = null
     ) {
 		$this->_label = $label;

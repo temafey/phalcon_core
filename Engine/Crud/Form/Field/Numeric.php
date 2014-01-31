@@ -39,18 +39,18 @@ class Numeric extends Field
      * @param string $label
 	 * @param string $name
 	 * @param string $desc
-	 * @param boolean $required
-	 * @param integer $width
+	 * @param bool $required
+	 * @param int $width
 	 * @param string|integer $default
-	 * @param integer $min
-	 * @param integer $max
+	 * @param int $min
+	 * @param int $max
 	 */
 	public function __construct(
         $label = null,
         $name = false,
         $desc = null,
         $required = false,
-        $width = 200,
+        $width = 280,
         $default = null,
         $min = 0,
         $max = 0x7fffffff
@@ -83,4 +83,24 @@ class Numeric extends Field
 			]
 		];
 	}
+
+    /**
+     * Return min value
+     *
+     * @return string
+     */
+    public function getMinValue()
+    {
+        return $this->_min;
+    }
+
+    /**
+     * Return max value
+     *
+     * @return string
+     */
+    public function getMaxValue()
+    {
+        return $this->_max;
+    }
 }

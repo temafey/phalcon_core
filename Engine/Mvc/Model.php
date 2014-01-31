@@ -14,8 +14,8 @@ use Engine\Mvc\Model\Query\Builder;
  */
 class Model extends \Phalcon\Mvc\Model
 {
-    const ID = 'ID';
-    const NAME = 'NAME';
+    CONST ID = 'ID';
+    CONST NAME = 'NAME';
 
     /**
      * Primary model columns

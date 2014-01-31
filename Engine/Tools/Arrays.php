@@ -45,6 +45,44 @@ class Arrays
 	}
 
     /**
+     * Convert linear array to assoc array
+     *
+     * @param array $array
+     * @param string $key
+     * @param string $value
+     * @return array
+     */
+    static function assocToArray($array, $key = false, $value = false)
+    {
+        $result = [];
+        foreach ($array as $k => $v) {
+            $subValue = ($key && $value) ? [$key => $k, $value => $v] : [$k, $v];
+            $result[] = $subValue;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Convert linear array to assoc array
+     *
+     * @param array $array
+     * @param string $key
+     * @param string $value
+     * @return array
+     */
+    static function resultArrayToJsonType($array, $key = 'id', $value = 'name')
+    {
+        $result = [];
+        foreach ($array as $val) {
+            $subValue = [$key => $val[$key], $value => $val[$value]];
+            $result[] = $subValue;
+        }
+
+        return $result;
+    }
+
+    /**
      * Generate linear array from assoc array
      * 
      * @param array $array
@@ -515,7 +553,7 @@ class Arrays
 	 * 
 	 * 
 	 * @param array $rs
-	 * @param integer $parent
+	 * @param int $parent
 	 * @param string $id
 	 * @return array
 	 */

@@ -124,6 +124,16 @@ trait FormElements
     }
 
     /**
+     * Return field type
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->_type;
+    }
+
+    /**
      * Return field name
      *
      * @return string
@@ -180,6 +190,52 @@ trait FormElements
     public function getDesc()
     {
         return $this->_desc;
+    }
+
+    /**
+     * Return field width
+     *
+     * @return string
+     */
+    public function getwidth()
+    {
+        return $this->_width;
+    }
+
+    /**
+     * set field label
+     *
+     * @param string $label
+     * @return \Engine\Crud\Form\Field
+     */
+    public function setLabel($label)
+    {
+        $this->_label = $label;
+        return $this;
+    }
+
+    /**
+     * Set field description
+     *
+     * @param string $desc
+     * @return \Engine\Crud\Form\Field
+     */
+    public function setDesc($desc)
+    {
+        $this->_desc = $desc;
+        return $this;
+    }
+
+    /**
+     * Set field width
+     *
+     * @param int $width
+     * @return \Engine\Crud\Form\Field
+     */
+    public function setwidth($width)
+    {
+        $this->_width = $width;
+        return $this;
     }
 
     /**

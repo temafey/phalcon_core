@@ -18,7 +18,7 @@ class Local extends BaseHelper
 {
     /**
      * Is create js file prototype
-     * @var boolen
+     * @var boolean
      */
     protected static $_createJs = true;
 
@@ -33,7 +33,7 @@ class Local extends BaseHelper
         $code = "
         Ext.define('".static::getStoreLocalName()."', {
             extend: 'Ext.data.Store',
-            requires  : ['Ext.data.proxy.LocalStorage'],
+            requires: ['Ext.data.proxy.LocalStorage'],
             model: '".static::getModelName()."',
 
             proxy: {

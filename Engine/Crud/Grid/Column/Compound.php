@@ -38,9 +38,9 @@ class Compound extends Column
      * @param string $separator
      * @param int $width
      */
-    public function __construct(array $columns, $title = null, $separator = ", ", $width = 80)
+    public function __construct(array $columns, $title = null, $separator = ", ", $width = 160)
     {
-        parent::__construct($title, null, false, false, $width);
+        parent::__construct($title, null, false, false, $width, false, null);
 
         $this->_columns = $columns;
         $this->_separator = $separator;
