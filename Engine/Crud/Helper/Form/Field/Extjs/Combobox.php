@@ -55,13 +55,25 @@ class Combobox extends BaseHelper
         $fieldCode[] = "queryMode: 'local'";
         $fieldCode[] = "displayField: 'name'";
         $fieldCode[] = "valueField: 'id'";
+        $fieldCode[] = "valueNotFoundText: 'Nothing found'";
 
         $store = forward_static_call(['static', '_getStore'], $field);
         $fieldCode[] = "store: ".$store;
 
+        $listeners = forward_static_call(['static', '_getListeners'], $field);
+        $fieldCode[] = "listeners: ".$listeners;
+
+
+
         return forward_static_call(['static', '_implode'], $fieldCode);
     }
 
+    /**
+     * Return combobox datastore code
+     *
+     * @param Field\ArrayToSelect $field
+     * @return string
+     */
     protected static function _getStore(Field\ArrayToSelect $field)
     {
         $key = $field->getKey();
@@ -69,8 +81,13 @@ class Combobox extends BaseHelper
         $formKey = $form->getKey();
         $url = $form->getAction()."/".$key."/options";
 
+        $autoLoad = ($field->getAttrib('autoLoad')) ? true : false;
+        $isLoaded = ($field->getAttrib('isLoaded')) ? true : false;
+
         $store = "new Ext.data.Store({
-                        autoLoad: true,
+                        autoLoad: ".($autoLoad ? "true" : "false").","
+                        .($isLoaded ? "
+                        isLoaded: false," : "")."
                         fields: [{name: 'id'}, {name: 'name'}],
                         proxy: {
                             type: 'ajax',
@@ -83,5 +100,44 @@ class Combobox extends BaseHelper
                     })";
 
         return $store;
+    }
+
+    /**
+     * Return combobox listeners code
+     *
+     * @param Field\ArrayToSelect $field
+     * @return string
+     */
+    protected static function _getListeners(Field\ArrayToSelect $field)
+    {
+        $listeners = "{";
+
+        if ($field->getAttrib('changeListener')) {
+            $listeners .= "
+                        change: function (field, newValue, oldValue) {
+                            var record = null;
+                            if (field.store.isLoaded !== false) {
+                                record = field.store.findRecord('id', newValue);
+                                if (record === null) {
+                                    record = field.store.findRecord('name', newValue);
+                                    if (record !== null) {
+                                        field.setValue(record);
+                                    }
+                                }
+                            } else {
+                                field.store.addListener('load', function() {
+                                    field.store.isLoaded = true;
+                                    record = field.store.findRecord('name', newValue);
+                                    field.setValue(record);
+                                }, field);
+                                field.store.load();
+                            }
+                        }";
+        }
+
+        $listeners .= "
+                    }";
+
+        return $listeners;
     }
 }

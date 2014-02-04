@@ -31,6 +31,11 @@ class Fields extends BaseHelper
         $fields = [];
         foreach ($form->getFields() as $field) {
             if ($field instanceof Field) {
+                if ($field instanceof Field\ArrayToSelect) {
+                    $field->setAttrib("autoLoad", false);
+                    $field->setAttrib("isLoaded", true);
+                    $field->setAttrib("changeListener", true);
+                }
                 $fields[] = self::renderField($field);
             }
         }

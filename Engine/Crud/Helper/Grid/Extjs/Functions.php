@@ -93,7 +93,7 @@ class Functions extends BaseHelper
                     if (e.newValues[key] !== e.originalValues[key]) {
                         var column = me.getColumnByName(key);
                         if (column.field !== undefined && column.field.xtype === 'combobox') {
-                            var value = column.field.store.findRecord('id', e.newValues[key]);
+                            var value = column.field.store.getById(e.newValues[key]);
                             rec.data[key] = value.data.name;
                         }
                     }

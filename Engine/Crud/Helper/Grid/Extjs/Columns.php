@@ -5,7 +5,8 @@
 namespace Engine\Crud\Helper\Grid\Extjs;
 
 use Engine\Crud\Grid\Extjs as Grid,
-    Engine\Crud\Grid\Column as Column,
+    Engine\Crud\Grid\Column,
+    Engine\Crud\Form\Field,
     Engine\Crud\Helper\Form\Extjs\BaseHelper as FieldHelper;
 
 /**
@@ -80,11 +81,14 @@ class Columns extends BaseHelper
             $columnCode[] = "hidden: true";
         } elseif ($column->isEditable()) {
             $field = $column->getField();
+            if ($field instanceof Field\ArrayToSelect) {
+                $field->setAttrib("autoLoad", true);
+            }
             $field->setLabel(false);
             $field->setWidth(false);
             $field->setDesc(false);
             $fieldCode = "field:";
-            $fieldCode .= FieldHelper::renderField($field);
+            $fieldCode .= FieldHelper::renderField($field, $column);
             $columnCode[] = $fieldCode;
         }
 
