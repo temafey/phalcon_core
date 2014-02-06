@@ -54,7 +54,17 @@ class Image extends File
         $renderTemplate = null,
         $labelTemplate = null
     ) {
-		parent::__construct($label, $name, $uploadDirectory, $template, $desc, $size, $required, $width, $extensions);
+		parent::__construct(
+            $label,
+            $name,
+            $uploadDirectory,
+            $template,
+            $desc,
+            $size,
+            $required,
+            $width,
+            $extensions
+        );
 
 		$this->_renderTemplate = $renderTemplate;
 		$this->_labelTemplate = $labelTemplate;
@@ -75,7 +85,8 @@ class Image extends File
 		}
 		$values = $this->_form->getRenderData();
 		$label = \Engine\Tools\String::generateStringTemplate($this->_labelTemplate, $values, '{'.'}');
-		$xhtml = $this->createImage($source, $label);
+        $class = $this->getAttrib('class');
+		$xhtml = $this->createImage($source, $label, $class);
 		
 		return $xhtml;
 	}
@@ -87,17 +98,18 @@ class Image extends File
 	 * @param string $label
 	 * @return string
 	 */
-	public function createImage($image, $label = null)
+	public function createImage($image, $label = null, $class = null)
 	{
 		$src = ' src="' . $image . '"';
-		$imageTitle = (null !== $label) ? ' title="' . $label . '"' : '';
-		$imageAlt =  (null !== $label) ? ' alt="' . $label . '"' : '';
+		$imageTitle = ($label) ? ' title="' . $label . '"' : '';
+		$imageAlt =  ($label) ? ' alt="' . $label . '"' : '';
+        $class = ($class) ? ' class="' . $class . '"' : '';
 		$endTag = ' />';
 		// build the element
 		$xhtml = '<img '
             .' id="'.$this->getId().'"'
             .$src
-            .' class="'.$this->_formActionName.'-image"'
+            .$class
             .$imageTitle
             .$imageAlt
             .$endTag;

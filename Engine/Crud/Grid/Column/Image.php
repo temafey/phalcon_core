@@ -109,12 +109,12 @@ class Image extends Base
 	 */
 	public function createImage($image)
 	{        
-        $fullPath = realpath(DOCUMENT_ROOT.$image);
+        //$fullPath = realpath(DOCUMENT_ROOT.$image);
         $alt = '';
 
-        if (!file_exists($fullPath)) {
+        /*if (!file_exists($fullPath)) {
             return 'Image not exists';
-        }
+        }*/
         $src = ' src="' . $image . '"';
         $alt = ($alt) ? ' alt="' . $alt . '"' : "";
         $width = 'width: ' . $this->width .'px;';

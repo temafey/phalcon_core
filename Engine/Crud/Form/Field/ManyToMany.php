@@ -352,7 +352,7 @@ class Many2Many extends Field
 			}
 			$db->commit();
 
-		} catch (\Exception $e) {
+		} catch (\Engine\Exception $e) {
 			$db->rollback ();
 			echo $e->getMessage ();
 			die ();

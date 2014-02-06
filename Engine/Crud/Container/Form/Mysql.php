@@ -242,7 +242,7 @@ class Mysql extends Container implements FormContainer
 			    $db->rollBack();
 			    return $results;
 			}
-		} catch (\Exception $e) {
+		} catch (\Engine\Exception $e) {
 			return ['error' => $e->getMessage()];
 		}
 		$db->commit();
@@ -267,7 +267,7 @@ class Mysql extends Container implements FormContainer
 	            $model->create($data);
                 $primary = $model->getPrimary();
 	            $results[] = $model->{$primary};
-	        } catch (\Exception $e) {
+	        } catch (\Engine\Exception $e) {
 			    return ['error' => $e->getMessage()];
 		    }
 	    }
@@ -290,7 +290,14 @@ class Mysql extends Container implements FormContainer
             $primary = $this->_model->getPrimary();
             unset($data[$primary]);
             $record = $this->_model->findFirst($id);
-            if (!$record->update($data)) {
+            $isUpdate = false;
+            foreach ($data as $key => $value) {
+                if (isset($record->{$key})) {
+                    $isUpdate = true;
+                    $record->$key = $value;
+                }
+            }
+            if ($isUpdate && !$record->update()) {
                 $db->rollBack();
                 return ['error' => $record->getMessage()];
             }
@@ -299,7 +306,7 @@ class Mysql extends Container implements FormContainer
                 $db->rollBack();
                 return $results;
             }
-        } catch (\Exception $e) {
+        } catch (\Engine\Exception $e) {
             $db->rollBack();
             return ['error' => $e->getMessage()];
         }
@@ -325,12 +332,19 @@ class Mysql extends Container implements FormContainer
                 }
                 $records = $model->findByColumn($referenceColumn, [$id]);
                 foreach ($records as $record) {
-                    if (!$record->update($data)) {
+                    $isUpdate = false;
+                    foreach ($data as $key => $value) {
+                        if (isset($record->{$key})) {
+                            $isUpdate = true;
+                            $record->$key = $value;
+                        }
+                    }
+                    if ($isUpdate && !$record->update()) {
                         return ['error' => $record->getMessage()];
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Engine\Exception $e) {
             return ['error' => $e->getMessage()];
         }
 
@@ -358,7 +372,7 @@ class Mysql extends Container implements FormContainer
                     return ['error' => $record->getMessage()];
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Engine\Exception $e) {
             $db->rollBack();
             return ['error' => $e->getMessage()];
         }

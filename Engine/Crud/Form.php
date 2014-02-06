@@ -213,7 +213,7 @@ abstract class Form implements
     /**
      * Return form container adapter
      *
-     * @return \Engine\Crud\Container\AbstractContainer
+     * @return \Engine\Crud\Container\Form\Adapter
      */
     public function getContainer()
     {

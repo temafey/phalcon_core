@@ -124,13 +124,10 @@ class File extends Field
 		$this->_form->setAttrib('enctype', 'multipart/form-data');
 
 		$this->_notSave = true;
-		$this->_element->setDestination($this->_uploadDirectory);
-		$this->_element->setMaxFileSize($this->_size);
-		$this->_element->helper = 'formMyFormFile';
 		
         $key = $this->getKey();
 	    if (empty($_FILES) || !isset($_FILES[$key])) {				
-			$_FILES[$key] = array("name" => "", "type" => "", "tmp_name" => "", "error" => 4, "size" => 0);
+			$_FILES[$key] = ["name" => "", "type" => "", "tmp_name" => "", "error" => 4, "size" => 0];
 		}
 	}
 
@@ -145,7 +142,6 @@ class File extends Field
 		if (empty($_FILES) || !isset($_FILES[$key]) || !empty($_FILES[$key]['error'])) {
 			return false;
 		}
-		    
 		$fullName = $this->_template;
 		if (!$fullName) {
 			$file = explode(".", $_FILES[$key]['name']);
@@ -156,12 +152,13 @@ class File extends Field
 			$file_hash_name = ($this->sha1) ? $this->sha1($this->getId()) : $this->getId();
 			$fullName = str_replace('{sha}', $file_hash_name, $fullName);
 		}
+        $uploadDirectory = rtrim(\Engine\Tools\String::generateStringTemplate($this->_uploadDirectory, $data, '{', '}'), "/)");
 		$fullName = \Engine\Tools\String::generateStringTemplate($fullName, $data, '{', '}');
 
 		$fileType = strtolower(end(explode(".", $_FILES[$key]['name'])));
 		$fullName = $fullName.'.'.$fileType;
-		$zend_upload_dir = $this->_uploadDirectory;
-		$fullName = $this->_uploadDirectory.'/'.$fullName;
+		$zend_upload_dir = $uploadDirectory;
+		$fullName = $uploadDirectory.'/'.$fullName;
 		$pathinfo = pathinfo($fullName);
 		$uploadDirectory = $pathinfo['dirname'];
 		$fileName = $pathinfo['basename'];
@@ -180,16 +177,15 @@ class File extends Field
 		if (file_exists($fullName)) {
 		    unlink($fullName);   
 		}
-		move_uploaded_file($_FILES[$key]['tmp_name'], $fullName);
 		if (is_uploaded_file($_FILES[$key]['tmp_name'])) {	
-		    move_uploaded_file($_FILES[$key]['tmp_name'], $fullName);				
-		} elseif (is_file($zend_upload_dir.'/'.$_FILES[$key]['name'])) {		
-		    rename($zend_upload_dir.'/'.$_FILES[$key]['name'], $fullName);			    
+		    $result = move_uploaded_file($_FILES[$key]['tmp_name'], $fullName);
+		} elseif (is_file($zend_upload_dir.'/'.$_FILES[$key]['name'])) {
+            $result = rename($zend_upload_dir.'/'.$_FILES[$key]['name'], $fullName);
 		}
-						
-		$def_data = array ($this->_name => $fileName);
+
+		$def_data = [$this->_name => $fileName];
 		$container = $this->_form->getContainer();
-		$container->update($this->_id, $def_data);
+		$result = $container->update($this->_id, $def_data);
 		$_FILES[$key]['name'] = $fileName;
 	}
 
@@ -204,7 +200,7 @@ class File extends Field
 	    if (array_key_exists($key, $_FILES)) {
 	        return $_FILES[$key]['name'];
 	    }
-	    
+
 		return $this->_value;
 	}
 	

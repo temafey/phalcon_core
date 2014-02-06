@@ -66,7 +66,7 @@ abstract class AbstractContainer
 	/**
 	 * Return database modle
 	 * 
-	 * @return mixed
+	 * @return \Engine\Mvc\Model
 	 */
 	public function getModel()
 	{

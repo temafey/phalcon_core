@@ -49,7 +49,7 @@ class Image extends BaseHelper
 
         $fieldCode[] = "emptyText: 'Select an image'";
         $fieldCode[] = "buttonText: ''";
-        $fieldCode[] = "buttonConfig: {iconCls: 'upload-icon'}";
+        $fieldCode[] = "buttonConfig: {iconCls: 'icon-upload'}";
 
         return forward_static_call(['self', '_implode'], $fieldCode);
     }

@@ -257,4 +257,23 @@ class Model extends \Phalcon\Mvc\Model
     {
         return $this->getReferenceRelation($refModel)->getReferencedFields();
     }
+
+    /**
+     * Fix field value for tinyint(1) types, from integer to string
+     *
+     * @return void
+     */
+    protected function  _preSave()
+    {
+        $metaData = $this->getModelsMetaData();
+        $dataTypes = $metaData->getDataTypes($this);
+        foreach ($dataTypes as $key => $type) {
+            if ($type === \Phalcon\Db\Column::TYPE_BOOLEAN) {
+                $value = $this->{$key};
+                if ((int) $value === $value) {
+                    $this->{$key} = (string) $value;
+                }
+            }
+        }
+    }
 }

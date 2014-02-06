@@ -323,7 +323,7 @@ class Mysql extends Container implements GridContainer
 	            $db->rollBack();
 			    return $results;
 			}
-		} catch (\Exception $e) {
+		} catch (\Engine\Exception $e) {
             $db->rollBack();
 			return ['error' => $e->getMessage()];
 		}
@@ -354,7 +354,7 @@ class Mysql extends Container implements GridContainer
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Engine\Exception $e) {
             return ['error' => $e->getMessage()];
         }
 	    
@@ -379,7 +379,7 @@ class Mysql extends Container implements GridContainer
                     return ['error' => $record->getMessage()];
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Engine\Exception $e) {
             $db->rollBack();
             return ['error' => $e->getMessage()];
         }
