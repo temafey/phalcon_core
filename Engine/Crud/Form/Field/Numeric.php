@@ -47,7 +47,7 @@ class Numeric extends Field
 	 */
 	public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $desc = null,
         $required = false,
         $width = 280,

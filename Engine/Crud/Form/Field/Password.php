@@ -52,7 +52,7 @@ class Password extends Field
      */
     public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $keyTemplate = '{name}',
         $length = 8,
         $description = null,
@@ -110,11 +110,7 @@ class Password extends Field
             return false;
         }
 
-        $data = [];
-        $data['model'] = 'default';
-        $data['data'] = ['key' => $this->getName(), 'value' => $this->getCryptValue()];
-
-        return $data;
+        return ['key' => $this->getName(), 'value' => $this->getCryptValue()];
     }
 
     /**

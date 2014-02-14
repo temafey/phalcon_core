@@ -59,7 +59,7 @@ class ArrayToSelect extends Standart
 	 */
 	public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         array $options = [],
         $desc= null,
         $criteria = Criteria::CRITERIA_EQ,

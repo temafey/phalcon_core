@@ -36,7 +36,7 @@ class Model extends \Phalcon\Mvc\Model
     protected $_attributes = null;
 
     /**
-     * Default column name
+     * Default order column
      * @var string
      */
     protected $_orderExpr = null;
@@ -230,7 +230,8 @@ class Model extends \Phalcon\Mvc\Model
         if (!$path) {
             return $relationPath;
         }
-        $refModel = new $relation->getReferencedModel();
+        $refModel = $relation->getReferencedModel();
+        $refModel = new $refModel;
         $tail = $refModel->getRelationPath($path);
 
         return array_merge($relationPath, $tail);

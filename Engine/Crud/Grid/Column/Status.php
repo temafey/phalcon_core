@@ -19,7 +19,7 @@ use Engine\Crud\Grid\Column,
 class Status extends Collection
 {
     /**
-     * Column type.
+     * Field type.
      * @var string
      */
     protected $_type = 'check';

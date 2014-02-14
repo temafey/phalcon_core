@@ -5,7 +5,7 @@
 namespace Engine\Crud\Helper\Grid\Extjs;
 
 use Engine\Crud\Grid\Extjs as Grid,
-    Engine\Crud\Grid\Column as Column;
+    Engine\Crud\Grid\Column;
 
 /**
  * Class extjs grid model helper
@@ -40,7 +40,7 @@ class Model extends BaseHelper
                 if ($column instanceof Column) {
                     $type = $column->getType();
                     if (!method_exists(__CLASS__, '_'.$type)) {
-                        throw new \Engine\Exception("Column with type '".$type."' haven't render method in '".__CLASS__."'");
+                        throw new \Engine\Exception("Field with type '".$type."' haven't render method in '".__CLASS__."'");
                     }
                     $columnCode = forward_static_call(['self', '_'.$type], $column);
 

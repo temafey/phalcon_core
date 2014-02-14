@@ -40,7 +40,7 @@ class Standart extends Field
 	 */
 	public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $desc = null,
         $criteria = Criteria::CRITERIA_EQ,
         $width = 60,

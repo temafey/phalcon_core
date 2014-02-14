@@ -21,7 +21,7 @@ use Crud\Grid\Grid,
 class ImageJoinOne extends JoinOne 
 {
     /**
-     * Column type.
+     * Field type.
      * @var string
      */
     protected $_type = 'image';

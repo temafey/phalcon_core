@@ -183,7 +183,7 @@ class JoinMany extends Column
 	 * 
 	 * @param string $left
 	 * @param string $right
-	 * @return \Engine\Crud\Grid\Column\AbstractColum
+	 * @return \Engine\Crud\Grid\Column\JoinMany
 	 */
 	public function setLeftRightTag($left, $right) 
 	{

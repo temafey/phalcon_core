@@ -43,7 +43,7 @@ class Image extends File
 	 */
 	public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $uploadDirectory,
         $template = '{id}',
         $desc = null,

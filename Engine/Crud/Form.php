@@ -610,18 +610,15 @@ abstract class Form implements
 				$alter[] = $key;
 				continue;
 			}
-			if ($d['model'] == 'default') {
-				/*if($field instanceof Field\TranslationText) {
-					if(!isset($saveData['translations'])) {
-						$saveData['translations'] = [];
-					}
-					$saveData['translations'][$d['data']['key']] = $d['data']['value'];
-				} else {*/
-					$saveData[$d['data'] ['key']] = $d ['data'] ['value'];
-				//}
-			} elseif ($d['model']) {
-				$data[] = ['model' => $d['model'], 'data' => $d['data']];
-			}
+            /*if($field instanceof Field\TranslationText) {
+                if(!isset($saveData['translations'])) {
+                    $saveData['translations'] = [];
+                }
+                $saveData['translations'][$d['data']['key']] = $d['data']['value'];
+            } else {*/
+            $saveData[$d['key']] = $d['value'];
+            //}
+
 		}
 		$saveData = array_merge($this->_addData, $saveData);
 	    if (null !== $this->_id) {
@@ -872,10 +869,10 @@ abstract class Form implements
 	 * @param string $key
 	 * @return string
 	 */
-	public function getFieldNameByKey($key) 
+	public function getFieldNameByKey($key)
 	{
 		if(isset($this->_fields[$key])) {
-			return $field->getName();
+			return $this->_fields[$key]->getName();
 		}
 		
 		return false;
@@ -898,7 +895,7 @@ abstract class Form implements
 	 * 
 	 * @param array $fields
 	 * @throws Exception
-	 * @return \Engine\Crud\Grid\Filter\Filter
+	 * @return \Engine\Crud\Grid\Filter
 	 */
 	public function setFields(array $fields)
 	{
@@ -925,7 +922,7 @@ abstract class Form implements
                 $name = $key;
             }
 
-            if (is_string($spec) || ($spec instanceof Field\Field)) {
+            if (is_string($spec) || ($spec instanceof Field)) {
                 $this->addElement($spec, $name);
                 continue;
             }

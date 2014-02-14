@@ -5,13 +5,13 @@
 namespace Engine\Forms\Element;
 
 /**
- * Class TextArea
+ * Class Textarea
  *
  * @category    Engine
  * @package     Forms
  * @subcategory Element
  */
-class TextArea extends \Phalcon\Forms\Element\TextArea implements \Engine\Forms\ElementInterface
+class Textarea extends \Phalcon\Forms\Element\Textarea implements \Engine\Forms\ElementInterface
 {
     /**
      * Form element description

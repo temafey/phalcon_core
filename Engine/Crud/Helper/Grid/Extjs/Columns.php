@@ -35,7 +35,7 @@ class Columns extends BaseHelper
             if ($column instanceof Column) {
                 $type = $column->getType();
                 /*if (!method_exists(__CLASS__, '_'.$type)) {
-                    throw new \Engine\Exception("Column with type '".$type."' haven't render method in '".__CLASS__."'");
+                    throw new \Engine\Exception("Field with type '".$type."' haven't render method in '".__CLASS__."'");
                 }*/
                 switch ($type) {
                     case 'image':
@@ -81,6 +81,9 @@ class Columns extends BaseHelper
             $columnCode[] = "hidden: true";
         } elseif ($column->isEditable()) {
             $field = $column->getField();
+            if (!$field instanceof Field) {
+                throw new \Engine\Exception("Form field for column '".$column->getKey()."' does not exist");
+            }
             if ($field instanceof Field\ArrayToSelect) {
                 $field->setAttrib("autoLoad", true);
             }

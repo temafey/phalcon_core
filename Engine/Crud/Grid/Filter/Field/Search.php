@@ -35,7 +35,7 @@ class Search extends Standart
 	 */
 	public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         array $fields,
         $desc = null,
         $width = 60,

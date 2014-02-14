@@ -13,7 +13,7 @@ use Engine\Crud\Form\Field;
  * @package    Crud
  * @subpackage Form
  */
-class Many2Many extends Field
+class ManyToMany extends Field
 {
 	/**
 	 * Element type
@@ -169,7 +169,7 @@ class Many2Many extends Field
         $model,
         $workingModel,
         $optionName = null,
-        $name = null,
+        $name = false,
         $description = null,
         $required = false,
         $width = 280,

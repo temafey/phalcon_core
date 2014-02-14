@@ -72,7 +72,7 @@ class ImageAdmin extends Image
      */
     public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $uploadDirectory, 
         $fileName = '{sha}', 
         $saveFilename = true, 
@@ -234,8 +234,8 @@ class ImageAdmin extends Image
 			$def_data = [$this->_name => $this->_fileName];
 			$status = $this->_form->getFieldByName('status');
 			if ($status !== false) {
-			    $statusColumnName = $status->getName();
-			    $def_data[$statusColumnName] = 1;
+			    $statusColumn\Name = $status->getName();
+			    $def_data[$statusColumn\Name] = 1;
 			}
             $model = $container->getModel();
             $model->update($def_data, $model->getPrimary() . " = ?", $this->getId());

@@ -39,11 +39,11 @@ class Text extends Field
 	 */
 	public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $desc = null,
         $required = false,
         $width = 280,
-        $default = null,
+        $default = '',
         $length = 255
     ) {
 		parent::__construct($label, $name, $desc, $required, $width, $default);

@@ -104,7 +104,7 @@ class FormField extends Base
 		if ($this->_element instanceof \Zend\Form\Element\Checkbox) {
 			$attribs ['checked'] = $row [$this->key];
 		}
-		$fieldName = (!empty($this->name)) ? $this->_form->getFieldNameByColumnName ( $this->name ) : $this->_form->getFieldNameByFieldName ( $this->key );
+		$fieldName = (!empty($this->name)) ? $this->_form->getField\NameByColumn\Name ( $this->name ) : $this->_form->getField\NameByField\Name ( $this->key );
 		$value = $this->_form->fields [$fieldName]->setValue ( $row [$this->key] )->getValue ();
 		if(is_array($value)) {
 			$value = $row [$this->key];
@@ -123,7 +123,7 @@ class FormField extends Base
 	 */
 	public function updateField($id, $value)
 	{
-		if($this->_element->isValid($value)) {
+		if ($this->_element->isValid($value)) {
 			$model = $this->_form->getModel();
 			$field = $this->_form->getFieldByName($this->_name);
 			$field->setValue($value);

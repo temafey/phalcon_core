@@ -32,7 +32,7 @@ class InArray extends Standart
      */
     public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $criteria = Criteria::CRITERIA_IN,
         $delimiter = ","
     ) {

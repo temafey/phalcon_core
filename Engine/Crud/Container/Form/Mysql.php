@@ -294,7 +294,7 @@ class Mysql extends Container implements FormContainer
             foreach ($data as $key => $value) {
                 if (isset($record->{$key})) {
                     $isUpdate = true;
-                    $record->$key = $value;
+                    $record->{$key} = $value;
                 }
             }
             if ($isUpdate && !$record->update()) {

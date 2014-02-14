@@ -151,7 +151,7 @@ class Join extends ArrayToSelect
 	 */
 	public function applyFilter($dataSource, Container $container)
 	{
-        if ($this->_name === null) {
+        if (!$this->_name) {
             $model = $dataSource->getModel();
             $path = ($this->_path) ? $this->_path : $this->_model;
             $relations = $model->getRelationPath($path);

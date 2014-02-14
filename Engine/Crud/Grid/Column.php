@@ -388,7 +388,7 @@ abstract class Column implements ColumnInterface
 	{
 		$value = $row[$this->_key];
 		$value = $this->filter($value);
-		
+
 		return $value;
 	}
 	

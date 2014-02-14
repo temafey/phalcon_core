@@ -49,7 +49,7 @@ class PasswordConfirm extends Field
         $notEdit = false,
         $width = 280
     ) {
-        parent::__construct($label, false, $description, $required, $notEdit, $width);
+        parent::__construct($label, null, $description, $required, $notEdit, $width);
 
         $this->_confirmField = $confirmField;
     }

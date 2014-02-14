@@ -4,6 +4,7 @@
  */
 namespace Engine\Crud\Tools;
 
+use Engine\Crud\Form\Field\TextArea;
 use Phalcon\Forms\Element;
 
 /**
@@ -307,8 +308,9 @@ trait FormElements
         $this->_element->addValidators($this->getValidators());
         $this->_element->setAttributes($this->getAttribs());
         $this->_element->setLabel($this->_label);
-        $this->_element->setDesc($this->_desc);
-
+        if (!$this->_element instanceof TextArea) {
+            $this->_element->setDesc($this->_desc);
+        }
         $this->_element->setDefault($this->getValue());
         $message = $this->getErrorMessage();
         if ($message) {

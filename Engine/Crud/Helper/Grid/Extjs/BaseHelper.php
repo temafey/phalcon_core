@@ -41,16 +41,8 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function init($element)
     {
-        static::$_module = $element->getModuleName();
-
-        $prefix = explode("-", $element->getKey());
-        foreach ($prefix as $i => &$word) {
-            if ($i === 0) {
-                continue;
-            }
-            $word = ucfirst($word);
-        }
-        static::$_prefix =implode("", $prefix);
+        static::$_module = \Phalcon\Text::camelize($element->getModuleName());
+        static::$_prefix = \Phalcon\Text::camelize($element->getKey());
     }
 
     /**
@@ -70,7 +62,7 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function getGridName()
     {
-        return ucfirst(static::$_module).".view.".static::$_prefix.".Grid";
+        return static::$_module.".view.".static::$_prefix.".Grid";
     }
 
     /**
@@ -80,7 +72,7 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function getFormName()
     {
-        return ucfirst(static::$_module).".view.".static::$_prefix.".Form";
+        return static::$_module.".view.".static::$_prefix.".Form";
     }
 
     /**
@@ -90,7 +82,7 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function getWinName()
     {
-        return ucfirst(static::$_module).".view.".static::$_prefix.".Win";
+        return static::$_module.".view.".static::$_prefix.".Win";
     }
 
     /**
@@ -100,7 +92,7 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function getModelName()
     {
-        return ucfirst(static::$_module).".model.".ucfirst(static::$_prefix);
+        return static::$_module.".model.".static::$_prefix;
     }
 
     /**
@@ -110,7 +102,7 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function getStoreName()
     {
-        return ucfirst(static::$_module).".store.".ucfirst(static::$_prefix);
+        return static::$_module.".store.".static::$_prefix;
     }
 
     /**
@@ -120,7 +112,7 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function getStoreLocalName()
     {
-        return ucfirst(static::$_module).".store.".ucfirst(static::$_prefix)."Local";
+        return static::$_module.".store.".static::$_prefix."Local";
     }
 
     /**
@@ -130,7 +122,7 @@ class BaseHelper extends \Engine\Crud\Helper
      */
     public static function getControllerName()
     {
-        return ucfirst(static::$_module).".controller.".ucfirst(static::$_prefix);
+        return static::$_module.".controller.".static::$_prefix;
     }
 
     /**

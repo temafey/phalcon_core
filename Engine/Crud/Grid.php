@@ -141,8 +141,8 @@ abstract class Grid implements
 	 * @var array
 	 */
 	protected $_defaultParams = [
-		'sort' => 'id',
-		'direction' => 'desc',
+		'sort' => null,
+		'direction' => null,
 		'page' => 1,
 		'limit' => 10
 	];
@@ -292,9 +292,6 @@ abstract class Grid implements
 		foreach ($this->_columns as $key => $column) {
 			if (!$column instanceof Column) {
 			    throw new \Engine\Exception("Column '".$key."' not instance of Column interface");
-			}
-		    if ($column instanceof FormField) {		    	
-		        $column->setForm($this->_form);
 			}
 			$column->init($this, $key);
 			$key = $column->getKey();
@@ -873,7 +870,7 @@ abstract class Grid implements
 	 */
 	public function getSortDirection()
 	{
-		if (null === $this->_directionParamValue) {			
+		if (null === $this->_directionParamValue) {
 			return $this->_defaultParams['direction'];
 		}
 		return $this->_directionParamValue;

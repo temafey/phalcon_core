@@ -51,7 +51,7 @@ class Date extends Field
      */
     public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $startDate = null,
         $endDate = null,
         $format = 'Y-m-d H:i:s',
@@ -104,11 +104,7 @@ class Date extends Field
         $date = new \DateTime($value);
         $value = $date->format('Y-m-d H:i:s');
 
-        $data = [];
-        $data['model'] = 'default';
-        $data['data'] = ['key' => $this->getName(), 'value' => $value];
-
-        return $data;
+        return ['key' => $this->getName(), 'value' => $value];
     }
 
     /**

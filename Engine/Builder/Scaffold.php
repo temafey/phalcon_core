@@ -25,7 +25,7 @@ use Phalcon\Text,
     Engine\Builder\Component,
     Engine\Builder\Model as ModelBuilder,
 	Phalcon\DI\FactoryDefault,
-	Phalcon\Db\Column;
+	Phalcon\Db\Field;
 
 /**
  * ScaffoldBuilderComponent
@@ -249,28 +249,28 @@ class Scaffold extends Component
 	private function _resolveType($type)
 	{
 		switch ($type) {
-			case Column::TYPE_INTEGER:
+			case Field::TYPE_INTEGER:
 				return 'integer';
 				break;
-			case Column::TYPE_DECIMAL:
+			case Field::TYPE_DECIMAL:
 				return 'decimal';
 				break;
-			case Column::TYPE_FLOAT:
+			case Field::TYPE_FLOAT:
 				return 'float';
 				break;
-			case Column::TYPE_DATE:
+			case Field::TYPE_DATE:
 				return 'date';
 				break;
-			case Column::TYPE_VARCHAR:
+			case Field::TYPE_VARCHAR:
 				return 'varchar';
 				break;
-			case Column::TYPE_DATETIME:
+			case Field::TYPE_DATETIME:
 				return 'datetime';
 				break;
-			case Column::TYPE_CHAR:
+			case Field::TYPE_CHAR:
 				return 'char';
 				break;
-			case Column::TYPE_TEXT:
+			case Field::TYPE_TEXT:
 				return 'text';
 				break;
 			default:
@@ -335,17 +335,17 @@ class Scaffold extends Component
 		} else {
 
 			switch ($dataType) {
-				case Column::TYPE_CHAR:
+				case Field::TYPE_CHAR:
 					$code .= PHP_EOL . "\t\t\t\t" . '<?php echo $this->tag->textField(array("' . $attribute . '")) ?>';
 					break;
-				case Column::TYPE_DECIMAL:
-				case Column::TYPE_INTEGER:
+				case Field::TYPE_DECIMAL:
+				case Field::TYPE_INTEGER:
 					$code .= PHP_EOL . "\t\t\t" . '<?php echo $this->tag->textField(array("' . $attribute . '", "type" => "number")) ?>';
 					break;
-				case Column::TYPE_DATE:
+				case Field::TYPE_DATE:
 					$code .= PHP_EOL . "\t\t\t\t" . '<?php echo $this->tag->textField(array("' . $attribute . '", "type" => "date")) ?>';
 					break;
-				case Column::TYPE_TEXT:
+				case Field::TYPE_TEXT:
 					$code .= PHP_EOL . "\t\t\t\t" . '<?php echo $this->tag->textField(array("' . $attribute . '", "type" => "date")) ?>';
 					break;
 				default:
@@ -374,17 +374,17 @@ class Scaffold extends Component
 		} else {
 
 			switch ($dataType) {
-				case Column::TYPE_CHAR:
+				case Field::TYPE_CHAR:
 					$code .= PHP_EOL . "\t\t\t\t" . '{{ text_field("' . $attribute . '") }}';
 					break;
-				case Column::TYPE_DECIMAL:
-				case Column::TYPE_INTEGER:
+				case Field::TYPE_DECIMAL:
+				case Field::TYPE_INTEGER:
 					$code .= PHP_EOL . "\t\t\t" . '{{ text_field("' . $attribute . '", "type" : "numeric") }}';
 					break;
-				case Column::TYPE_DATE:
+				case Field::TYPE_DATE:
 					$code .= PHP_EOL . "\t\t\t\t" . '{{ text_field("' . $attribute . '", "type" : "date") }}';
 					break;
-				case Column::TYPE_TEXT:
+				case Field::TYPE_TEXT:
 					$code .= PHP_EOL . "\t\t\t\t" . '{{ text_field("' . $attribute . '", "type" : "date") }}';
 					break;
 				default:
@@ -721,8 +721,8 @@ class Scaffold extends Component
 		$code = file_get_contents($templatePath);
 
 		$code = str_replace('$plural$', $options['plural'], $code);
-		$code = str_replace('$headerColumns$', $headerCode, $code);
-		$code = str_replace('$rowColumns$', $rowCode, $code);
+		$code = str_replace('$headerFields$', $headerCode, $code);
+		$code = str_replace('$rowFields$', $rowCode, $code);
 		$code = str_replace('$singularVar$', '$' . $options['singular'], $code);
 		$code = str_replace('$pk$', $options['attributes'][0], $code);
 
@@ -773,8 +773,8 @@ class Scaffold extends Component
 		$code = file_get_contents($templatePath);
 
 		$code = str_replace('$plural$', $options['plural'], $code);
-		$code = str_replace('$headerColumns$', $headerCode, $code);
-		$code = str_replace('$rowColumns$', $rowCode, $code);
+		$code = str_replace('$headerFields$', $headerCode, $code);
+		$code = str_replace('$rowFields$', $rowCode, $code);
 		$code = str_replace('$singularVar$', $options['singular'], $code);
 		$code = str_replace('$pk$', $options['attributes'][0], $code);
 

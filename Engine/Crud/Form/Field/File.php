@@ -72,7 +72,7 @@ class File extends Field
 	 */
 	public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $uploadDirectory, 
         $template = '{id}',
         $desc = null, 
@@ -81,7 +81,7 @@ class File extends Field
         $width = 150, 
         $extensions = null
     ) {
-		parent::__construct($label, $name, $desc, $required, $width, null);
+		parent::__construct($label, $name, $desc, $required, $width, '');
 		
 		$this->_uploadDirectory = $uploadDirectory;
 		$this->_template = $template;
@@ -123,7 +123,7 @@ class File extends Field
 	{
 		$this->_form->setAttrib('enctype', 'multipart/form-data');
 
-		$this->_notSave = true;
+		//$this->_notSave = true;
 		
         $key = $this->getKey();
 	    if (empty($_FILES) || !isset($_FILES[$key])) {				
@@ -201,7 +201,7 @@ class File extends Field
 	        return $_FILES[$key]['name'];
 	    }
 
-		return $this->_value;
+		return parent::getValue();
 	}
 	
 	/**

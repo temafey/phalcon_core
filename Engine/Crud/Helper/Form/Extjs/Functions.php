@@ -39,13 +39,14 @@ class Functions extends BaseHelper
             },
 
             onReset: function() {
-                //this.getForm().reset();
-                var fields = this.getForm().getFields().items;
+                var me = this;
+                var fields = me.getForm().getFields().items;
 
                 for (var i = 0, len = fields.length; i < len; i++) {";
         if ($key) {
             $code .= "
                         if (fields[i].name !== '".$key."') {
+                            fields[i].setValue('');
                             fields[i].reset();
                         }";
         } else {
@@ -57,14 +58,15 @@ class Functions extends BaseHelper
             },
 
             onClear: function() {
-                this.getForm().reset();
-                var primary = this.getPrimaryField();
+                var me = this;
+                me.onReset();
+                var primary = me.getPrimaryField();
+                primary.reset();
                 primary.disable();
             },
 
             onSubmit: function() {
                 var me = this;
-
                 if (me.getForm().isValid()) {
                     me.getForm().submit({
                         url: '".$url."',
@@ -84,7 +86,6 @@ class Functions extends BaseHelper
 
             setActiveRecord: function(record) {
                 var me = this;
-
                 me.activeRecord = record;
                 if (record) {
                     //me.down('#save').enable();

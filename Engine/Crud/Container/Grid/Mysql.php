@@ -200,7 +200,13 @@ class Mysql extends Container implements GridContainer
             }
 	    }
         $sort = $this->_grid->getSortKey();
+        if (null === $sort) {
+            $sort = $this->_model->getOrderExpr();
+        }
         $direction = $this->_grid->getSortDirection();
+        if (null === $direction) {
+            $direction = ($this->_model->getOrderAsc()) ? "ASC" : "DESC";
+        }
         if ($sort) {
             $alias = $this->_dataSource->getCorrelationName($sort);
             if ($alias) {

@@ -149,8 +149,22 @@ class ManyToOne extends ArrayToSelect
         if (empty($this->_options)) {
             $this->_setOptions();
         }
+        $options = $this->_options;
+        $null = false;
+        if ($this->_nullOption) {
+            if ($this->_nullOption == -1) {
+                $null = [-1 => '-'];
+            } elseif (is_string($this->_nullOption)) {
+                $null = ['' => $this->_nullOption];
+            } elseif (is_array($this->_nullOption)) {
+                $null = $this->_nullOption;
+            }
+            if ($null !== false) {
+                $options = $null + $options;
+            }
+        }
 
-        return $this->_options;
+        return $options;
     }
 
     /**
@@ -167,28 +181,4 @@ class ManyToOne extends ArrayToSelect
 
         $this->_options = \Engine\Crud\Tools\Multiselect::prepareOptions($queryBuilder, $this->_optionName, $this->category, $this->categoryName, $this->where, $this->emptyCategory, $this->emptyItem, $this->fields);
     }
-	
-	/**
-	 * Set nulled select option
-	 * 
-	 * @param string|array $option
-	 * @return \Engine\Crud\Form\Field\ManyToOne
-	 */
-	public function setNullOption($option)
-	{
-		$this->_nullOption = $option;
-		return $this;
-	}
-	
-	/**
-	 * Set onchange action
-	 * 
-	 * @param string $onchange
-	 * @return \Engine\Crud\Form\Field\ManyToOne
-	 */
-	public function setOnchangeAction($onchange)
-	{
-		$this->_onChangeAction = $onchange;
-		return $this;
-	}
 }

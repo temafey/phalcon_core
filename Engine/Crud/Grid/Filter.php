@@ -12,7 +12,7 @@ use Engine\Crud\Grid\Filter\FieldInterface,
  *
  * @uses       \Engine\Crud\Grid\Exception
  * @uses       \Engine\Crud\Grid\Filter
- * @uses       \Engine\Crud\Grid\Column
+ * @uses       \Engine\Crud\Grid\Field
  * @category   Engine
  * @package    Crud
  * @subpackage Grid

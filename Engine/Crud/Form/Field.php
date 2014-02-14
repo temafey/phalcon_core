@@ -73,11 +73,11 @@ abstract class Field implements FieldInterface
 	 */
 	public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $desc = null,
         $required = false,
         $width = 280,
-        $default = null
+        $default = ''
     ) {
 		$this->_label = $label;
         $this->_name = $name;
@@ -282,13 +282,10 @@ abstract class Field implements FieldInterface
 	{
 		if ($this->_notSave) {
 		    return false;
-		}
-		$data = [];
-		$data['model'] = 'default';
-		$data['data'] = ['key' => $this->getName(), 'value' => $this->getValue()];
+        }
 
-		return $data;
-	}
+		return ['key' => $this->getName(), 'value' => $this->getValue()];
+    }
 
 	/**
 	 * Before save field trigger

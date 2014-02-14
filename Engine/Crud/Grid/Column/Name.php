@@ -20,14 +20,23 @@ class Name extends Base
      * @param bool $isSortable
      * @param bool $isHidden
      * @param int $width
+     * @param bool $isEditable
+     * @param string $fieldKey
      */
-    public function __construct($title, $isSortable = true, $isHidden = false, $width = 160)
-    {
+    public function __construct(
+        $title,
+        $isSortable = true,
+        $isHidden = false,
+        $width = 160,
+        $isEditable = true,
+        $fieldKey = null
+    ) {
         $this->_title = $title;
 
         $this->_isSortable = (bool) $isSortable;
         $this->_isHidden = (bool) $isHidden;
-        $this->_isEditable = false;
+        $this->_isEditable = (bool) $isEditable;
+        $this->_fieldKey = $fieldKey;
         $this->_width = intval($width);
     }
 

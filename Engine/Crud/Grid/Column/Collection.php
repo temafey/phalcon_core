@@ -17,7 +17,7 @@ namespace Engine\Crud\Grid\Column;
 class Collection extends Base
 {
     /**
-     * Column type.
+     * Field type.
      * @var string
      */
     protected $_type = 'collection';

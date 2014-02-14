@@ -5,7 +5,7 @@
 namespace Engine\Crud\Helper\Grid\Standart;
 
 use Engine\Crud\Grid,
-    Engine\Crud\Grid\Column as Column;
+    Engine\Crud\Grid\Field as Field;
 
 /**
  * Class grid columns helper
@@ -14,7 +14,7 @@ use Engine\Crud\Grid,
  * @package    Crud
  * @subpackage Helper
  */
-class Columns extends \Engine\Crud\Helper
+class Fields extends \Engine\Crud\Helper
 {
 	/**
 	 * Generates grid table colums head
@@ -28,8 +28,8 @@ class Columns extends \Engine\Crud\Helper
             <thead>
                 <tr>';
 
-        foreach ($grid->getColumns() as $column) {
-            if ($column instanceof Column) {
+        foreach ($grid->getFields() as $column) {
+            if ($column instanceof Field) {
                 $columnCode = '
                 <th width="'.$column->getWidth().'">';
                 if ($column->isSortable()) {
@@ -58,10 +58,10 @@ class Columns extends \Engine\Crud\Helper
     /**
      * Create column sortable link
      *
-     * @param \Engine\Crud\Grid\Column $column
+     * @param \Engine\Crud\Grid\Field $column
      * @return string
      */
-    static public function sortLink(Column $column)
+    static public function sortLink(Field $column)
     {
         $grid = $column->getGrid();
         $action = $grid->getAction();

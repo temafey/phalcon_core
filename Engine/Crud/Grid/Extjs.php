@@ -130,6 +130,28 @@ abstract class Extjs extends Grid
     }
 
     /**
+     * Return datas with column value
+     *
+     * @return array
+     */
+    public function getColumnData()
+    {
+        if (null === $this->_data) {
+            $this->_setData();
+        }
+        $data = [];
+        foreach ($this->_data[$this->_key] as $row) {
+            $values = [];
+            foreach ($this->_columns as $key => $column) {
+                $values[$key] = $column->getValue($row);
+            }
+            $data[] = $values;
+        }
+
+        return $data;
+    }
+
+    /**
      * Set grid params
      *
      * @param array $params

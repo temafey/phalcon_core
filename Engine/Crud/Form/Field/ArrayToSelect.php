@@ -64,7 +64,7 @@ class ArrayToSelect extends Field
 	 */
 	public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $options = [],
         $desc = null,
         $required = false,
@@ -92,24 +92,20 @@ class ArrayToSelect extends Field
         }
 
         $options = $this->getOptions();
-        $nullValue = false;
-        if ($this->_nullOption) {
-            if ($this->_nullOption == -1) {
-                $nullValue = -1;
-                $null = [-1 => '-'];
-            } elseif (is_string($this->_nullOption)) {
-                $null = ['' => $this->_nullOption];
-                $nullValue = '';
-            } elseif (is_array($this->_nullOption)) {
-                $null = $this->_nullOption;
-                $nullValue = array_keys($this->_nullOption)[0];
-            }
-            $options = $null + $options;
-        }
         $this->_element->setOptions($options);
 
         $values = $this->getValue();
         if (!$values && $values !== "0") {
+            $nullValue = false;
+            if ($this->_nullOption) {
+                if ($this->_nullOption == -1) {
+                    $nullValue = -1;
+                } elseif (is_string($this->_nullOption)) {
+                    $nullValue = '';
+                } elseif (is_array($this->_nullOption)) {
+                    $nullValue = array_keys($this->_nullOption)[0];
+                }
+            }
             $this->setValue($nullValue);
         }
     }
@@ -187,6 +183,20 @@ class ArrayToSelect extends Field
      */
     public function getOptions()
     {
-        return $this->_options;
+        $options = $this->_options;
+        $null = false;
+        if ($this->_nullOption) {
+            if ($this->_nullOption == -1) {
+                $null = [-1 => '-'];
+            } elseif (is_string($this->_nullOption)) {
+                $null = ['' => $this->_nullOption];
+            } elseif (is_array($this->_nullOption)) {
+                $null = $this->_nullOption;
+            }
+            if ($null !== false) {
+                $options = $null + $options;
+            }
+        }
+        return $options;
     }
 }

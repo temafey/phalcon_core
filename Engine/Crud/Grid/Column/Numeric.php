@@ -14,7 +14,7 @@ namespace Engine\Crud\Grid\Column;
 class Numeric extends Base
 {
     /**
-     * Column type.
+     * Field type.
      * @var string
      */
     protected $_type = 'int';

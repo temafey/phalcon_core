@@ -53,7 +53,7 @@ class Checkbox extends Field
      */
     public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $checked = false,
         $checkedValue = 1,
         $uncheckedValue = 0,

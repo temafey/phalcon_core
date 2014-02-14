@@ -51,11 +51,11 @@ class TextArea extends Text
      */
     public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $desc = null,
         $required = false,
         $width = 280,
-        $default = null,
+        $default = '',
         $length = false,
         $height = 100,
         $rows = 4,

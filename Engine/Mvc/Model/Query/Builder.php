@@ -69,12 +69,16 @@ class Builder extends PhBuilder
      */
     public function setColumn($column, $alias = null)
     {
+        if (!is_string($column)) {
+            throw new \Engine\Exception("Column value should be only string date type");
+        }
         if ($alias == $column || is_numeric($alias)) {
             $alias = null;
         } elseif ($alias === false) {
             $this->_columns[] = $column;
             return $this;
         }
+
         $model = $this->getAlias();
         if (null === $alias) {
             $this->_columns[] = $model.".".$column;
@@ -168,7 +172,9 @@ class Builder extends PhBuilder
     public function joinPath(array $joinPath, $columns = null)
     {
         $model = $this->getAlias();
+        $joinColumns = false;
         foreach ($joinPath as $rule => $relation) {
+            $joinColumns = true;
             $fields = $relation->getFields();
             $refModel = $relation->getReferencedModel();
             $refFields = $relation->getReferencedFields();
@@ -177,13 +183,15 @@ class Builder extends PhBuilder
             if ($this->_joins) {
                 foreach ($this->_joins as $join) {
                     if ($join[2] == $alias) {
-                        return $this;
+                        continue 2;
                     }
                 }
             }
             $this->leftJoin($refModel, $model.'.'.$fields.' = '.$alias.'.'.$refFields, $alias);
-            $this->joinColumns($columns, new $refModel, $alias);
             $model = $alias;
+        }
+        if ($joinColumns) {
+            $this->joinColumns($columns, new $refModel, $alias);
         }
 
         return $this;
@@ -211,7 +219,11 @@ class Builder extends PhBuilder
                 } elseif ($column === \Engine\Mvc\Model::ID) {
                     $column = $refModel->getPrimary();
                 }
-                $this->_columns[$name] = $alias.".".$column;
+                $column = $alias.".".$column;
+                if (isset($this->_columns[$name]) && $this->_columns[$name] !== $column) {
+                    throw new \Engine\Exception("Column with alias '".$name."' already exists in column list, exists column '".$this->_columns[$name]."', new column '".$column."'");
+                }
+                $this->_columns[$name] = $column;
             }
         }
     }

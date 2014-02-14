@@ -19,7 +19,7 @@ use Engine\Crud\Grid\Column;
 class JoinOne extends Column
 {
     /**
-     * Column type.
+     * Field type.
      * @var string
      */
     protected $_type = 'collection';
@@ -86,7 +86,7 @@ class JoinOne extends Column
      */
     public function updateContainer(\Engine\Crud\Container\Grid\Adapter $container)
     {
-        //$container->setColumn($this->_key, $this->_name);
+        //$container->setField($this->_key, $this->_name);
         return $this;
     }
 
@@ -99,7 +99,7 @@ class JoinOne extends Column
 	 */
 	public function updateDataSource($dataSource)
 	{
-		$columns =  [$this->_key => $this->_column, $this->_key."_id" => "ID"];
+		$columns =  [$this->_key => $this->_column];
 		if (!empty($this->_columns)) {
 		    $columns = (is_array($this->_columns)) ? array_merge($columns, $this->_columns) : array_merge($columns, [$this->_columns => $this->_columns]);
 		}

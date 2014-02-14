@@ -20,7 +20,7 @@ use Engine\Crud\Grid,
 class Image extends Base
 {
     /**
-     * Column type.
+     * Field type.
      * @var string
      */
     protected $_type = 'image';

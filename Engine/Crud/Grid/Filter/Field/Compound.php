@@ -37,7 +37,7 @@ class Compound extends Standart
      * @param string $name
      * @param array $fields
      */
-    public function __construct($label = null, $name = false, array $fields)
+    public function __construct($label = null, $name = null, array $fields)
 	{
 		parent::__construct ($label, $name);
 		$this->_fields = $fields;
