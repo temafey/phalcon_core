@@ -78,7 +78,7 @@ abstract class Extjs extends Form
         if (!empty($this->_action)) {
             return $this->_action;
         }
-        return $this->_modulePrefix."/".$this->getModuleName()."/".$this->getKey();
+        return "/".$this->_modulePrefix."/".$this->getModuleName()."/".$this->getKey();
     }
 
     /**

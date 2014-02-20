@@ -322,7 +322,7 @@ class Columns extends BaseHelper
         $columnCode[] = "menuDisabled: true";
         $columnCode[] = "width: ".$column->getWidth();
         $columnCode[] = "items: [{
-                    icon: 'extjs/apps/Cms/images/icons/fam/delete.gif',
+                    icon: '/extjs/apps/Cms/images/icons/fam/delete.gif',
                     tooltip: '".$column->getTitle()."',
                     scope: this,
                     handler: this.'".$column->getAction()."'

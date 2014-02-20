@@ -90,7 +90,7 @@ abstract class Extjs extends Grid
         if (!empty($this->_action)) {
             return $this->_action;
         }
-        return $this->_modulePrefix."/".$this->getModuleName()."/".$this->getKey();
+        return "/".$this->_modulePrefix."/".$this->getModuleName()."/".$this->getKey();
     }
 
     /**
