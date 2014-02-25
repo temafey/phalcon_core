@@ -11,9 +11,7 @@ $loader = new \Phalcon\Loader();
 //Register some namespaces
 $loader->registerNamespaces(
     array(
-        'Example\Base'    => 'vendor/example/base/',
-        'Example\Adapter' => 'vendor/example/adapter/',
-        'Example'         => 'vendor/example/',
+        'Engine' => '../../../',
     )
 );
 

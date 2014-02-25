@@ -6,6 +6,8 @@
  * Time: 1:26 PM
  */
 
+require 'loader.php';
+
 use Engine\Builder\Model as ModelBuilder;
 use Engine\Builder\Script\Color;
 
