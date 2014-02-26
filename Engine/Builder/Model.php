@@ -443,46 +443,4 @@ class Model extends Component
         return sprintf($template, join(", \n            ", $contents));
     }
 
-    /**
-     * Return module name based on table name
-     * For example if table name is "front_category" return "front" <-- module name
-     *
-     * <code>
-     * $moduleName = $this->getModuleNameByTableName("front_category");
-     * </code>
-     *
-     * @param $table
-     * @return mixed
-     */
-    private function getModuleNameByTableName($table)
-    {
-        $pieces = explode('_', $table);
-
-        if (empty($pieces)) {
-            $pieces = [null];
-        }
-
-        return $pieces[0];
-    }
-
-    private function getModelName($table)
-    {
-        $name = null;
-        $pieces = explode('_', $table);
-
-        if (!empty($pieces)) {
-            array_shift($pieces);
-            $name = \Engine\Tools\Inflector::camelize(implode('_', $pieces));
-        }
-
-        return $name;
-    }
-
-    private function getAlias($str)
-    {
-        $pieces = explode('_', strtolower($str));
-        array_shift($pieces);
-        return implode('_', $pieces);
-    }
-
 }

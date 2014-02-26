@@ -52,4 +52,12 @@ class %s extends %s
     %s \$%s;
 ";
 
+    public $templateAttribute = "
+    /**
+     *
+     * @var %s
+     */
+    %s \$%s = %s;
+";
+
 } 
