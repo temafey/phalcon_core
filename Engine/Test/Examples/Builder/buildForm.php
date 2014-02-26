@@ -8,22 +8,22 @@
 
 require 'loader.php';
 
-use Engine\Builder\Model as ModelBuilder;
+use Engine\Builder\Form as FormBuilder;
 use Engine\Builder\Script\Color;
 
-print Color::head('Start creating models') . PHP_EOL;
+print Color::head('Start creating forms') . PHP_EOL;
 
-$ModelBuilder = new ModelBuilder([
+$ModelBuilder = new FormBuilder([
     'table_name' => 'front_category'
 ]);
 $ModelBuilder->build();
 
-$ModelBuilder = new ModelBuilder([
+$ModelBuilder = new FormBuilder([
     'table_name' => 'front_product_type'
 ]);
 $ModelBuilder->build();
 
-$ModelBuilder = new ModelBuilder([
+$ModelBuilder = new FormBuilder([
     'table_name' => 'front_product'
 ]);
 $ModelBuilder->build();

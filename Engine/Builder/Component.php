@@ -52,12 +52,12 @@ abstract class Component
 	 */
 	protected function _getConfig($path)
 	{
-		foreach (array('app/config/', 'config/') as $configPath) {
+		foreach (array('app/config/', '../config/') as $configPath) {
 			if (file_exists($path . $configPath . "engine.ini")) {
 				return new \Phalcon\Config\Adapter\Ini($path . $configPath . "/engine.ini");
 			} else {
-				if (file_exists($path . $configPath. "/engine.php")) {
-					$config = include($path . $configPath . "/engine.php");
+				if (file_exists($path . $configPath. "engine.php")) {
+					$config = include($path . $configPath . "engine.php");
 					return $config;
 				}
 			}
@@ -131,5 +131,47 @@ abstract class Component
 	}
 
 	abstract public function build();
+
+    /**
+     * Return module name based on table name
+     * For example if table name is "front_category" return "front" <-- module name
+     *
+     * <code>
+     * $moduleName = $this->getModuleNameByTableName("front_category");
+     * </code>
+     *
+     * @param $table
+     * @return mixed
+     */
+    protected function getModuleNameByTableName($table)
+    {
+        $pieces = explode('_', $table);
+
+        if (empty($pieces)) {
+            $pieces = [null];
+        }
+
+        return $pieces[0];
+    }
+
+    protected function getModelName($table)
+    {
+        $name = null;
+        $pieces = explode('_', $table);
+
+        if (!empty($pieces)) {
+            array_shift($pieces);
+            $name = \Engine\Tools\Inflector::camelize(implode('_', $pieces));
+        }
+
+        return $name;
+    }
+
+    protected function getAlias($str)
+    {
+        $pieces = explode('_', strtolower($str));
+        array_shift($pieces);
+        return implode('_', $pieces);
+    }
 
 }
