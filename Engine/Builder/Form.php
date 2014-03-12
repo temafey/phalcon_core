@@ -71,76 +71,14 @@ class Form extends Component {
         $this->buildOptions($this->_options['table_name'], $config, Component::OPTION_FORM);
 
 
-        // If no database configuration in config throw exception
-        if (!isset($config->database)) {
-            throw new BuilderException(
-                "Database configuration cannot be loaded from your config file"
-            );
-        }
-
-
-        // if no adapter in database config throw exception
-        if (!isset($config->database->adapter)) {
-            throw new BuilderException(
-                "Adapter was not found in the config. " .
-                "Please specify a config variable [database][adapter]"
-            );
-        }
-
-
-        // If model already exist throw exception
-        if (file_exists($this->_builderOptions['path'])) {
-            if (!$this->_options['force']) {
-                throw new BuilderException(
-                    "The model file '" . $this->_builderOptions['path'] .
-                    "' already exists in models dir"
-                );
-            }
-        }
-
-
-        // Get and check database adapter
-        $adapter = $config->database->adapter;
-        $this->isSupportedAdapter($adapter);
-        if (isset($config->database->adapter)) {
-            $adapter = $config->database->adapter;
-        } else {
-            $adapter = 'Mysql';
-        }
-        // Get database configs
-        if (is_object($config->database)) {
-            $configArray = $config->database->toArray();
-        } else {
-            $configArray = $config->database;
-        }
-        $adapterName = 'Phalcon\Db\Adapter\Pdo\\' . $adapter;
-        unset($configArray['adapter']);
-        // Open Connection
-        $db = new $adapterName($configArray);
-
-
-        $initialize = array();
-        if (isset($this->_options['schema'])) {
-            if ($this->_options['schema'] != $config->database->dbname) {
-                $initialize[] = sprintf(
-                    $this->templateThis, 'setSchema', '"' . $this->_options['schema'] . '"'
-                );
-            }
-            $schema = $this->_options['schema'];
-        } elseif ($adapter == 'Postgresql') {
-            $schema = 'public';
-            $initialize[] = sprintf(
-                $this->templateThis, 'setSchema', '"' . $this->_options['schema'] . '"'
-            );
-        } else {
-            $schema = $config->database->dbname;
-        }
+        // Prepare DB connection
+        $this->prepareDbConnection($config);
 
 
         // Check if table exist in database
         $table = $this->_options['table_name'];
-        if ($db->tableExists($table, $schema)) {
-            $fields = $db->describeColumns($table, $schema);
+        if ($this->db->tableExists($table, $config->database->dbname)) {
+            $fields = $this->db->describeColumns($table, $config->database->dbname);
         } else {
             throw new BuilderException('Table "' . $table . '" does not exists');
         }
@@ -185,6 +123,7 @@ class Form extends Component {
 
 
         $templateSimpleField = "\t\t\t'%s' => new \\Engine\\Crud\\Form\\Field\\%s('%s', '%s'),\n";
+        $templateComplexField = "\t\t\t'%s' => new \\Engine\\Crud\\Form\\Field\\%s('%s', '%s', %s),\n";
 
 
         $initFields = '';
@@ -193,9 +132,21 @@ class Form extends Component {
 
             if ($field->getName() == 'id') {
                 $initFields .= sprintf($templateSimpleField, $field->getName(), 'Primary', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
-            }elseif ($field->getName() == 'title' || $field->getName() == 'name') {
+            } elseif ($field->getName() == 'title' || $field->getName() == 'name') {
                 $initFields .= sprintf($templateSimpleField, $field->getName(), 'Name', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
-            }else {
+            } elseif ($this->isEnum($this->_options['table_name'], $field->getName())) {
+                $templateArray = "[%s]";
+                $templateArrayPair = "%s => '%s',";
+                $enumVals = $this->getEnumValues($this->_options['table_name'], $field->getName());
+                $enumValsContent = '';
+                $i = 0;
+                foreach ($enumVals as $enumVal) {
+                    $enumValsContent .= sprintf($templateArrayPair, $i, $enumVal);
+                        $i++;
+                }
+                $templateArray = sprintf($templateArray, $enumValsContent);
+                $initFields .= sprintf($templateComplexField, $field->getName(), 'ArrayToSelect', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName(), $templateArray);
+            } else {
                 $initFields .= sprintf($templateSimpleField, $field->getName(), $type, \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
             }
         }
