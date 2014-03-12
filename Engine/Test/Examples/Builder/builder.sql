@@ -3,6 +3,7 @@ CREATE TABLE `front_category` (
 	`id` Int( 11 ) AUTO_INCREMENT NOT NULL,
 	`name` VarChar( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
 	`some_field` VarChar( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `type` ENUM( 'simple', 'complex' ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
 	 PRIMARY KEY ( `id` )
  )
 CHARACTER SET = utf8
