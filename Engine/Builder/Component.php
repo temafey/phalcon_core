@@ -20,8 +20,10 @@
 
 namespace Engine\Builder;
 
-use Engine\Builder\Script\Color,
-	Engine\Builder\BuilderException;
+use Engine\Builder\Script\Color;
+use	Engine\Builder\BuilderException;
+use Engine\Tools\Inflector;
+use Engine\Tools\File;
 
 /**
  * \Phalcon\Builder\Component
@@ -36,21 +38,27 @@ use Engine\Builder\Script\Color,
  */
 abstract class Component
 {
+    const OPTION_MODEL = 1;
+
+    const OPTION_FORM = 2;
 
 	protected $_options = array();
+
+    protected $_builderOptions = array();
 
 	public function __construct($options)
 	{
 		$this->_options = $options;
 	}
 
-	/**
-	 * Tries to find the current configuration in the application
-	 *
-	 * @param string $path
-	 * @return Phalcon\Config
-	 */
-	protected function _getConfig($path)
+    /**
+     * Tries to find the current configuration in the application
+     *
+     * @param $path
+     * @return mixed|\Phalcon\Config\Adapter\Ini
+     * @throws BuilderException
+     */
+    protected function _getConfig($path)
 	{
 		foreach (array('app/config/', '../config/') as $configPath) {
 			if (file_exists($path . $configPath . "engine.ini")) {
@@ -78,12 +86,13 @@ abstract class Component
 		throw new BuilderException('Builder can\'t locate the configuration file');
 	}
 
-	/**
-	 * Check if a path is absolute
-	 *
-	 * @return boolean
-	 */
-	public function isAbsolutePath($path)
+    /**
+     * Check if a path is absolute
+     *
+     * @param $path
+     * @return bool
+     */
+    public function isAbsolutePath($path)
 	{
 		if (PHP_OS == "WINNT") {
 			if (preg_match('/^[A-Z]:\\\\/', $path)) {
@@ -132,6 +141,33 @@ abstract class Component
 
 	abstract public function build();
 
+    protected function buildOptions($table, $config, $type = self::OPTION_MODEL)
+    {
+        $moduleName = $this->getModuleNameByTableName($table);
+        $className = $this->getclassName($table);
+        $modelNamespace = $this->getNameSpace($table, $type);
+
+        if ($type === self::OPTION_MODEL) {
+            $path = $config->builder->modules->{$moduleName}->modelsDir;
+        } elseif ($type === self::OPTION_FORM) {
+            $path = $config->builder->modules->{$moduleName}->formsDir;
+        } else {
+            throw new \InvalidArgumentException('Invalid build type');
+        }
+
+        $modelPath = $this->getPath($path, $table);
+
+        $this->_builderOptions = array(
+            'moduleName' => $moduleName,
+            'className' => $className,
+            'namespace' => 'namespace '.$modelNamespace.';',
+            'namespaceClear' => $modelNamespace,
+            'path' => $modelPath
+        );
+
+        return true;
+    }
+
     /**
      * Return module name based on table name
      * For example if table name is "front_category" return "front" <-- module name
@@ -154,24 +190,82 @@ abstract class Component
         return $pieces[0];
     }
 
-    protected function getModelName($table)
+    /**
+     * Return class name
+     *
+     * @param $table
+     * @return null|string
+     */
+    protected function getClassName($table)
     {
         $name = null;
         $pieces = explode('_', $table);
-
-        if (!empty($pieces)) {
-            array_shift($pieces);
-            $name = \Engine\Tools\Inflector::camelize(implode('_', $pieces));
-        }
-
-        return $name;
+        return ucfirst(array_pop($pieces));
     }
 
+    /**
+     * Return alias by table name without module name
+     *
+     * @param $str
+     * @return string
+     */
     protected function getAlias($str)
     {
         $pieces = explode('_', strtolower($str));
         array_shift($pieces);
         return implode('_', $pieces);
+    }
+
+    protected function getPath($dirPath, $table)
+    {
+        $pieces = explode('_', $table);
+        array_shift($pieces);
+
+        if (count($pieces) > 1) {
+            $modelName = ucfirst(array_pop($pieces));
+
+            $line = '';
+            foreach ($pieces as $piece) {
+                $line .= ucfirst($piece) . '/';
+            }
+
+            $path = $dirPath . $line;
+
+            File::rmkdir($path, 0755, true);
+
+            $modelsDirPath = $path . $modelName . '.php';
+        }else {
+            $modelsDirPath = $dirPath . $this->getClassName($table) . '.php';
+        }
+
+        return $modelsDirPath;
+    }
+
+    protected function getNameSpace($table, $type)
+    {
+        $pieces = explode('_', $table);
+        $moduleName = array_shift($pieces);
+        array_pop($pieces);
+
+        switch($type) {
+            case self::OPTION_MODEL: $buildType = 'Model';
+                break;
+            case self::OPTION_FORM: $buildType = 'Form';
+                break;
+            default: throw new \InvalidArgumentException('Invalid build type');
+                break;
+        }
+
+        if (count($pieces) > 0) {
+            $namespace = ucfirst($moduleName).'\\'.$buildType;
+            foreach ($pieces as $piece) {
+                $namespace .= '\\'.ucfirst($piece);
+            }
+        } else {
+            $namespace = ucfirst($moduleName).'\\'.$buildType;
+        }
+
+        return $namespace;
     }
 
 }

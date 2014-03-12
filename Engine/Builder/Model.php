@@ -20,15 +20,6 @@ class Model extends Component
 {
     use TBasicTemplater, TModelTemplater;
 
-    /**
-     * Mapa de datos escalares a objetos
-     *
-     * @var array
-     */
-    private $_typeMap = array(//'Date' => 'Date',
-        //'Decimal' => 'Decimal'
-    );
-
     public function __construct($options)
     {
         if (!isset($options['table_name']) || empty($options['table_name'])) {
@@ -74,68 +65,12 @@ class Model extends Component
         }
 
 
-        // Check path
-        $path = '';
-        if (isset($this->_options['directory'])) {
-            if ($this->_options['directory']) {
-                $path = $this->_options['directory'] . '/';
-            }
-        }
-
-
         // Get config
-        $config = $this->_getConfig($path);
+        $config = $this->_getConfig('');
 
 
-        // Get module name
-        $this->_options['module'] = $this->getModuleNameByTableName($this->_options['table_name']);
-
-
-        // Get Model name
-        $this->_options['name'] = $this->getModelName($this->_options['table_name']);
-
-
-        // Check models folder
-        if (!isset($this->_options['modelsDir'])) {
-
-            // if specify in config --> get from config
-            if (isset($config->builder->modules->{$this->_options['module']}->modelsDir)) {
-                $modelsDir = $config->builder->modules->{$this->_options['module']}->modelsDir;
-
-            // if dir not specify in config tru search folder for model
-            }elseif (is_readable('../apps/'.$this->_options['module'].'/model')) {
-                $modelsDir = '../apps/'.$this->_options['module'].'/model';
-            }else {
-                throw new BuilderException(
-                    "Builder doesn't knows where is the models directory"
-                );
-            }
-        } else {
-            $modelsDir = $this->_options['modelsDir'];
-        }
-
-
-        /*if ($this->isAbsolutePath($modelsDir) == false) {
-            $modelPath = $path . "public" . DIRECTORY_SEPARATOR . $modelsDir;
-        } else {
-            $modelPath = $modelsDir;
-        }*/
-
-
-        $methodRawCode = array();
-        // Set model path
-        $modelPath = $modelsDir.$this->_options['name'] . '.php';
-
-
-        // If model already exist throw exception
-        if (file_exists($modelPath)) {
-            if (!$this->_options['force']) {
-                throw new BuilderException(
-                    "The model file '" . $this->_options['name'] .
-                    ".php' already exists in models dir"
-                );
-            }
-        }
+        // build options
+        $this->buildOptions($this->_options['table_name'], $config);
 
 
         // If no database configuration in config throw exception
@@ -155,8 +90,15 @@ class Model extends Component
         }
 
 
-        // Set namespace for model
-        $namespace = 'namespace '.ucfirst($this->_options['module']).'\\Model;';
+        // If model already exist throw exception
+        if (file_exists($this->_builderOptions['path'])) {
+            if (!$this->_options['force']) {
+                throw new BuilderException(
+                    "The model file '" . $this->_builderOptions['path'] .
+                    "' already exists in models dir"
+                );
+            }
+        }
 
 
         // Get and check database adapter
@@ -206,66 +148,12 @@ class Model extends Component
         }
 
 
-        $alreadyInitialized = false;
-        if (file_exists($modelPath)) {
-            try {
-                $possibleMethods = array();
-
-                require $modelPath;
-
-                $linesCode = file($modelPath);
-                $reflection = new \ReflectionClass($this->_options['className']);
-                foreach ($reflection->getMethods() as $method) {
-                    if ($method->getDeclaringClass()->getName() == $this->_options['className']) {
-                        $methodName = $method->getName();
-                        if (!isset($possibleMethods[$methodName])) {
-                            $methodRawCode[$methodName] = join(
-                                '',
-                                array_slice(
-                                    $linesCode,
-                                    $method->getStartLine() - 1,
-                                    $method->getEndLine() - $method->getStartLine() + 1
-                                )
-                            );
-                        } else {
-                            continue;
-                        }
-                        if ($methodName == 'initialize') {
-                            $alreadyInitialized = true;
-                        } else {
-                            if ($methodName == 'validation') {
-                                $alreadyValidations = true;
-                            }
-                        }
-                    }
-                }
-            } catch (\ReflectionException $e) {
-            }
-        }
-
-
         // Set extender class
         $extends = '\\Engine\\Mvc\\Model';
 
 
-        /**
-         * Check if there have been any excluded fields
-         */
-        $exclude = array();
-        if (isset($this->_options['excludeFields'])) {
-            if (!empty($this->_options['excludeFields'])) {
-                $keys = explode(',', $this->_options['excludeFields']);
-                if (count($keys) > 0) {
-                    foreach ($keys as $key) {
-                        $exclude[trim($key)] = '';
-                    }
-                }
-            }
-        }
-
-
         $attributes = array();
-        $belongsTo = [];
+        $belongsTo = array();
         foreach ($fields as $field) {
             $type = $this->getPHPType($field->getType());
             $attributes[] = sprintf(
@@ -275,7 +163,7 @@ class Model extends Component
             // Build belongsTo relations
             preg_match('/^(.*)\_i{1}d{1}$/', $field->getName(), $matches);
             if (!empty($matches)) {
-                $belongsTo[] = sprintf($this->templateModelRelation, 'belongsTo', 'id', ucfirst($this->_options['module']).'\Model\\'.Inflector::modelize($matches[1]), $matches[0], $this->_buildRelationOptions([
+                $belongsTo[] = sprintf($this->templateModelRelation, 'belongsTo', 'id', ucfirst($this->_builderOptions['moduleName']).'\Model\\'.Inflector::modelize($matches[1]), $matches[0], $this->_buildRelationOptions([
                     'alias' => $this->getAlias($matches[1])
                 ]));
             }
@@ -291,31 +179,12 @@ class Model extends Component
         }
 
 
-        if ($alreadyInitialized == false) {
-            if (count($initialize) > 0) {
-                $initCode = sprintf(
-                    $this->templateModelAttribute,
-                    join('', $initialize)
-                );
-            } else {
-                $initCode = "";
-            }
-        } else {
-            $initCode = "";
-        }
-
-
+        // Model::initialize() code
         $initializeCode = "";
         if (count($belongsTo) > 0) {
             foreach ($belongsTo as $rel) {
                 $initializeCode .= $rel."\n";
             }
-        }
-
-
-        $license = '';
-        if (file_exists('license.txt')) {
-            $license = file_get_contents('license.txt');
         }
 
 
@@ -356,7 +225,7 @@ class Model extends Component
 
 
         // Join initialize code to content
-        $content .= $initCode;
+        $content .= '';
         if (!empty($initializeCode)) {
             $content .= sprintf($this->templateInitialize, $initializeCode);
         }
@@ -366,11 +235,6 @@ class Model extends Component
         $content .= sprintf($this->templateModelGetSource, $this->_options['table_name']);
 
 
-        foreach ($methodRawCode as $methodCode) {
-            $content .= $methodCode;
-        }
-
-
         if (isset($this->_options['mapColumn'])) {
             $content .= $this->_genColumnMapCode($fields);
         }
@@ -378,16 +242,16 @@ class Model extends Component
 
         $code = sprintf(
             $this->templateClassFullStack,
-            $license,
-            $namespace,
-            $this->_options['name'],
+            '',
+            $this->_builderOptions['namespace'],
+            $this->_builderOptions['className'],
             $extends,
             $content
         );
-        file_put_contents($modelPath, $code);
+        file_put_contents($this->_builderOptions['path'], $code);
 
         print Color::success(
-                'Model "' . $this->_options['name'] .
+                'Model "' . $this->_builderOptions['className'] .
                 '" was successfully created.'
             ) . PHP_EOL;
     }

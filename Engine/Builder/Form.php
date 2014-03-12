@@ -57,60 +57,19 @@ class Form extends Component {
 
     public function build()
     {
-        // Check path
-        $path = '';
-        if (isset($this->_options['directory'])) {
-            if ($this->_options['directory']) {
-                $path = $this->_options['directory'] . '/';
-            }
+        // Check name (table name)
+        if (!$this->_options['table_name']) {
+            throw new BuilderException("You must specify the table name");
         }
 
 
         // Get config
-        $config = $this->_getConfig($path);
+        $config = $this->_getConfig('');
 
 
-        // Get module name
-        $this->_options['module'] = $this->getModuleNameByTableName($this->_options['table_name']);
+        // build options
+        $this->buildOptions($this->_options['table_name'], $config, Component::OPTION_FORM);
 
-
-        // Get Model name
-        $this->_options['name'] = $this->getModelName($this->_options['table_name']);
-
-
-        // Check models folder
-        if (!isset($this->_options['formsDir'])) {
-
-            // if specify in config --> get from config
-            if (isset($config->builder->modules->{$this->_options['module']}->formsDir)) {
-                $formsDir = $config->builder->modules->{$this->_options['module']}->formsDir;
-
-                // if dir not specify in config tru search folder for model
-            }elseif (is_readable('../apps/'.$this->_options['module'].'/form')) {
-                $formsDir = '../apps/'.$this->_options['module'].'/form';
-            }else {
-                throw new BuilderException(
-                    "Builder doesn't knows where is the forms directory"
-                );
-            }
-        } else {
-            $formsDir = $this->_options['formsDir'];
-        }
-
-
-        $methodRawCode = array();
-        // Set model path
-        $formPath = $formsDir.$this->_options['name'] . '.php';
-
-        // If model already exist throw exception
-        if (file_exists($formPath)) {
-            if (isset($this->_options['force']) && !$this->_options['force']) {
-                throw new BuilderException(
-                    "The form file '" . $this->_options['name'] .
-                    ".php' already exists in forms dir"
-                );
-            }
-        }
 
         // If no database configuration in config throw exception
         if (!isset($config->database)) {
@@ -118,6 +77,7 @@ class Form extends Component {
                 "Database configuration cannot be loaded from your config file"
             );
         }
+
 
         // if no adapter in database config throw exception
         if (!isset($config->database->adapter)) {
@@ -128,8 +88,15 @@ class Form extends Component {
         }
 
 
-        // Set namespace for model
-        $namespace = 'namespace '.ucfirst($this->_options['module']).'\\Form;';
+        // If model already exist throw exception
+        if (file_exists($this->_builderOptions['path'])) {
+            if (!$this->_options['force']) {
+                throw new BuilderException(
+                    "The model file '" . $this->_builderOptions['path'] .
+                    "' already exists in models dir"
+                );
+            }
+        }
 
 
         // Get and check database adapter
@@ -185,19 +152,25 @@ class Form extends Component {
 
         // Set $_title template
         $templateTitle = "
-    protected \$_title = '{$this->_options['name']}';
+    protected \$_title = '{$this->_builderOptions['className']}';
 ";
 
 
         // Set container model template
         $templateContainerModel = "
-    protected \$_containerModel = '".ucfirst($this->_options['module']).'\\Model\\'.$this->_options['name']."';
+    protected \$_containerModel = '".$this->getNameSpace($table, self::OPTION_MODEL).'\\'.$this->_builderOptions['className']."';
 ";
 
 
         // Set action template
+        $nameSpace = $this->_builderOptions['namespaceClear'];
+        $pieces = explode('\\', $nameSpace);
+        array_shift($pieces);
+        array_shift($pieces);
+        $nameSpace = implode('-', $pieces);
+        $action = $this->_builderOptions['moduleName'].'/form/'.\Engine\Tools\Inflector::slug($nameSpace.'-'.$this->_builderOptions['className']);
         $templateAction = "
-    protected \$_action = '/".$this->_options['module']."/form/".\Engine\Tools\Inflector::slug(\Engine\Tools\Inflector::humanize(\Engine\Tools\Inflector::underscore($this->_options['name'])))."';
+    protected \$_action = '/".$action."';
 ";
 
 
@@ -232,13 +205,6 @@ class Form extends Component {
         $templateInitFields = sprintf($templateInitFields, $initFields);
 
 
-        // Check license
-        $license = '';
-        if (file_exists('license.txt')) {
-            $license = file_get_contents('license.txt');
-        }
-
-
         // Prepare class content
         $content = $templateTitle;
         $content .= $templateContainerModel;
@@ -248,16 +214,16 @@ class Form extends Component {
 
         $code = sprintf(
             $this->templateClassFullStack,
-            $license,
-            $namespace,
-            $this->_options['name'],
+            '',
+            $this->_builderOptions['namespace'],
+            $this->_builderOptions['className'],
             $extends,
             $content
         );
-        file_put_contents($formPath, $code);
+        file_put_contents($this->_builderOptions['path'], $code);
 
         print Color::success(
-                'Form "' . $this->_options['name'] .
+                'Form "' . $this->_builderOptions['className'] .
                 '" was successfully created.'
             ) . PHP_EOL;
 

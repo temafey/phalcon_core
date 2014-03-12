@@ -502,7 +502,7 @@ class Inflector {
         if (!($result = self::_cache(__FUNCTION__, $lowerCaseAndUnderscoredWord))) {
             $pieces = explode('_', $lowerCaseAndUnderscoredWord);
             array_shift($pieces);
-            $result = str_replace(' ', '', Inflector::humanize(implode('_', $pieces)));
+            $result = str_replace(' ', '\\', Inflector::humanize(implode('_', $pieces)));
             self::_cache(__FUNCTION__, $lowerCaseAndUnderscoredWord, $result);
         }
         return $result;
