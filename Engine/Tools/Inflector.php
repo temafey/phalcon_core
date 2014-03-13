@@ -1,9 +1,4 @@
 <?php
-/**
- * Class Inflector
- *
- * @author Slava Basko <basko.slava@gmail.com> - Modified CakePHP inflector. Remove cake dependancy
- */
 
 namespace Engine\Tools;
 

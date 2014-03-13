@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by Slava Basko.
- * Email: basko.slava@gmail.com
- * Date: 1/31/14
- * Time: 5:20 PM
- */
 
 namespace Engine\Tools;
 
