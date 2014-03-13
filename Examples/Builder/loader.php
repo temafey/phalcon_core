@@ -5,7 +5,7 @@ $loader = new \Phalcon\Loader();
 //Register some namespaces
 $loader->registerNamespaces(
     array(
-        'Engine' => '../../../',
+        'Engine' => '../../Engine',
     )
 );
 
