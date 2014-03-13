@@ -42,6 +42,8 @@ abstract class Component
 
     const OPTION_FORM = 2;
 
+    const OPTION_GRID = 3;
+
     protected $db = null;
 
 	protected $_options = array();
@@ -205,6 +207,8 @@ abstract class Component
             $path = $config->builder->modules->{$moduleName}->modelsDir;
         } elseif ($type === self::OPTION_FORM) {
             $path = $config->builder->modules->{$moduleName}->formsDir;
+        } elseif ($type === self::OPTION_GRID) {
+            $path = $config->builder->modules->{$moduleName}->gridsDir;
         } else {
             throw new \InvalidArgumentException('Invalid build type');
         }
@@ -305,6 +309,8 @@ abstract class Component
             case self::OPTION_MODEL: $buildType = 'Model';
                 break;
             case self::OPTION_FORM: $buildType = 'Form';
+                break;
+            case self::OPTION_GRID: $buildType = 'Grid';
                 break;
             default: throw new \InvalidArgumentException('Invalid build type');
                 break;

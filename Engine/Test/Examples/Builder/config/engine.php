@@ -20,7 +20,8 @@ return new \Phalcon\Config([
         'modules' => [
             'front' => [
                 'modelsDir' => ROOT.'/apps/front/Model/',
-                'formsDir' => ROOT.'/apps/front/Form/'
+                'formsDir' => ROOT.'/apps/front/Form/',
+                'gridsDir' => ROOT.'/apps/front/Grid/'
             ]
         ]
     ]

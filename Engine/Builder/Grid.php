@@ -1,50 +1,26 @@
 <?php
 /**
- * @namespace
+ * Created by Slava Basko.
+ * Email: basko.slava@gmail.com
+ * Date: 2/25/14
+ * Time: 3:58 PM
  */
+
 namespace Engine\Builder;
 
-use Phalcon\Db\Column,
-    Engine\Builder\Component,
-    Engine\Builder\BuilderException,
-    Engine\Builder\Script\Color,
-    Phalcon\Text as Utils;
+use Engine\Builder\Traits\BasicTemplater as TBasicTemplater;
+use Engine\Crud\Grid\Column\JoinOne;
+use Phalcon\Db\Column;
+use Engine\Builder\Script\Color;
 
-/**
- * GridBuilderComponent
- *
- * Builder to generate grids
- *
- * @category    Engine
- * @package     Builder
- * @subpackage  Grid
- * @copyright   Copyright (c) 2011-2013 Phalcon Team (temafey@gmail.com)
- * @license     New BSD License
- */
-class Grid extends Component
-{
-    /**
-     * Mapa de datos escalares a objetos
-     *
-     * @var array
-     */
-    private $_typeMap = array(//'Date' => 'Date',
-        //'Decimal' => 'Decimal'
-    );
+class Grid extends Component {
+
+    use TBasicTemplater;
 
     public function __construct($options)
     {
-        if (!isset($options['name'])) {
-            throw new BuilderException("Please, specify the grid name");
-        }
-        if (!isset($options['force'])) {
-            $options['force'] = false;
-        }
-        if (!isset($options['className'])) {
-            $options['className'] = Utils::camelize($options['name']);
-        }
-        if (!isset($options['fileName'])) {
-            $options['fileName'] = $options['name'];
+        if (!isset($options['table_name']) || empty($options['table_name'])) {
+            throw new BuilderException("Please, specify the model name");
         }
         $this->_options = $options;
     }
@@ -55,129 +31,62 @@ class Grid extends Component
      * @param string $type
      * @return string
      */
-    public function getPHPType($type)
+    public function getType($type)
     {
         switch ($type) {
             case Column::TYPE_INTEGER:
-                return 'integer';
-                break;
-            case Column::TYPE_DECIMAL:
-            case Column::TYPE_FLOAT:
-                return 'double';
-                break;
-            case Column::TYPE_DATE:
-            case Column::TYPE_VARCHAR:
-            case Column::TYPE_DATETIME:
-            case Column::TYPE_CHAR:
-            case Column::TYPE_TEXT:
-                return 'string';
-                break;
-            default:
-                return 'string';
-                break;
-        }
-    }
-
-    /**
-     * Returns the associated column type
-     *
-     * @param string $type
-     * @return string
-     */
-    public function getColumnType($type)
-    {
-        switch ($type) {
-            case Column::TYPE_INTEGER:
-            case Column::TYPE_DECIMAL:
-            case Column::TYPE_FLOAT:
                 return 'Numeric';
                 break;
-            case Column::TYPE_DATE:
-            case Column::TYPE_DATETIME:
-                return 'Date';
-                break;
-            case Column::TYPE_VARCHAR:
-            case Column::TYPE_CHAR:
-            case Column::TYPE_TEXT:
+            case Column::TYPE_DECIMAL:
+            case Column::TYPE_FLOAT:
                 return 'Text';
-            break;
+                break;
+            case Column::TYPE_DATE:
+            case Column::TYPE_VARCHAR:
+            case Column::TYPE_DATETIME:
+            case Column::TYPE_CHAR:
+                return 'Text';
+                break;
+            case Column::TYPE_TEXT:
+                return 'TextArea';
+                break;
             default:
                 return 'Text';
                 break;
         }
     }
 
-    /**
-     * Returns the associated filter column type
-     *
-     * @param string $type
-     * @return string
-     */
-    public function getFilterColumnType($type)
-    {
-        switch ($type) {
-            case Column::TYPE_INTEGER:
-            case Column::TYPE_DECIMAL:
-            case Column::TYPE_FLOAT:
-                return 'Numeric';
-                break;
-            case Column::TYPE_DATE:
-            case Column::TYPE_DATETIME:
-                return 'Date';
-                break;
-            case Column::TYPE_VARCHAR:
-            case Column::TYPE_CHAR:
-            case Column::TYPE_TEXT:
-                return 'Standart';
-                break;
-            default:
-                return 'Standart';
-                break;
-        }
-    }
 
     public function build()
     {
-        $initColumns = "
-    /**
-	 * Initialize grid columns
-	 *
-	 * @return void
-	 */
-	protected function _initColumns()
-    {
-		\$this->_columns = [
-		    %s
-		 ];
-    }
-";
-        $initFilters = "
-    /**
-	 * Initialize grid filters
-	 *
-	 * @return void
-	*/
-	protected function _initFilters()
-	{
-		\$this->_filter = new Filter([
-		    %s
-		 ], null, 'get');
-    }
-";
+        // Check name (table name)
+        if (!$this->_options['table_name']) {
+            throw new BuilderException("You must specify the table name");
+        }
 
-        $templateThis = "\t\t\$this->%s(%s);\n";
-        $templateColumn = "\t\t\t'%s' => new Column\\%s('%s', '%s')\n";
-        $templateFilterColumn = "\t\t\t'%s' => new Field\\%s('%s', '%s')\n";
 
-        $templateAttributes = "
-    /**
-     * %s
-     * @var %s
-     */
-    %s \$%s;
-     ";
+        // Get config
+        $config = $this->_getConfig('');
 
-        $templateCode = "<?php
+
+        // build options
+        $this->buildOptions($this->_options['table_name'], $config, Component::OPTION_GRID);
+
+
+        // Prepare DB connection
+        $this->prepareDbConnection($config);
+
+
+        // Check if table exist in database
+        $table = $this->_options['table_name'];
+        if ($this->db->tableExists($table, $config->database->dbname)) {
+            $fields = $this->db->describeColumns($table, $config->database->dbname);
+        } else {
+            throw new BuilderException('Table "' . $table . '" does not exists');
+        }
+
+
+        $templateFileCode = '<?php
 %s
 
 use Engine\Crud\Grid\AbstractGrid as Grid,
@@ -186,380 +95,159 @@ use Engine\Crud\Grid\AbstractGrid as Grid,
     Engine\Crud\Grid\Filter\Field,
     Engine\Filter\SearchFilterInterface as Criteria;
 
-%s
 class %s extends %s
 {
 %s
 }
+';
+
+
+        // Set $_title template
+        $templateTitle = "
+    protected \$_title = '{$this->_builderOptions['className']}';
 ";
 
-        if (!$this->_options['name']) {
-            throw new BuilderException("You must specify the table name");
-        }
 
-        $path = '';
-        if (isset($this->_options['directory'])) {
-            if ($this->_options['directory']) {
-                $path = $this->_options['directory'] . '/';
-            }
-        }
+        // Set container model template
+        $templateContainerModel = "
+    protected \$_containerModel = '".$this->getNameSpace($table, self::OPTION_MODEL).'\\'.$this->_builderOptions['className']."';
+";
 
-        $config = $this->_getConfig($path);
 
-        if (!isset($this->_options['gridsDir'])) {
-            if (!isset($config->application->gridsDir)) {
-                throw new BuilderException(
-                    "Builder doesn't knows where is the grids directory"
-                );
-            }
-            $gridsDir = $config->application->gridsDir;
-        } else {
-            $gridsDir = $this->_options['gridsDir'];
-        }
-
-        if ($this->isAbsolutePath($gridsDir) == false) {
-            $gridPath = $path . "public" . DIRECTORY_SEPARATOR . $gridsDir;
-        } else {
-            $gridPath = $gridsDir;
-        }
-
-        $methodRawCode = [];
-        if (isset($this->_options['className'])) {
-            $className = $this->_options['className'];
-        } else {
-            $tmpGrid = explode("_", $this->_options['name']);
-            $model = [];
-            $first = false;
-            foreach ($tmpGrid as $string) {
-                $model[] = ucfirst($string);
-                if ($first === false) {
-                    $model[] = 'Grid';
-                    $first = true;
-                }
-            }
-            $className = "\\".implode("\\", $model);
-        }
-        $gridPath .= $className . '.php';
-
-        if (file_exists($gridPath)) {
-            if (!$this->_options['force']) {
-                throw new BuilderException(
-                    "The grid file '" . $className .
-                    ".php' already exists in grids dir"
-                );
-            }
-        }
-
-        if (!isset($config->database)) {
-            throw new BuilderException(
-                "Database configuration cannot be loaded from your config file"
-            );
-        }
-
-        if (!isset($config->database->adapter)) {
-            throw new BuilderException(
-                "Adapter was not found in the config. " .
-                "Please specify a config variable [database][adapter]"
-            );
-        }
-
-        if (isset($this->_options['module'])) {
-            $namespace = 'namespace ' . $this->_options['module'] . '\Grid;'
-                . PHP_EOL . PHP_EOL;
-        } else {
-            $namespace = '';
-        }
-
-        $adapter = $config->database->adapter;
-        $this->isSupportedAdapter($adapter);
-
-        if (isset($config->database->adapter)) {
-            $adapter = $config->database->adapter;
-        } else {
-            $adapter = 'Mysql';
-        }
-
-        if (is_object($config->database)) {
-            $configArray = $config->database->toArray();
-        } else {
-            $configArray = $config->database;
-        }
-
-        $adapterName = 'Phalcon\Db\Adapter\Pdo\\' . $adapter;
-        unset($configArray['adapter']);
-        $db = new $adapterName($configArray);
-
-        $initialize = [];
-        if (isset($this->_options['schema'])) {
-            $schema = $this->_options['schema'];
-        } elseif ($adapter == 'Postgresql') {
-            $schema = 'public';
-        } else {
-            $schema = $config->database->dbname;
-        }
-
-        $table = $this->_options['name'];
-        if ($db->tableExists($table, $schema)) {
-            $fields = $db->describeColumns($table, $schema);
-        } else {
-            throw new BuilderException('Table "' . $table . '" does not exists');
-        }
-
-        if (isset($this->_options['hasMany'])) {
-            if (count($this->_options['hasMany'])) {
-                foreach ($this->_options['hasMany'] as $relation) {
-                    if (is_string($relation['fields'])) {
-                        $entityName = $relation['camelizedName'];
-                        $initialize[] = sprintf(
-                            $templateColumnJoinMany,
-                            'hasMany',
-                            $relation['fields'],
-                            $entityName,
-                            $relation['relationFields'],
-                            $this->_buildRelationOptions( isset($relation['options']) ? $relation["options"] : NULL)
-                        );
-                    }
-                }
-            }
-        }
-
-        if (isset($this->_options['belongsTo'])) {
-            if (count($this->_options['belongsTo'])) {
-                foreach ($this->_options['belongsTo'] as $relation) {
-                    if (is_string($relation['fields'])) {
-                        $entityName = $relation['referencedgrid'];
-                        $initialize[] = sprintf(
-                            $templateColumnJoinOne,
-                            'belongsTo',
-                            $relation['fields'],
-                            $entityName,
-                            $relation['relationFields'],
-                            $this->_buildRelationOptions(isset($relation['options']) ? $relation["options"] : NULL)
-                        );
-                    }
-                }
-            }
-        }
-
-        $alreadyInitialized = false;
-        if (file_exists($gridPath)) {
-            try {
-                $possibleMethods = [];
-                foreach ($fields as $field) {
-                    $methodName = Utils::camelize($field->getName());
-                    $possibleMethods['set' . $methodName] = true;
-                    $possibleMethods['get' . $methodName] = true;
-                }
-                require $gridPath;
-
-                $linesCode = file($gridPath);
-                $reflection = new \ReflectionClass($this->_options['className']);
-                foreach ($reflection->getMethods() as $method) {
-                    if ($method->getDeclaringClass()->getName() == $this->_options['className']) {
-                        $methodName = $method->getName();
-                        if (!isset($possibleMethods[$methodName])) {
-                            $methodRawCode[$methodName] = join(
-                                '',
-                                array_slice(
-                                    $linesCode,
-                                    $method->getStartLine() - 1,
-                                    $method->getEndLine() - $method->getStartLine() + 1
-                                )
-                            );
-                        } else {
-                            continue;
-                        }
-                        if ($methodName == 'initColumns') {
-                            $alreadyInitColumns = true;
-                        } else {
-                            if ($methodName == 'initFilters') {
-                                $alreadyInitFilters = true;
-                            }
-                        }
-                    }
-                }
-            } catch (\ReflectionException $e) {
-            }
-        }
-
-        foreach ($fields as $field) {
-            if ($field->getType() === Column::TYPE_CHAR) {
-                $domain = [];
-                if (preg_match('/\((.*)\)/', $field->getType(), $matches)) {
-                    foreach (explode(',', $matches[1]) as $item) {
-                        $domain[] = $item;
-                    }
-                }
-            }
-            if ($field->getName() == 'email') {
-                $columns[] = sprintf(
-                    $templateColumnEmail, $field->getName()
-                );
-                $filters[] = sprintf(
-                    $templateFilterEmail, $field->getName()
-                );
-            }
-            if ($field->getName() == 'date' || $field->getName() == 'published') {
-                $columns[] = sprintf(
-                    $templateColumnDate, $field->getName()
-                );
-                $filters[] = sprintf(
-                    $templateFilterDate, $field->getName()
-                );
-            }
-        }
-
-        /**
-         * Check if there has been an extender class
-         */
+        // Set extender class template
         $extends = '\\Engine\\Crud\\Grid';
-        if (isset($this->_options['extends'])) {
-            if (!empty($this->_options['extends'])) {
-                $extends = $this->_options['extends'];
-            }
-        }
 
-        $attributes = [];
-        $columns = [];
-        $filters = [];
 
-        $tmpTitle = explode("_", $table);
-        $title = [];
-        foreach ($tmpTitle as $string) {
-            $title[] = ucfirst($string);
-        }
-        $title = implode(" ", $title);
-        $attributes[] = sprintf(
-            $templateAttributes, 'Grid title', 'string', 'protected', '_title', $title
-        );
+        $templateInitColumns = "
+    /**
+	 * Initialize grid columns
+	 *
+	 * @return void
+	 */
+	protected function _initColumns()
+    {
+		\$this->_columns = [
+%s
+		 ];
+    }
+";
 
-        $tmpModel = explode("_", $table);
-        $model = [];
-        $first = false;
-        foreach ($tmpModel as $string) {
-            $model[] = ucfirst($string);
-            if ($first === false) {
-                $model[] = 'Model';
-                $first = true;
-            }
-        }
-        $model = "\\".implode("\\", $model);
-        $attributes[] = sprintf(
-            $templateAttributes, 'Container model', 'string', 'protected', '_containerModel', $model
-        );
-        $attributes[] = sprintf(
-            $templateAttributes, 'Container condition', 'string|array', 'protected', '_containerConditions', 'null'
-        );
+        $templateInitFilters = "
+    /**
+	 * Initialize grid filters
+	 *
+	 * @return void
+	*/
+	protected function _initFilters()
+	{
+		\$this->_filter = new Filter([
+		    'search' => new Field\\Search('search','Search:', [
+                Criteria::COLUMN_ID => Criteria::CRITERIA_EQ,
+                Criteria::COLUMN_NAME => Criteria::CRITERIA_BEGINS,
+                'command' => Criteria::CRITERIA_LIKE
+			]),
+%s
+		 ], null, 'get');
+    }
+";
 
+
+        $templateColumn = "\t\t\t'%s' => new Column\\%s('%s', '%s'),\n";
+        $templateComplexColumn = "\t\t\t'%s' => new Column\\%s('%s', '%s', %s),\n";
+        $templateFilterColumn = "\t\t\t'%s' => new Field\\%s('%s', '%s'),\n";
+        $templateConplexFilterColumn = "\t\t\t'%s' => new Field\\%s('%s', '%s', %s),\n";
+
+
+        // Set action template
+        $nameSpace = $this->_builderOptions['namespaceClear'];
+        $pieces = explode('\\', $nameSpace);
+        array_shift($pieces);
+        array_shift($pieces);
+        $nameSpace = implode('-', $pieces);
+        $action = $this->_builderOptions['moduleName'].'/grid/'.\Engine\Tools\Inflector::slug($nameSpace.'-'.$this->_builderOptions['className']);
+        $templateAction = "
+    protected \$_action = '/".$action."';
+";
+
+
+        $initColumns = '';
+        $initFilters = '';
         foreach ($fields as $field) {
-            $fieldName = $field->getName();
-            $fieldCamelName = Utils::camelize($fieldName);
-            $tmpTitle = explode("_", $fieldName);
-            $fieldTitle = [];
-            foreach ($tmpTitle as $string) {
-                $fieldTitle[] = ucfirst($string);
+            $type = $this->getType($field->getType());
+
+            if ($field->getName() == 'id') {
+                $initColumns .= sprintf($templateColumn, $field->getName(), 'Primary', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                $initFilters .= sprintf($templateFilterColumn, $field->getName(), 'Primary', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+            } elseif ($field->getName() == 'title' || $field->getName() == 'name') {
+                $initColumns .= sprintf($templateColumn, $field->getName(), 'Name', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                $initFilters .= sprintf($templateFilterColumn, $field->getName(), 'Standart', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+            } elseif ($this->isEnum($this->_options['table_name'], $field->getName())) {
+                $templateArray = "[%s]";
+                $templateArrayPair = "%s => '%s',";
+                $enumVals = $this->getEnumValues($this->_options['table_name'], $field->getName());
+                $enumValsContent = '';
+                $i = 0;
+                foreach ($enumVals as $enumVal) {
+                    $enumValsContent .= sprintf($templateArrayPair, $i, $enumVal);
+                        $i++;
+                }
+                $templateArray = sprintf($templateArray, $enumValsContent);
+                $initColumns .= sprintf($templateComplexColumn, $field->getName(), 'Collection', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName(), $templateArray);
+                $initFilters .= sprintf($templateConplexFilterColumn, $field->getName(), 'ArrayToSelect', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName(), $templateArray);
+            } else {
+                preg_match('/^(.*)\_i{1}d{1}$/', $field->getName(), $matches);
+                if (!empty($matches)) {
+                    $pieces = explode('_', $field->getName());
+                    array_shift($pieces);
+                    array_pop($pieces);
+
+                    $camelize = function($pieces) {
+                        $c = array();
+                        foreach ($pieces as $piece) {
+                            $c[] = ucfirst($piece);
+                        }
+
+                        return $c;
+                    };
+                    $modelName = implode('\\', $camelize($pieces));
+
+                    $initColumns .= sprintf($templateColumn, $field->getName(), 'JoinOne', \Engine\Tools\Inflector::humanize(implode('_', $pieces)), $this->getNameSpace($table, self::OPTION_MODEL).'\\'.$modelName);
+                    $initFilters .= sprintf($templateFilterColumn, $field->getName(), 'Join', \Engine\Tools\Inflector::humanize(implode('_', $pieces)), $this->getNameSpace($table, self::OPTION_MODEL).'\\'.$modelName);
+                } else {
+                    $initColumns .= sprintf($templateColumn, $field->getName(), $type, \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                    $initFilters .= sprintf($templateFilterColumn, $field->getName(), 'Standart', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                }
             }
-            $fieldTitle = implode(" ", $fieldTitle);
-            $columnType = $this->getColumnType($field->getType());
-            $columns[] = sprintf(
-                $templateColumn,
-                $fieldCamelName,
-                $columnType,
-                $title,
-                $fieldName
-            );
-
-            $filterType = $this->getFilterColumnType($field->getType());
-            $filters[] = sprintf(
-                $templateFilterColumn,
-                $fieldCamelName,
-                $columnType,
-                $title,
-                $fieldName
-            );
         }
 
-        $license = '';
-        if (file_exists('license.txt')) {
-            $license = file_get_contents('license.txt');
-        }
 
-        $content = join('', $attributes);
-        $columns = sprintf($initColumns, join(",\n", $columns));
-        $filters = sprintf($initFilters, join(",\n", $filters));
-        $content .= join('', $columns)
-            . join('', $filters);
+        // Set init fields method
+        $templateInitColumns = sprintf($templateInitColumns, $initColumns);
+        $templateInitFilters = sprintf($templateInitFilters, $initFilters);
 
 
-        foreach ($methodRawCode as $methodCode) {
-            $content .= $methodCode;
-        }
+        // Prepare class content
+        $content = $templateTitle;
+        $content .= $templateContainerModel;
+        $content .= $templateAction;
+        $content .= $templateInitColumns;
+        $content .= $templateInitFilters;
+
 
         $code = sprintf(
-            $templateCode,
-            $license,
-            $namespace,
-            $className,
+            $templateFileCode,
+            $this->_builderOptions['namespace'],
+            $this->_builderOptions['className'],
             $extends,
             $content
         );
-        file_put_contents($gridPath, $code);
+        file_put_contents($this->_builderOptions['path'], $code);
 
         print Color::success(
-                'grid "' . $this->_options['name'] .
+                'Grid "' . $this->_builderOptions['className'] .
                 '" was successfully created.'
             ) . PHP_EOL;
+
     }
 
-    /**
-     * Builds a PHP syntax with all the options in the array
-     * @param array $options
-     * @return string PHP syntax
-     */
-    private function _buildRelationOptions($options)
-    {
-        if (empty($options)) {
-            return 'NULL';
-        }
-
-        $values = array();
-        foreach ($options as $name=>$val)
-        {
-            if (is_bool($val)) {
-                $val = $val ? 'true':'false';
-            }
-            else if (!is_numeric($val)) {
-                $val = '"$val"';
-            }
-
-            $values[] = sprintf('"%s"=>%s', $name, $val);
-        }
-
-
-        $syntax = 'array('. implode(',', $values). ')';
-
-        return $syntax;
-    }
-
-    private function  _genColumnMapCode($fields)
-    {
-        $template = '
-    /**
-     * Independent Column Mapping.
-     */
-    public function columnMap() {
-        return array(
-            %s
-        );
-    }
-';
-        $contents = array();
-        foreach ($fields as $field) {
-            $name = $field->getName();
-            $contents[] = sprintf('\'%s\' => \'%s\'', $name, $name);
-        }
-
-        return sprintf($template, join(", \n            ", $contents));
-    }
-
-}
+} 
