@@ -178,21 +178,21 @@ final class Color
 
 		// Check if given foreground color is supported
 		if (isset(static::$_fg[$fg])) {
-			$colored .= "\033[" . static::$_fg[$fg] . "m";
+			$colored .= "\033[" . static::$_fg[$fg]."m";
 		}
 
 		// Check if given background color is supported
 		if (isset(static::$_bg[$bg])) {
-			$colored .= "\033[" . static::$_bg[$bg] . "m";
+			$colored .= "\033[" . static::$_bg[$bg]."m";
 		}
 
 		// Check if given attribute is supported
 		if (isset(static::$_at[$at])) {
-			$colored .= "\033[" . static::$_at[$at] . "m";
+			$colored .= "\033[" . static::$_at[$at]."m";
 		}
 
 		// Add string and end coloring
-		$colored .=  $string . "\033[0m";
+		$colored .=  $string."\033[0m";
 
 		return $colored;
 	}
@@ -211,10 +211,10 @@ final class Color
 	 */
 	public static function error($msg)
 	{
-		$msg = 'Error: ' . $msg;
+		$msg = 'Error: '.$msg;
 		$space = strlen($msg) + 4;
 		$out  = static::colorize(str_pad(' ', $space), Color::FG_WHITE, Color::AT_BOLD, Color::BG_RED) . PHP_EOL;
-		$out .= static::colorize('  ' . $msg . '  ', Color::FG_WHITE, Color::AT_BOLD, Color::BG_RED) . PHP_EOL;
+		$out .= static::colorize('  '.$msg.'  ', Color::FG_WHITE, Color::AT_BOLD, Color::BG_RED) . PHP_EOL;
 		$out .= static::colorize(str_pad(' ', $space), Color::FG_WHITE, Color::AT_BOLD, Color::BG_RED) . PHP_EOL;
 		return $out;
 	}
@@ -228,10 +228,10 @@ final class Color
 	 */
 	public static function success($msg)
 	{
-		$msg = 'Success: ' . $msg;
+		$msg = 'Success: '.$msg;
 		$space = strlen($msg) + 4;
 		$out  = static::colorize(str_pad(' ', $space), Color::FG_WHITE, Color::AT_BOLD, Color::BG_GREEN) . PHP_EOL;
-		$out .= static::colorize('  ' . $msg . '  ', Color::FG_WHITE, Color::AT_BOLD, Color::BG_GREEN) . PHP_EOL;
+		$out .= static::colorize('  '.$msg.'  ', Color::FG_WHITE, Color::AT_BOLD, Color::BG_GREEN) . PHP_EOL;
 		$out .= static::colorize(str_pad(' ', $space), Color::FG_WHITE, Color::AT_BOLD, Color::BG_GREEN) . PHP_EOL;
 		return $out;
 	}

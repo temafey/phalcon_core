@@ -24,9 +24,7 @@ class Paginator extends BaseHelper
     static public function _(Grid $grid)
     {
         $action = $grid->getAction();
-        $pages = $grid->getPaginateParams();
         $sortParams = $grid->getSortParams();
-        $sortPageParamName = $grid->getPageParamName();
 
         if ($sortParams) {
             foreach ($sortParams as $param => $value) {

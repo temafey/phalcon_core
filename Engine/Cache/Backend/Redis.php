@@ -140,7 +140,7 @@ class Redis extends Backend implements BackendInterface
 		if ($prefix === null) {
 			return $options['redis']->getKeys('*');
 		} else {
-			return $options['redis']->getKeys($prefix . '*');
+			return $options['redis']->getKeys($prefix.'*');
 		}
 	}
 

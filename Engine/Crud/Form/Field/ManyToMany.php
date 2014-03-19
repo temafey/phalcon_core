@@ -323,12 +323,12 @@ class ManyToMany extends Field
 			$data['insert'][] = $row;
 		}
 		foreach ($delete as $v) {
-			$data['delete'][] = $this->_workingModel->q($this->_keyParent." = ?", $this->_id) . " AND " . $this->_workingModel->q($this->_key." = ?", $v);
+			$data['delete'][] = $this->_workingModel->q($this->_keyParent." = ?", $this->_id)." AND ".$this->_workingModel->q($this->_key." = ?", $v);
 		}		
 		if (!empty($this->_additionalColumns) && is_array($this->_additionalColumns)) {
     		foreach ($update as $v) {
     		    $row = array_merge(array($this->_keyParent => $this->_id, $this->_key => $v), $additionalData);
-    		    $where = $this->_workingModel->q($this->_keyParent." = ?", $this->_id) . " AND " . $this->_workingModel->q($this->_key." = ?", $v);
+    		    $where = $this->_workingModel->q($this->_keyParent." = ?", $this->_id)." AND ".$this->_workingModel->q($this->_key." = ?", $v);
     			$data['update'][] = array('where' => $where, 'data' =>  $row);
     		}
 		}
@@ -417,7 +417,7 @@ class ManyToMany extends Field
 	 */
 	public function getOptionIds(array $data)
 	{
-		$ids = array();		
+		$ids = [];
 		foreach ($data as &$value) {
 		    $ids[] = $value[$this->_key];
 		}

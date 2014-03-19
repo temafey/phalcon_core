@@ -16,7 +16,7 @@ use Engine\Crud\Grid\Column;
  * @package    Crud
  * @subpackage Grid
  */
-class JoinOne extends Column
+class JoinOne extends Collection
 {
     /**
      * Field type.
@@ -70,7 +70,7 @@ class JoinOne extends Column
         $isEditable = true,
         $fieldKey = null
     ) {
-		parent::__construct($title, $column, $isSortable, $isHidden, $width, $isEditable, $fieldKey);
+		parent::__construct($title, $column, [], $isSortable, $isHidden, $width, $isEditable, $fieldKey);
 		
 		$this->_path = $path;
 		$this->_column = $column;

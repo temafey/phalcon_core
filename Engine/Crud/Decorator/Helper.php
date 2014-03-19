@@ -64,6 +64,7 @@ class Helper
          * if the specified class cannot be loaded.
          */
         if (!class_exists($helperName)) {
+            var_dump($helperName, get_class($element));die;
             throw new \Engine\Exception("FAILED TO FIND $helperName");
         }
 

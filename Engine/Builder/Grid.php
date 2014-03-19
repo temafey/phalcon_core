@@ -200,7 +200,7 @@ class %s extends %s
         $path = '';
         if (isset($this->_options['directory'])) {
             if ($this->_options['directory']) {
-                $path = $this->_options['directory'] . '/';
+                $path = $this->_options['directory'].'/';
             }
         }
 
@@ -218,7 +218,7 @@ class %s extends %s
         }
 
         if ($this->isAbsolutePath($gridsDir) == false) {
-            $gridPath = $path . "public" . DIRECTORY_SEPARATOR . $gridsDir;
+            $gridPath = $path."public" . DIRECTORY_SEPARATOR . $gridsDir;
         } else {
             $gridPath = $gridsDir;
         }
@@ -239,12 +239,12 @@ class %s extends %s
             }
             $className = "\\".implode("\\", $model);
         }
-        $gridPath .= $className . '.php';
+        $gridPath .= $className.'.php';
 
         if (file_exists($gridPath)) {
             if (!$this->_options['force']) {
                 throw new BuilderException(
-                    "The grid file '" . $className .
+                    "The grid file '".$className .
                     ".php' already exists in grids dir"
                 );
             }
@@ -264,7 +264,7 @@ class %s extends %s
         }
 
         if (isset($this->_options['module'])) {
-            $namespace = 'namespace ' . $this->_options['module'] . '\Grid;'
+            $namespace = 'namespace '.$this->_options['module'].'\Grid;'
                 . PHP_EOL . PHP_EOL;
         } else {
             $namespace = '';
@@ -285,7 +285,7 @@ class %s extends %s
             $configArray = $config->database;
         }
 
-        $adapterName = 'Phalcon\Db\Adapter\Pdo\\' . $adapter;
+        $adapterName = 'Phalcon\Db\Adapter\Pdo\\'.$adapter;
         unset($configArray['adapter']);
         $db = new $adapterName($configArray);
 
@@ -302,7 +302,7 @@ class %s extends %s
         if ($db->tableExists($table, $schema)) {
             $fields = $db->describeColumns($table, $schema);
         } else {
-            throw new BuilderException('Table "' . $table . '" does not exists');
+            throw new BuilderException('Table "'.$table.'" does not exists');
         }
 
         if (isset($this->_options['hasMany'])) {
@@ -347,8 +347,8 @@ class %s extends %s
                 $possibleMethods = [];
                 foreach ($fields as $field) {
                     $methodName = Utils::camelize($field->getName());
-                    $possibleMethods['set' . $methodName] = true;
-                    $possibleMethods['get' . $methodName] = true;
+                    $possibleMethods['set'.$methodName] = true;
+                    $possibleMethods['get'.$methodName] = true;
                 }
                 require $gridPath;
 
@@ -506,7 +506,7 @@ class %s extends %s
         file_put_contents($gridPath, $code);
 
         print Color::success(
-                'grid "' . $this->_options['name'] .
+                'grid "'.$this->_options['name'] .
                 '" was successfully created.'
             ) . PHP_EOL;
     }
@@ -522,7 +522,7 @@ class %s extends %s
             return 'NULL';
         }
 
-        $values = array();
+        $values = [];
         foreach ($options as $name=>$val)
         {
             if (is_bool($val)) {
@@ -553,7 +553,7 @@ class %s extends %s
         );
     }
 ';
-        $contents = array();
+        $contents = [];
         foreach ($fields as $field) {
             $name = $field->getName();
             $contents[] = sprintf('\'%s\' => \'%s\'', $name, $name);

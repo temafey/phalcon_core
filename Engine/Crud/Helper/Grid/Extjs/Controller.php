@@ -40,7 +40,8 @@ class Controller extends BaseHelper
         $code .= "'".static::getStoreLocalName()."',";
         $code .= "'".static::getStoreName()."',";
         $code .= "'".static::getGridName()."',";
-        $code .= "'".static::getFormName()."'";
+        $code .= "'".static::getFormName()."',";
+        $code .= "'".static::getFilterName()."'";
         $code .= "],";
         $code .= "
             init: function(){
@@ -48,6 +49,7 @@ class Controller extends BaseHelper
                 this.store = this.getStore('".static::getStoreName()."');
                 this.grid = this.getView('".static::getGridName()."');
                 this.form = this.getView('".static::getFormName()."');
+                this.filter = this.getView('".static::getFilterName()."');
                 /*this.storeLocal.addListener('load', function(){
                        this._onPingSuccess();
                     }, this);

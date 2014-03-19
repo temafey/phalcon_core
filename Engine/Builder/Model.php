@@ -204,7 +204,7 @@ class Model extends Component
     /**
      * @return %s[]
      */
-    public static function find(\$parameters = array())
+    public static function find(\$parameters = [])
     {
         return parent::find(\$parameters);
     }
@@ -212,7 +212,7 @@ class Model extends Component
     /**
      * @return %s
      */
-    public static function findFirst(\$parameters = array())
+    public static function findFirst(\$parameters = [])
     {
         return parent::findFirst(\$parameters);
     }
@@ -234,7 +234,7 @@ class %s extends %s
         $path = '';
         if (isset($this->_options['directory'])) {
             if ($this->_options['directory']) {
-                $path = $this->_options['directory'] . '/';
+                $path = $this->_options['directory'].'/';
             }
         }
 
@@ -252,19 +252,19 @@ class %s extends %s
         }
 
         if ($this->isAbsolutePath($modelsDir) == false) {
-            $modelPath = $path . "public" . DIRECTORY_SEPARATOR . $modelsDir;
+            $modelPath = $path."public" . DIRECTORY_SEPARATOR . $modelsDir;
         } else {
             $modelPath = $modelsDir;
         }
 
-        $methodRawCode = array();
+        $methodRawCode = [];
         $className = $this->_options['className'];
-        $modelPath .= $className . '.php';
+        $modelPath .= $className.'.php';
 
         if (file_exists($modelPath)) {
             if (!$this->_options['force']) {
                 throw new BuilderException(
-                    "The model file '" . $className .
+                    "The model file '".$className .
                     ".php' already exists in models dir"
                 );
             }
@@ -284,7 +284,7 @@ class %s extends %s
         }
 
         if (isset($this->_options['namespace'])) {
-            $namespace = 'namespace ' . $this->_options['namespace'] . ';'
+            $namespace = 'namespace '.$this->_options['namespace'].';'
                 . PHP_EOL . PHP_EOL;
             $methodRawCode[] = sprintf($getSource, $this->_options['name']);
         } else {
@@ -313,22 +313,22 @@ class %s extends %s
             $configArray = $config->database;
         }
 
-        $adapterName = 'Phalcon\Db\Adapter\Pdo\\' . $adapter;
+        $adapterName = 'Phalcon\Db\Adapter\Pdo\\'.$adapter;
         unset($configArray['adapter']);
         $db = new $adapterName($configArray);
 
-        $initialize = array();
+        $initialize = [];
         if (isset($this->_options['schema'])) {
             if ($this->_options['schema'] != $config->database->dbname) {
                 $initialize[] = sprintf(
-                    $templateThis, 'setSchema', '"' . $this->_options['schema'] . '"'
+                    $templateThis, 'setSchema', '"'.$this->_options['schema'].'"'
                 );
             }
             $schema = $this->_options['schema'];
         } elseif ($adapter == 'Postgresql') {
             $schema = 'public';
             $initialize[] = sprintf(
-                $templateThis, 'setSchema', '"' . $this->_options['schema'] . '"'
+                $templateThis, 'setSchema', '"'.$this->_options['schema'].'"'
             );
         } else {
             $schema = $config->database->dbname;
@@ -337,7 +337,7 @@ class %s extends %s
         if ($this->_options['fileName'] != $this->_options['name']) {
             $initialize[] = sprintf(
                 $templateThis, 'setSource',
-                '\'' . $this->_options['name'] . '\''
+                '\''.$this->_options['name'].'\''
             );
         }
 
@@ -345,7 +345,7 @@ class %s extends %s
         if ($db->tableExists($table, $schema)) {
             $fields = $db->describeColumns($table, $schema);
         } else {
-            throw new BuilderException('Table "' . $table . '" does not exists');
+            throw new BuilderException('Table "'.$table.'" does not exists');
         }
 
         if (isset($this->_options['hasMany'])) {
@@ -388,12 +388,12 @@ class %s extends %s
         $alreadyValidations = false;
         if (file_exists($modelPath)) {
             try {
-                $possibleMethods = array();
+                $possibleMethods = [];
                 if ($useSettersGetters) {
                     foreach ($fields as $field) {
                         $methodName = Utils::camelize($field->getName());
-                        $possibleMethods['set' . $methodName] = true;
-                        $possibleMethods['get' . $methodName] = true;
+                        $possibleMethods['set'.$methodName] = true;
+                        $possibleMethods['get'.$methodName] = true;
                     }
                 }
 
@@ -429,10 +429,10 @@ class %s extends %s
             }
         }
 
-        $validations = array();
+        $validations = [];
         foreach ($fields as $field) {
             if ($field->getType() === Column::TYPE_CHAR) {
-                $domain = array();
+                $domain = [];
                 if (preg_match('/\((.*)\)/', $field->getType(), $matches)) {
                     foreach (explode(',', $matches[1]) as $item) {
                         $domain[] = $item;
@@ -468,7 +468,7 @@ class %s extends %s
         /**
          * Check if there have been any excluded fields
          */
-        $exclude = array();
+        $exclude = [];
         if (isset($this->_options['excludeFields'])) {
             if (!empty($this->_options['excludeFields'])) {
                 $keys = explode(',', $this->_options['excludeFields']);
@@ -480,9 +480,9 @@ class %s extends %s
             }
         }
 
-        $attributes = array();
-        $setters = array();
-        $getters = array();
+        $attributes = [];
+        $setters = [];
+        $getters = [];
         foreach ($fields as $field) {
             $type = $this->getPHPType($field->getType());
             if ($useSettersGetters) {
@@ -591,7 +591,7 @@ class %s extends %s
         file_put_contents($modelPath, $code);
 
         print Color::success(
-                'Model "' . $this->_options['name'] .
+                'Model "'.$this->_options['name'] .
                 '" was successfully created.'
             ) . PHP_EOL;
     }
@@ -607,7 +607,7 @@ class %s extends %s
             return 'NULL';
         }
 
-        $values = array();
+        $values = [];
         foreach ($options as $name=>$val)
         {
             if (is_bool($val)) {
@@ -638,7 +638,7 @@ class %s extends %s
         );
     }
 ';
-        $contents = array();
+        $contents = [];
         foreach ($fields as $field) {
             $name = $field->getName();
             $contents[] = sprintf('\'%s\' => \'%s\'', $name, $name);

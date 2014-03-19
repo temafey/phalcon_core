@@ -37,7 +37,7 @@ use Engine\Builder\Script\Color,
 abstract class Component
 {
 
-	protected $_options = array();
+	protected $_options = [];
 
 	public function __construct($options)
 	{
@@ -53,11 +53,11 @@ abstract class Component
 	protected function _getConfig($path)
 	{
 		foreach (array('app/config/', 'config/') as $configPath) {
-			if (file_exists($path . $configPath . "engine.ini")) {
-				return new \Phalcon\Config\Adapter\Ini($path . $configPath . "/engine.ini");
+			if (file_exists($path . $configPath."engine.ini")) {
+				return new \Phalcon\Config\Adapter\Ini($path . $configPath."/engine.ini");
 			} else {
 				if (file_exists($path . $configPath. "/engine.php")) {
-					$config = include($path . $configPath . "/engine.php");
+					$config = include($path . $configPath."/engine.php");
 					return $config;
 				}
 			}
@@ -115,7 +115,7 @@ abstract class Component
 	 */
 	public function isSupportedAdapter($adapter)
 	{
-		if (!class_exists('\Phalcon\Db\Adapter\Pdo\\' . $adapter)) {
+		if (!class_exists('\Phalcon\Db\Adapter\Pdo\\'.$adapter)) {
 			throw new BuilderException("Adapter $adapter is not supported");
 		}
 	}

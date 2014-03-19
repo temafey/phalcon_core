@@ -87,7 +87,7 @@ class Scaffold extends Component
 		$path = '';
 		if(isset($this->_options['directory'])){
 			if($this->_options['directory']){
-				$path = $this->_options['directory'] . '/';
+				$path = $this->_options['directory'].'/';
 			}
 		}
 
@@ -118,7 +118,7 @@ class Scaffold extends Component
 				$configArray = $config->database;
 			}
 
-			$adapterName = 'Phalcon\Db\Adapter\Pdo\\' . $adapter;
+			$adapterName = 'Phalcon\Db\Adapter\Pdo\\'.$adapter;
 			unset($configArray['adapter']);
 			return new $adapterName($configArray);
 		});
@@ -188,8 +188,8 @@ class Scaffold extends Component
 		$identityField = $metaData->getIdentityField($entity);
 		$primaryKeys = $metaData->getPrimaryKeyAttributes($entity);
 
-		$setParams = array();
-		$selectDefinition = array();
+		$setParams = [];
+		$selectDefinition = [];
 
 		$relationField = '';
 
@@ -205,8 +205,8 @@ class Scaffold extends Component
 		$options['identityField']		 = $identityField;
 		$options['relationField'] 		 = $relationField;
 		$options['selectDefinition']	 = $selectDefinition;
-		$options['autocompleteFields'] 	 = array();
-		$options['belongsToDefinitions'] = array();
+		$options['autocompleteFields'] 	 = [];
+		$options['belongsToDefinitions'] = [];
 
 		//Build Controller
 		$this->_makeController($path, $options);
@@ -295,12 +295,12 @@ class Scaffold extends Component
 
 			$code .= '$'.$var.'->';
 			if($useGetSetters) {
-				$code .= 'set' . Text::camelize($field) . '(' . $fieldCode . ')';
+				$code .= 'set' . Text::camelize($field).'('.$fieldCode.')';
 			} else {
-				$code .= $field . ' = ' . $fieldCode;
+				$code .= $field.' = '.$fieldCode;
 			}
 
-			$code .= ';' . PHP_EOL . "\t\t";
+			$code .= ';' . PHP_EOL."\t\t";
 		}
 		return $code;
 	}
@@ -311,90 +311,90 @@ class Scaffold extends Component
 		foreach ($fields as $field => $dataType) {
 
 			if($useGetSetters) {
-				$accessor = 'get' . Text::camelize($field) . '()';
+				$accessor = 'get' . Text::camelize($field).'()';
 			} else {
 				$accessor = $field;
 			}
 
-			$code .= '$this->tag->setDefault("' . $field . '", $' . $var . '->' . $accessor . ');' . PHP_EOL . "\t\t\t";
+			$code .= '$this->tag->setDefault("'.$field.'", $'.$var.'->'.$accessor.');' . PHP_EOL."\t\t\t";
 		}
 		return $code;
 	}
 
 	private function _makeField($attribute, $dataType, $relationField, $selectDefinition)
 	{
-		$code = "\t" . '<tr>' . PHP_EOL .
-				"\t\t" . '<td align="right">' . PHP_EOL .
-				"\t\t\t" . '<label for="' . $attribute . '">' . $this->_getPossibleLabel($attribute) . '</label>' . PHP_EOL .
-				"\t\t" . '</td>' . PHP_EOL .
-				"\t\t" . '<td align="left">';
+		$code = "\t".'<tr>' . PHP_EOL .
+				"\t\t".'<td align="right">' . PHP_EOL .
+				"\t\t\t".'<label for="'.$attribute.'">'.$this->_getPossibleLabel($attribute).'</label>' . PHP_EOL .
+				"\t\t".'</td>' . PHP_EOL .
+				"\t\t".'<td align="left">';
 
 		if(isset($relationField[$attribute])){
-			$code .= PHP_EOL . "\t\t\t\t" . '<?php echo $this->tag->select(array("' . $attribute . '", $' . $selectDefinition[$attribute]['varName'] .
-				', "using" => "' . $selectDefinition[$attribute]['primaryKey'] . ',' . $selectDefinition[$attribute]['detail'] . '", "useDummy" => true)) ?>';
+			$code .= PHP_EOL."\t\t\t\t".'<?php echo $this->tag->select(array("'.$attribute.'", $'.$selectDefinition[$attribute]['varName'] .
+				', "using" => "'.$selectDefinition[$attribute]['primaryKey'].','.$selectDefinition[$attribute]['detail'].'", "useDummy" => true)) ?>';
 		} else {
 
 			switch ($dataType) {
 				case Field::TYPE_CHAR:
-					$code .= PHP_EOL . "\t\t\t\t" . '<?php echo $this->tag->textField(array("' . $attribute . '")) ?>';
+					$code .= PHP_EOL."\t\t\t\t".'<?php echo $this->tag->textField(array("'.$attribute.'")) ?>';
 					break;
 				case Field::TYPE_DECIMAL:
 				case Field::TYPE_INTEGER:
-					$code .= PHP_EOL . "\t\t\t" . '<?php echo $this->tag->textField(array("' . $attribute . '", "type" => "number")) ?>';
+					$code .= PHP_EOL."\t\t\t".'<?php echo $this->tag->textField(array("'.$attribute.'", "type" => "number")) ?>';
 					break;
 				case Field::TYPE_DATE:
-					$code .= PHP_EOL . "\t\t\t\t" . '<?php echo $this->tag->textField(array("' . $attribute . '", "type" => "date")) ?>';
+					$code .= PHP_EOL."\t\t\t\t".'<?php echo $this->tag->textField(array("'.$attribute.'", "type" => "date")) ?>';
 					break;
 				case Field::TYPE_TEXT:
-					$code .= PHP_EOL . "\t\t\t\t" . '<?php echo $this->tag->textField(array("' . $attribute . '", "type" => "date")) ?>';
+					$code .= PHP_EOL."\t\t\t\t".'<?php echo $this->tag->textField(array("'.$attribute.'", "type" => "date")) ?>';
 					break;
 				default:
-					$code .= PHP_EOL . "\t\t\t" . '<?php echo $this->tag->textField(array("' . $attribute . '", "size" => 30)) ?>';
+					$code .= PHP_EOL."\t\t\t".'<?php echo $this->tag->textField(array("'.$attribute.'", "size" => 30)) ?>';
 					break;
 			}
 		}
 
-		$code .= PHP_EOL . "\t\t" . '</td>';
-		$code .= PHP_EOL . "\t" . '</tr>' . PHP_EOL;
+		$code .= PHP_EOL."\t\t".'</td>';
+		$code .= PHP_EOL."\t".'</tr>' . PHP_EOL;
 
 		return $code;
 	}
 
 	private function _makeFieldVolt($attribute, $dataType, $relationField, $selectDefinition)
 	{
-		$code = "\t" . '<tr>' . PHP_EOL .
-				"\t\t" . '<td align="right">' . PHP_EOL .
-				"\t\t\t" . '<label for="' . $attribute . '">' . $this->_getPossibleLabel($attribute) . '</label>' . PHP_EOL .
-				"\t\t" . '</td>' . PHP_EOL .
-				"\t\t" . '<td align="left">';
+		$code = "\t".'<tr>' . PHP_EOL .
+				"\t\t".'<td align="right">' . PHP_EOL .
+				"\t\t\t".'<label for="'.$attribute.'">'.$this->_getPossibleLabel($attribute).'</label>' . PHP_EOL .
+				"\t\t".'</td>' . PHP_EOL .
+				"\t\t".'<td align="left">';
 
 		if(isset($relationField[$attribute])){
-			$code .= PHP_EOL . "\t\t\t\t" . '{{ select("' . $attribute . '", ' . $selectDefinition[$attribute]['varName'] .
-				', "using" :[ "' . $selectDefinition[$attribute]['primaryKey'] . ',' . $selectDefinition[$attribute]['detail'] . '", "useDummy" => true]) }}';
+			$code .= PHP_EOL."\t\t\t\t".'{{ select("'.$attribute.'", '.$selectDefinition[$attribute]['varName'] .
+				', "using" :[ "'.$selectDefinition[$attribute]['primaryKey'].','.$selectDefinition[$attribute]['detail'].'", "useDummy" => true]) }}';
 		} else {
 
 			switch ($dataType) {
 				case Field::TYPE_CHAR:
-					$code .= PHP_EOL . "\t\t\t\t" . '{{ text_field("' . $attribute . '") }}';
+					$code .= PHP_EOL."\t\t\t\t".'{{ text_field("'.$attribute.'") }}';
 					break;
 				case Field::TYPE_DECIMAL:
 				case Field::TYPE_INTEGER:
-					$code .= PHP_EOL . "\t\t\t" . '{{ text_field("' . $attribute . '", "type" : "numeric") }}';
+					$code .= PHP_EOL."\t\t\t".'{{ text_field("'.$attribute.'", "type" : "numeric") }}';
 					break;
 				case Field::TYPE_DATE:
-					$code .= PHP_EOL . "\t\t\t\t" . '{{ text_field("' . $attribute . '", "type" : "date") }}';
+					$code .= PHP_EOL."\t\t\t\t".'{{ text_field("'.$attribute.'", "type" : "date") }}';
 					break;
 				case Field::TYPE_TEXT:
-					$code .= PHP_EOL . "\t\t\t\t" . '{{ text_field("' . $attribute . '", "type" : "date") }}';
+					$code .= PHP_EOL."\t\t\t\t".'{{ text_field("'.$attribute.'", "type" : "date") }}';
 					break;
 				default:
-					$code .= PHP_EOL . "\t\t\t" . '{{ text_field("' . $attribute . '", "size" : 30) }}';
+					$code .= PHP_EOL."\t\t\t".'{{ text_field("'.$attribute.'", "size" : 30) }}';
 					break;
 			}
 		}
 
-		$code .= PHP_EOL . "\t\t" . '</td>';
-		$code .= PHP_EOL . "\t" . '</tr>' . PHP_EOL;
+		$code .= PHP_EOL."\t\t".'</td>';
+		$code .= PHP_EOL."\t".'</tr>' . PHP_EOL;
 
 		return $code;
 	}
@@ -458,20 +458,20 @@ class Scaffold extends Component
 	private function _makeController($path, $options)
 	{
 
-		$controllerPath = $options['controllersDir'] . $options['className'] . 'Controller.php';
+		$controllerPath = $options['controllersDir'] . $options['className'].'Controller.php';
 
 		if (file_exists($controllerPath)) {
 			return;
 		}
 
-		$path = $options['templatePath'] . '/scaffold/no-forms/Controller.php';
+		$path = $options['templatePath'].'/scaffold/no-forms/Controller.php';
 
 		$code = file_get_contents($path);
 
-		$code = str_replace('$singularVar$', '$' . $options['singular'], $code);
+		$code = str_replace('$singularVar$', '$'.$options['singular'], $code);
 		$code = str_replace('$singular$', $options['singular'], $code);
 
-		$code = str_replace('$pluralVar$', '$' . $options['plural'], $code);
+		$code = str_replace('$pluralVar$', '$'.$options['plural'], $code);
 		$code = str_replace('$plural$', $options['plural'], $code);
 
 		$code = str_replace('$className$', $options['className'], $code);
@@ -481,7 +481,7 @@ class Scaffold extends Component
 
 		$code = str_replace('$assignTagDefaults$', $this->_assignTagDefaults($options['singular'], $options['dataTypes'], $options['genSettersGetters']), $code);
 
-		$code = str_replace('$pkVar$', '$' . $options['attributes'][0], $code);
+		$code = str_replace('$pkVar$', '$'.$options['attributes'][0], $code);
 		$code = str_replace('$pk$', $options['attributes'][0], $code);
 
 		if ($this->isConsole()) {
@@ -502,7 +502,7 @@ class Scaffold extends Component
 	{
 
 		//Make Layouts dir
-		$dirPathLayouts	= $options['viewsDir'] . '/layouts';
+		$dirPathLayouts	= $options['viewsDir'].'/layouts';
 
 		//If not exists dir; we make it
 		if (is_dir($dirPathLayouts) == false) {
@@ -510,7 +510,7 @@ class Scaffold extends Component
 		}
 
 		$fileName = $options['fileName'];
-		$viewPath = $dirPathLayouts . '/' . $fileName . '.phtml';
+		$viewPath = $dirPathLayouts.'/'.$fileName.'.phtml';
 		if (!file_exists($viewPath)) {
 
 			//View model layout
@@ -525,7 +525,7 @@ class Scaffold extends Component
 			} else {
 				$code .= '<div align="center">' . PHP_EOL;
 			}
-			$code .= "\t" . '<?php echo $this->getContent(); ?>' . PHP_EOL . '</div>';
+			$code .= "\t".'<?php echo $this->getContent(); ?>' . PHP_EOL.'</div>';
 			$code = str_replace("\t", "    ", $code);
 			file_put_contents($viewPath, $code);
 
@@ -536,7 +536,7 @@ class Scaffold extends Component
 	{
 
 		//Make Layouts dir
-		$dirPathLayouts	= $options['viewsDir'] . '/layouts';
+		$dirPathLayouts	= $options['viewsDir'].'/layouts';
 
 		//If not exists dir; we make it
 		if (is_dir($dirPathLayouts) == false) {
@@ -544,7 +544,7 @@ class Scaffold extends Component
 		}
 
 		$fileName = Text::uncamelize($options['fileName']);
-		$viewPath = $dirPathLayouts . '/' . $fileName . '.volt';
+		$viewPath = $dirPathLayouts.'/'.$fileName.'.volt';
 		if (!file_exists($viewPath)) {
 
 			//View model layout
@@ -559,7 +559,7 @@ class Scaffold extends Component
 			} else {
 				$code .= '<div align="center">' . PHP_EOL;
 			}
-			$code .= "\t" . '{{ content() }}' . PHP_EOL . '</div>';
+			$code .= "\t".'{{ content() }}' . PHP_EOL.'</div>';
 			$code = str_replace("\t", "    ", $code);
 			file_put_contents($viewPath, $code);
 
@@ -574,14 +574,14 @@ class Scaffold extends Component
 			mkdir($dirPath);
 		}
 
-		$viewPath = $dirPath . '/' .$type. '.phtml';
+		$viewPath = $dirPath.'/' .$type. '.phtml';
 		if (file_exists($viewPath)) {
 			return;
 		}
 
-		$templatePath = $options['templatePath'] . '/scaffold/no-forms/views/' .$type. '.phtml';
+		$templatePath = $options['templatePath'].'/scaffold/no-forms/views/' .$type. '.phtml';
 		if (!file_exists($templatePath)) {
-			throw new BuilderException("Template '" . $templatePath . "' does not exist");
+			throw new BuilderException("Template '".$templatePath."' does not exist");
 		}
 
 		$code = file_get_contents($templatePath);
@@ -605,14 +605,14 @@ class Scaffold extends Component
 			mkdir($dirPath);
 		}
 
-		$viewPath = $dirPath . '/' .$type. '.volt';
+		$viewPath = $dirPath.'/' .$type. '.volt';
 		if (file_exists($viewPath)) {
 			return;
 		}
 
-		$templatePath = $options['templatePath'] . '/scaffold/no-forms/views/' .$type. '.volt';
+		$templatePath = $options['templatePath'].'/scaffold/no-forms/views/' .$type. '.volt';
 		if (!file_exists($templatePath)) {
-			throw new BuilderException("Template '" . $templatePath . "' does not exist");
+			throw new BuilderException("Template '".$templatePath."' does not exist");
 		}
 
 		$code = file_get_contents($templatePath);
@@ -690,30 +690,30 @@ class Scaffold extends Component
 			mkdir($dirPath);
 		}
 
-		$viewPath = $dirPath . '/search.phtml';
+		$viewPath = $dirPath.'/search.phtml';
 		if (file_exists($viewPath)) {
 			return;
 		}
 
-		$templatePath = $options['templatePath'] . '/scaffold/no-forms/views/search.phtml';
+		$templatePath = $options['templatePath'].'/scaffold/no-forms/views/search.phtml';
 		if (!file_exists($templatePath)) {
-			throw new BuilderException("Template '" . $templatePath . "' does not exist");
+			throw new BuilderException("Template '".$templatePath."' does not exist");
 		}
 
 		$headerCode = '';
 		foreach ($options['attributes'] as $attribute) {
-			$headerCode .= "\t\t\t" . '<th>' . $this->_getPossibleLabel($attribute) . '</th>' . PHP_EOL;
+			$headerCode .= "\t\t\t".'<th>'.$this->_getPossibleLabel($attribute).'</th>' . PHP_EOL;
 		}
 
 		$rowCode = '';
 		$options['allReferences'] = array_merge($options['autocompleteFields'], $options['selectDefinition']);
 		foreach ($options['dataTypes'] as $fieldName => $dataType) {
-			$rowCode .= "\t\t\t" . '<td><?php echo ';
+			$rowCode .= "\t\t\t".'<td><?php echo ';
 			if (!isset($options['allReferences'][$fieldName])) {
-				$rowCode .= '$' . $options['singular'] . '->' . $fieldName;
+				$rowCode .= '$'.$options['singular'].'->'.$fieldName;
 			} else {
 				$detailField = ucfirst($options['allReferences'][$fieldName]['detail']);
-				$rowCode .= '$' . $options['singular'] . '->get' . $options['allReferences'][$fieldName]['tableName'] . '()->get' . $detailField . '()';
+				$rowCode .= '$'.$options['singular'].'->get'.$options['allReferences'][$fieldName]['tableName'].'()->get'.$detailField.'()';
 			}
 			$rowCode .= ' ?></td>' . PHP_EOL;
 		}
@@ -723,7 +723,7 @@ class Scaffold extends Component
 		$code = str_replace('$plural$', $options['plural'], $code);
 		$code = str_replace('$headerFields$', $headerCode, $code);
 		$code = str_replace('$rowFields$', $rowCode, $code);
-		$code = str_replace('$singularVar$', '$' . $options['singular'], $code);
+		$code = str_replace('$singularVar$', '$'.$options['singular'], $code);
 		$code = str_replace('$pk$', $options['attributes'][0], $code);
 
 		if ($this->isConsole()) {
@@ -742,30 +742,30 @@ class Scaffold extends Component
 			mkdir($dirPath);
 		}
 
-		$viewPath = $dirPath . '/search.volt';
+		$viewPath = $dirPath.'/search.volt';
 		if (file_exists($viewPath)) {
 			return;
 		}
 
-		$templatePath = $options['templatePath'] . '/scaffold/no-forms/views/search.volt';
+		$templatePath = $options['templatePath'].'/scaffold/no-forms/views/search.volt';
 		if (!file_exists($templatePath)) {
-			throw new BuilderException("Template '" . $templatePath . "' does not exist");
+			throw new BuilderException("Template '".$templatePath."' does not exist");
 		}
 
 		$headerCode = '';
 		foreach ($options['attributes'] as $attribute) {
-			$headerCode .= "\t\t\t" . '<th>' . $this->_getPossibleLabel($attribute) . '</th>' . PHP_EOL;
+			$headerCode .= "\t\t\t".'<th>'.$this->_getPossibleLabel($attribute).'</th>' . PHP_EOL;
 		}
 
 		$rowCode = '';
 		$options['allReferences'] = array_merge($options['autocompleteFields'], $options['selectDefinition']);
 		foreach ($options['dataTypes'] as $fieldName => $dataType) {
-			$rowCode .= "\t\t\t" . '<td>{{ ';
+			$rowCode .= "\t\t\t".'<td>{{ ';
 			if (!isset($options['allReferences'][$fieldName])) {
-				$rowCode .= $options['singular'] . '.' . $fieldName;
+				$rowCode .= $options['singular'].'.'.$fieldName;
 			} else {
 				$detailField = ucfirst($options['allReferences'][$fieldName]['detail']);
-				$rowCode .= $options['singular'] . '.get' . $options['allReferences'][$fieldName]['tableName'] . '().get' . $detailField . '()';
+				$rowCode .= $options['singular'].'.get'.$options['allReferences'][$fieldName]['tableName'].'().get'.$detailField.'()';
 			}
 			$rowCode .= ' }}</td>' . PHP_EOL;
 		}

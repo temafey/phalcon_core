@@ -316,6 +316,7 @@ abstract class Grid implements
 	 */
 	protected function _setupFilter()
 	{
+        $this->_filter->init($this);
 	}
 	
 	/**

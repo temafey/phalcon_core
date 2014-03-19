@@ -29,6 +29,15 @@ class Mongo extends Adapter implements AdapterInterface
 		if (!isset($options['collection'])) {
 			throw new Exception("The parameter 'collection' is required");
 		}
+        if (isset($options['name'])) {
+            ini_set('session.name', $options['name']);
+        }
+        if (isset($options['lifetime'])) {
+            ini_set('session.gc_maxlifetime', $options['lifetime']);
+        }
+        if (isset($options['cookie_lifetime'])) {
+            ini_set('session.cookie_lifetime', $options['cookie_lifetime']);
+        }
 
 		session_set_save_handler(
 			array($this, 'open'),

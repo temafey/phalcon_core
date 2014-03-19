@@ -24,7 +24,7 @@ class Twig extends Engine implements EngineInterface
      * @param \Phalcon\DiInterface $di
      * @param array $options TwigEnvironmentOptions
      */
-    public function __construct($view,  $di = null, $options = array())
+    public function __construct($view,  $di = null, $options = [])
     {
         $loader = new \Twig_Loader_Filesystem($view->getViewsDir());
         $this->_twig = new Twig\Environment($di, $loader, $options);
@@ -78,16 +78,16 @@ class Twig extends Engine implements EngineInterface
             new \Twig_SimpleFunction('submitButton', function($parameters) {
                 return \Phalcon\Tag::submitButton($parameters);
             }, $options),
-            new \Twig_SimpleFunction('selectStatic', function($parameters, $data = array()) {
+            new \Twig_SimpleFunction('selectStatic', function($parameters, $data = []) {
                 return \Phalcon\Tag::selectStatic($parameters, $data);
             }, $options),
-            new \Twig_SimpleFunction('select', function($parameters, $data = array()) {
+            new \Twig_SimpleFunction('select', function($parameters, $data = []) {
                 return \Phalcon\Tag::select($parameters, $data);
             }, $options),
             new \Twig_SimpleFunction('textArea', function($parameters) {
                 return \Phalcon\Tag::textArea($parameters);
             }, $options),
-            new \Twig_SimpleFunction('form', function($parameters = array()) {
+            new \Twig_SimpleFunction('form', function($parameters = []) {
                 return \Phalcon\Tag::form($parameters);
             }, $options),
             new \Twig_SimpleFunction('endForm', function() {

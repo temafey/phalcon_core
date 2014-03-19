@@ -25,8 +25,10 @@ class Components extends BaseHelper
 	{
 
         $code = "
+
             initComponent : function() {
                 var me = this;
+
                 ";
 
         $editType = $grid->getEditingType();
@@ -49,11 +51,6 @@ class Components extends BaseHelper
                 me.callParent(arguments);
             },
 
-            afterRender: function() {
-                var me = this;
-                me.callParent(arguments);
-                me.textField = me.down('textfield[name=searchField]');
-            },
             ";
         /*        me.on('selectionchange', me.onSelect, this);
                 me.on('celldblclick', me.onDbClick, this);

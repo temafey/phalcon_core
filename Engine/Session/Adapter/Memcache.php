@@ -63,7 +63,7 @@ class Memcache extends Adapter implements AdapterInterface
     {
         if (is_array($options)) {
             if (!isset($options["host"])) {
-                throw new Phalcon\Session\Exception("No session host given in options");
+                throw new \Phalcon\Session\Exception("No session host given in options");
             }
             if (!isset($options["port"])) {
                 $options["port"]  = self::DEFAULT_OPTION_PORT;
@@ -77,8 +77,17 @@ class Memcache extends Adapter implements AdapterInterface
             if (!isset($options["prefix"])) {
                 $options["prefix"] = self::DEFAULT_OPTION_PREFIX;
             }
+            if (isset($options['name'])) {
+                ini_set('session.name', $options['name']);
+            }
+            if (isset($options['lifetime'])) {
+                ini_set('session.gc_maxlifetime', $options['lifetime']);
+            }
+            if (isset($options['cookie_lifetime'])) {
+                ini_set('session.cookie_lifetime', $options['cookie_lifetime']);
+            }
         } else {
-            throw new Phalcon\Session\Exception("No configuration given");
+            throw new \Phalcon\Session\Exception("No configuration given");
         }
 
         session_set_save_handler(
@@ -147,9 +156,12 @@ class Memcache extends Adapter implements AdapterInterface
      *
      * @return bool
      */
-    public function destroy()
+    public function destroy($session_id = NULL)
     {
-        return $this->_getMemcacheInstance()->delete($this->_getSessionId($this->getId()));
+        if (null === $session_id) {
+            $session_id = $this->_getSessionId($this->getId());
+        }
+        return $this->_getMemcacheInstance()->delete($session_id);
     }
 
     /**
@@ -182,8 +194,8 @@ class Memcache extends Adapter implements AdapterInterface
     private function _getMemcacheInstance()
     {
         if ($this->_memcacheInstance === null) {
-            $this->_memcacheInstance = new Phalcon\Cache\Backend\Memcache(
-                new Phalcon\Cache\Frontend\Data(array("lifetime" => $this->getOption("lifetime"))),
+            $this->_memcacheInstance = new \Phalcon\Cache\Backend\Memcache(
+                new \Phalcon\Cache\Frontend\Data(array("lifetime" => $this->getOption("lifetime"))),
                 array(
                     'host'       => $this->getOption('host'),
                     'port'       => $this->getOption('port'),
@@ -204,7 +216,7 @@ class Memcache extends Adapter implements AdapterInterface
     private function _getSessionId($sessionId)
     {
         return (strlen($this->getOption('prefix')) > 0)
-            ? $this->getOption('prefix') . '_' . $sessionId
+            ? $this->getOption('prefix').'_'.$sessionId
             : $sessionId;
     }
 
