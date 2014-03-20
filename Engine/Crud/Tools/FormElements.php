@@ -4,8 +4,9 @@
  */
 namespace Engine\Crud\Tools;
 
-use Engine\Crud\Form\Field\TextArea;
-use Phalcon\Forms\Element;
+use Engine\Crud\Form\Field\TextArea,
+    Phalcon\Forms\Element,
+    Phalcon\Validation\Message;
 
 /**
  * Trait FormElements
@@ -314,7 +315,7 @@ trait FormElements
         $this->_element->setDefault($this->getValue());
         $message = $this->getErrorMessage();
         if ($message) {
-            $this->_element->appendMessage($message);
+            $this->_element->appendMessage(new Message($message, $this->_key, $this->_type));
         }
     }
 

@@ -79,7 +79,10 @@ class PasswordConfirm extends Field
         $passwrodField = $this->_form->getFieldByKey($this->_confirmField);
         $passwrodField->addValidator([
             'validator' => 'Confirmation',
-            'with' => $this->_key
+            'options' => [
+                'with' => $this->_key,
+                'message' => $this->_errorMessage
+             ]
         ]);
 
     }

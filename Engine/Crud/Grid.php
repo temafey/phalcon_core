@@ -264,7 +264,7 @@ abstract class Grid implements
             }
         }
         if (is_string($this->_form)) {
-            $this->_form = new $this->_form;
+            $this->_form = new $this->_form(null, [], $this->_di, $this->_eventsManager);
         }
     }
 	

@@ -24,7 +24,7 @@ class Files extends Adapter implements AdapterInterface
 	 * @param array $options
 	 */
 	public function __construct($options=null)
-	{die('asd');
+	{
         if (isset($options['name'])) {
             ini_set('session.name', $options['name']);
         }

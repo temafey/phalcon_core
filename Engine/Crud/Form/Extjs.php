@@ -4,7 +4,8 @@
  */
 namespace Engine\Crud\Form;
 
-use Engine\Crud\Form;
+use Engine\Crud\Form,
+    Phalcon\DiInterface as DiInterface;
 
 /**
  * Class Extjs.
@@ -86,9 +87,11 @@ abstract class Extjs extends Form
      *
      * @param string|array|stdClass $params
      * @param string $key
+     * @param \Phalcon\DiInterface $di
+     * @param \Phalcon\Events\ManagerInterface $eventsManager
      * @return array
      */
-    public static function updateRows($params, $key)
+    public static function updateRows($params, $key, \Phalcon\DiInterface $di = null, \Phalcon\Events\ManagerInterface $eventsManager = null)
     {
         $result = [
             'success' => false,
@@ -122,7 +125,7 @@ abstract class Extjs extends Form
 
         $false = false;
         foreach ($rows as $row) {
-            $rowResult = self::updateRow($row);
+            $rowResult = self::updateRow($row, $di, $eventsManager);
             if ($rowResult['success'] === false) {
                 $false = true;
                 $result['error'] = array_merge($result['error'], $rowResult['error']);
@@ -141,9 +144,11 @@ abstract class Extjs extends Form
      * Update from row
      *
      * @param string|array|stdClass $row
+     * @param \Phalcon\DiInterface $di
+     * @param \Phalcon\Events\ManagerInterface $eventsManager
      * @return array
      */
-    public static function updateRow($row)
+    public static function updateRow($row, \Phalcon\DiInterface $di = null, \Phalcon\Events\ManagerInterface $eventsManager = null)
     {
         $result = [
             'success' => false,
@@ -165,7 +170,7 @@ abstract class Extjs extends Form
             return $result;
         }
 
-        $form = new static();
+        $form = new static(null, [], $di, $eventsManager);
         $primary = $form->getPrimaryField();
         $primaryKey = $primary->getKey();
         if (isset($row[$primaryKey])) {
@@ -195,9 +200,11 @@ abstract class Extjs extends Form
      * Delete rows by id values.
      *
      * @param string|array $ids
+     * @param \Phalcon\DiInterface $di
+     * @param \Phalcon\Events\ManagerInterface $eventsManager
      * @return string
      */
-    public static function deleteRows($params, $key)
+    public static function deleteRows($params, $key, \Phalcon\DiInterface $di = null, \Phalcon\Events\ManagerInterface $eventsManager = null)
     {
         $result = [
             'success' => false,
@@ -230,7 +237,7 @@ abstract class Extjs extends Form
         }
 
         $false = false;
-        $form = new static();
+        $form = new static(null, [], $di, $eventsManager);
         $primary = $form->getPrimaryField();
         if (!$primary) {
             throw new \Engine\Exception('Primary field not found');

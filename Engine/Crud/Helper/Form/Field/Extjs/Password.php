@@ -29,9 +29,10 @@ class Password extends BaseHelper
         if ($field->isHidden()) {
             $fieldCode[] = "xtype: 'hiddenfield'";
         } else {
-            $fieldCode[] = "xtype: 'password'";
+            $fieldCode[] = "xtype: 'textfield'";
         }
         $fieldCode[] = "name: '".$field->getKey()."'";
+        $fieldCode[] = "inputType: 'password'";
         $fieldCode[] = "allowBlank: ".(($field->isRequire()) ? "false" : "true");
 
         $label = $field->getLabel();
