@@ -44,6 +44,10 @@ abstract class Component
 
     const OPTION_GRID = 3;
 
+    const TYPE_SIMPLE = 4;
+
+    const TYPE_EXTJS = 5;
+
     protected $db = null;
 
 	protected $_options = array();
@@ -197,11 +201,11 @@ abstract class Component
 
 	abstract public function build();
 
-    protected function buildOptions($table, $config, $type = self::OPTION_MODEL)
+    protected function buildOptions($table, $config, $type = self::OPTION_MODEL, $buildType = self::TYPE_SIMPLE)
     {
         $moduleName = $this->getModuleNameByTableName($table);
         $className = $this->getclassName($table);
-        $modelNamespace = $this->getNameSpace($table, $type);
+        $modelNamespace = $this->getNameSpace($table, $type, $buildType);
 
         if ($type === self::OPTION_MODEL) {
             $path = $config->builder->modules->{$moduleName}->modelsDir;
@@ -213,7 +217,7 @@ abstract class Component
             throw new \InvalidArgumentException('Invalid build type');
         }
 
-        $modelPath = $this->getPath($path, $table);
+        $modelPath = $this->getPath($path, $table, $buildType);
 
         $this->_builderOptions = array(
             'moduleName' => $moduleName,
@@ -274,10 +278,19 @@ abstract class Component
         return implode('_', $pieces);
     }
 
-    protected function getPath($dirPath, $table)
+    protected function getPath($dirPath, $table, $buildType = self::TYPE_SIMPLE)
     {
         $pieces = explode('_', $table);
         array_shift($pieces);
+
+        switch($buildType) {
+            case self::TYPE_EXTJS: $dirPath .= 'Extjs/';
+                break;
+        }
+
+        if (!file_exists($dirPath)) {
+            File::rmkdir($dirPath, 0755, true);
+        }
 
         if (count($pieces) > 1) {
             $modelName = ucfirst(array_pop($pieces));
@@ -289,7 +302,9 @@ abstract class Component
 
             $path = $dirPath . $line;
 
-            File::rmkdir($path, 0755, true);
+            if (!file_exists($path)) {
+                File::rmkdir($path, 0755, true);
+            }
 
             $modelsDirPath = $path . $modelName . '.php';
         }else {
@@ -299,7 +314,7 @@ abstract class Component
         return $modelsDirPath;
     }
 
-    protected function getNameSpace($table, $type)
+    protected function getNameSpace($table, $type, $builderType = self::TYPE_SIMPLE)
     {
         $pieces = explode('_', $table);
         $moduleName = array_shift($pieces);
@@ -316,13 +331,17 @@ abstract class Component
                 break;
         }
 
+        $namespace = ucfirst($moduleName).'\\'.$buildType;
+
+        switch($builderType) {
+            case self::TYPE_EXTJS: $namespace .= '\Extjs';
+                break;
+        }
+
         if (count($pieces) > 0) {
-            $namespace = ucfirst($moduleName).'\\'.$buildType;
             foreach ($pieces as $piece) {
                 $namespace .= '\\'.ucfirst($piece);
             }
-        } else {
-            $namespace = ucfirst($moduleName).'\\'.$buildType;
         }
 
         return $namespace;

@@ -3,20 +3,49 @@
 namespace Engine\Builder;
 
 use Engine\Builder\Traits\BasicTemplater as TBasicTemplater;
+use Engine\Builder\Traits\SimpleGridTemplater as TSimpleGridTemplater;
+use Engine\Builder\Traits\ExtJsGridTemplater as TExtJsGridTemplater;
 use Engine\Crud\Grid\Column\JoinOne;
+use Engine\Tools\File;
+use Engine\Tools\Inflector;
 use Phalcon\Db\Column;
 use Engine\Builder\Script\Color;
 
 class Grid extends Component {
 
-    use TBasicTemplater;
+    use TBasicTemplater, TSimpleGridTemplater, TExtJsGridTemplater;
 
+    protected $type = self::TYPE_SIMPLE;
+
+    /**
+     * Constructor
+     *
+     * @param $options
+     * @throws BuilderException
+     */
     public function __construct($options)
     {
         if (!isset($options['table_name']) || empty($options['table_name'])) {
             throw new BuilderException("Please, specify the model name");
         }
         $this->_options = $options;
+    }
+
+    /**
+     * Setup builder type
+     *
+     * @param int $type
+     * @return $this
+     */
+    public function setType($type = self::TYPE_SIMPLE)
+    {
+        switch($type) {
+            case self::TYPE_SIMPLE: $this->type = self::TYPE_SIMPLE;
+                break;
+            default: $this->type = self::TYPE_SIMPLE;
+                break;
+        }
+        return $this;
     }
 
     /**
@@ -64,7 +93,7 @@ class Grid extends Component {
 
 
         // build options
-        $this->buildOptions($this->_options['table_name'], $config, Component::OPTION_GRID);
+        $this->buildOptions($this->_options['table_name'], $config, Component::OPTION_GRID, $this->type);
 
 
         // Prepare DB connection
@@ -80,76 +109,29 @@ class Grid extends Component {
         }
 
 
-        $templateFileCode = '<?php
-%s
-
-use Engine\Crud\Grid\AbstractGrid as Grid,
-    Engine\Crud\Grid\Column,
-    Engine\Crud\Grid\Filter,
-    Engine\Crud\Grid\Filter\Field,
-    Engine\Filter\SearchFilterInterface as Criteria;
-
-class %s extends %s
-{
-%s
-}
-';
-
-
         // Set $_title template
-        $templateTitle = "
-    protected \$_title = '{$this->_builderOptions['className']}';
-";
+        $templateTitle = sprintf($this->templateSimpleGridTitle, $this->_builderOptions['className']);
 
 
         // Set container model template
-        $templateContainerModel = "
-    protected \$_containerModel = '".$this->getNameSpace($table, self::OPTION_MODEL).'\\'.$this->_builderOptions['className']."';
-";
+        $templateContainerModel = sprintf($this->templateSimpleGridContainerModel, $this->getNameSpace($table, self::OPTION_MODEL).'\\'.$this->_builderOptions['className']);
 
 
         // Set extender class template
-        $extends = '\\Engine\\Crud\\Grid';
+        switch($this->type) {
+            case self::TYPE_SIMPLE: $extends = $this->templateSimpleGridExtends;
+                break;
+            case self::TYPE_EXTJS: $extends = $this->templateExtJsGridExtends;
+                break;
+            default: $extends = $this->templateSimpleGridExtends;
+            break;
+        }
 
 
-        $templateInitColumns = "
-    /**
-	 * Initialize grid columns
-	 *
-	 * @return void
-	 */
-	protected function _initColumns()
-    {
-		\$this->_columns = [
-%s
-		 ];
-    }
-";
-
-        $templateInitFilters = "
-    /**
-	 * Initialize grid filters
-	 *
-	 * @return void
-	*/
-	protected function _initFilters()
-	{
-		\$this->_filter = new Filter([
-		    'search' => new Field\\Search('search','Search:', [
-                Criteria::COLUMN_ID => Criteria::CRITERIA_EQ,
-                Criteria::COLUMN_NAME => Criteria::CRITERIA_BEGINS,
-                'command' => Criteria::CRITERIA_LIKE
-			]),
-%s
-		 ], null, 'get');
-    }
-";
+        $templateInitColumns = $this->templateSimpleGridInitColumns;
 
 
-        $templateColumn = "\t\t\t'%s' => new Column\\%s('%s', '%s'),\n";
-        $templateComplexColumn = "\t\t\t'%s' => new Column\\%s('%s', '%s', %s),\n";
-        $templateFilterColumn = "\t\t\t'%s' => new Field\\%s('%s', '%s'),\n";
-        $templateConplexFilterColumn = "\t\t\t'%s' => new Field\\%s('%s', '%s', %s),\n";
+        $templateInitFilters = $this->templateSimpleGridInitFilters;
 
 
         // Set action template
@@ -170,11 +152,11 @@ class %s extends %s
             $type = $this->getType($field->getType());
 
             if ($field->getName() == 'id') {
-                $initColumns .= sprintf($templateColumn, $field->getName(), 'Primary', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
-                $initFilters .= sprintf($templateFilterColumn, $field->getName(), 'Primary', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                $initColumns .= sprintf($this->templateSimpleGridColumn, $field->getName(), 'Primary', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                $initFilters .= sprintf($this->templateSimpleGridFilterColumn, $field->getName(), 'Primary', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
             } elseif ($field->getName() == 'title' || $field->getName() == 'name') {
-                $initColumns .= sprintf($templateColumn, $field->getName(), 'Name', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
-                $initFilters .= sprintf($templateFilterColumn, $field->getName(), 'Standart', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                $initColumns .= sprintf($this->templateSimpleGridColumn, $field->getName(), 'Name', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                $initFilters .= sprintf($this->templateSimpleGridFilterColumn, $field->getName(), 'Standart', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
             } elseif ($this->isEnum($this->_options['table_name'], $field->getName())) {
                 $templateArray = "[%s]";
                 $templateArrayPair = "%s => '%s',";
@@ -186,8 +168,8 @@ class %s extends %s
                         $i++;
                 }
                 $templateArray = sprintf($templateArray, $enumValsContent);
-                $initColumns .= sprintf($templateComplexColumn, $field->getName(), 'Collection', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName(), $templateArray);
-                $initFilters .= sprintf($templateConplexFilterColumn, $field->getName(), 'ArrayToSelect', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName(), $templateArray);
+                $initColumns .= sprintf($this->templateSimpleGridComplexColumn, $field->getName(), 'Collection', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName(), $templateArray);
+                $initFilters .= sprintf($this->templateSimpleGridComplexFilterColumn, $field->getName(), 'ArrayToSelect', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName(), $templateArray);
             } else {
                 preg_match('/^(.*)\_i{1}d{1}$/', $field->getName(), $matches);
                 if (!empty($matches)) {
@@ -205,11 +187,11 @@ class %s extends %s
                     };
                     $modelName = implode('\\', $camelize($pieces));
 
-                    $initColumns .= sprintf($templateColumn, $field->getName(), 'JoinOne', \Engine\Tools\Inflector::humanize(implode('_', $pieces)), $this->getNameSpace($table, self::OPTION_MODEL).'\\'.$modelName);
-                    $initFilters .= sprintf($templateFilterColumn, $field->getName(), 'Join', \Engine\Tools\Inflector::humanize(implode('_', $pieces)), $this->getNameSpace($table, self::OPTION_MODEL).'\\'.$modelName);
+                    $initColumns .= sprintf($this->templateSimpleGridColumn, $field->getName(), 'JoinOne', \Engine\Tools\Inflector::humanize(implode('_', $pieces)), $this->getNameSpace($table, self::OPTION_MODEL).'\\'.$modelName);
+                    $initFilters .= sprintf($this->templateSimpleGridFilterColumn, $field->getName(), 'Join', \Engine\Tools\Inflector::humanize(implode('_', $pieces)), $this->getNameSpace($table, self::OPTION_MODEL).'\\'.$modelName);
                 } else {
-                    $initColumns .= sprintf($templateColumn, $field->getName(), $type, \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
-                    $initFilters .= sprintf($templateFilterColumn, $field->getName(), 'Standart', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                    $initColumns .= sprintf($this->templateSimpleGridColumn, $field->getName(), $type, \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                    $initFilters .= sprintf($this->templateSimpleGridFilterColumn, $field->getName(), 'Standart', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
                 }
             }
         }
@@ -221,15 +203,41 @@ class %s extends %s
 
 
         // Prepare class content
-        $content = $templateTitle;
-        $content .= $templateContainerModel;
-        $content .= $templateAction;
-        $content .= $templateInitColumns;
-        $content .= $templateInitFilters;
+        $content = '';
+        switch($this->type) {
+            case self::TYPE_SIMPLE:
+                $content .= $templateTitle;
+                $content .= $templateContainerModel;
+                $content .= $templateAction;
+                $content .= $templateInitColumns;
+                $content .= $templateInitFilters;
+                break;
+            case self::TYPE_EXTJS:
+                $content .= sprintf($this->templateExtJsGridKey, Inflector::underscore($this->_builderOptions['className']));
+                $content .= $this->templateExtJsGridModulePrefix;
+                $content .= sprintf($this->templateExtJsGridModuleName, $this->_builderOptions['moduleName']);
+                $content .= $templateTitle;
+                $content .= $templateContainerModel;
+                $content .= $templateAction;
+                $content .= $templateInitColumns;
+                $content .= $templateInitFilters;
+                /*$pieces = explode('/', $this->_builderOptions['path']);
+                $file = array_pop($pieces);
+                File::rmkdir(implode('/', $pieces) . '/Extjs/', 0755, true);
+                $this->_builderOptions['path'] = implode('/', $pieces) . '/Extjs/' . $file;*/
+                break;
+            default:
+                $content .= $templateTitle;
+                $content .= $templateContainerModel;
+                $content .= $templateAction;
+                $content .= $templateInitColumns;
+                $content .= $templateInitFilters;
+            break;
+        }
 
 
         $code = sprintf(
-            $templateFileCode,
+            $this->templateSimpleGridFileCode,
             $this->_builderOptions['namespace'],
             $this->_builderOptions['className'],
             $extends,
