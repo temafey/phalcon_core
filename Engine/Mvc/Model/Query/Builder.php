@@ -87,7 +87,7 @@ class Builder extends PhBuilder
     public function setColumn($column, $alias = null, $useTableAlias = true)
     {
         if (!is_string($column)) {
-            throw new \Engine\Exception("Column value should be only string date type");
+            throw new \Engine\Exception("Column value should be only string data type");
         }
         if ($alias == $column || is_numeric($alias)) {
             $alias = null;

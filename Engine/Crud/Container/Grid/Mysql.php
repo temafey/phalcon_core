@@ -235,7 +235,7 @@ class Mysql extends Container implements GridContainer
 		$paginator = $this->_getPaginator($dataSource, $extraLimit, $extraPage);
 
         $items = [];
-        $position = $limit*($page-1);
+        $position = $limit*($page-1)-($extraLimit*($extraPage-1));
         if ($paginator->total_items > 0) {
             for ($i = $position; $i < $position+$limit; ++$i) {
                 if (!isset($paginator->items[$i])) {
