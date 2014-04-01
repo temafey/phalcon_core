@@ -5,8 +5,6 @@ namespace Engine\Builder;
 use Engine\Builder\Traits\BasicTemplater as TBasicTemplater;
 use Engine\Builder\Traits\SimpleGridTemplater as TSimpleGridTemplater;
 use Engine\Builder\Traits\ExtJsGridTemplater as TExtJsGridTemplater;
-use Engine\Crud\Grid\Column\JoinOne;
-use Engine\Tools\File;
 use Engine\Tools\Inflector;
 use Phalcon\Db\Column;
 use Engine\Builder\Script\Color;
@@ -79,7 +77,6 @@ class Grid extends Component {
         }
     }
 
-
     public function build()
     {
         // Check name (table name)
@@ -140,7 +137,7 @@ class Grid extends Component {
         array_shift($pieces);
         array_shift($pieces);
         $nameSpace = implode('-', $pieces);
-        $action = $this->_builderOptions['moduleName'].'/grid/'.\Engine\Tools\Inflector::slug($nameSpace.'-'.$this->_builderOptions['className']);
+        $action = $this->_builderOptions['moduleName'].'/grid/'.Inflector::slug($nameSpace.'-'.$this->_builderOptions['className']);
         $templateAction = "
     protected \$_action = '/".$action."';
 ";
@@ -152,11 +149,11 @@ class Grid extends Component {
             $type = $this->getType($field->getType());
 
             if ($field->getName() == 'id') {
-                $initColumns .= sprintf($this->templateSimpleGridColumn, $field->getName(), 'Primary', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
-                $initFilters .= sprintf($this->templateSimpleGridFilterColumn, $field->getName(), 'Primary', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                $initColumns .= sprintf($this->templateSimpleGridColumn, $field->getName(), 'Primary', Inflector::humanize($field->getName()), $field->getName());
+                $initFilters .= sprintf($this->templateSimpleGridFilterColumn, $field->getName(), 'Primary', Inflector::humanize($field->getName()), $field->getName());
             } elseif ($field->getName() == 'title' || $field->getName() == 'name') {
-                $initColumns .= sprintf($this->templateSimpleGridColumn, $field->getName(), 'Name', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
-                $initFilters .= sprintf($this->templateSimpleGridFilterColumn, $field->getName(), 'Standart', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                $initColumns .= sprintf($this->templateSimpleGridColumn, $field->getName(), 'Name', Inflector::humanize($field->getName()), $field->getName());
+                $initFilters .= sprintf($this->templateSimpleGridFilterColumn, $field->getName(), 'Standart', Inflector::humanize($field->getName()), $field->getName());
             } elseif ($this->isEnum($this->_options['table_name'], $field->getName())) {
                 $templateArray = "[%s]";
                 $templateArrayPair = "%s => '%s',";
@@ -221,10 +218,6 @@ class Grid extends Component {
                 $content .= $templateAction;
                 $content .= $templateInitColumns;
                 $content .= $templateInitFilters;
-                /*$pieces = explode('/', $this->_builderOptions['path']);
-                $file = array_pop($pieces);
-                File::rmkdir(implode('/', $pieces) . '/Extjs/', 0755, true);
-                $this->_builderOptions['path'] = implode('/', $pieces) . '/Extjs/' . $file;*/
                 break;
             default:
                 $content .= $templateTitle;

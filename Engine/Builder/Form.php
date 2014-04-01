@@ -3,19 +3,47 @@
 namespace Engine\Builder;
 
 use Engine\Builder\Traits\BasicTemplater as TBasicTemplater;
+use Engine\Builder\Traits\SimpleFormTemplater as TSimpleFormTemplater;
+use Engine\Builder\Traits\ExtJsFormTemplater as TExtJsFormTemplater;
+use Engine\Tools\Inflector;
 use Phalcon\Db\Column;
 use Engine\Builder\Script\Color;
 
 class Form extends Component {
 
-    use TBasicTemplater;
+    use TBasicTemplater, TSimpleFormTemplater, TExtJsFormTemplater;
 
+    protected $type = self::TYPE_SIMPLE;
+
+    /**
+     * Constructor
+     *
+     * @param $options
+     * @throws BuilderException
+     */
     public function __construct($options)
     {
         if (!isset($options['table_name']) || empty($options['table_name'])) {
             throw new BuilderException("Please, specify the model name");
         }
         $this->_options = $options;
+    }
+
+    /**
+     * Setup builder type
+     *
+     * @param int $type
+     * @return $this
+     */
+    public function setType($type = self::TYPE_SIMPLE)
+    {
+        switch($type) {
+            case self::TYPE_SIMPLE: $this->type = self::TYPE_SIMPLE;
+                break;
+            default: $this->type = self::TYPE_SIMPLE;
+                break;
+        }
+        return $this;
     }
 
     /**
@@ -62,7 +90,7 @@ class Form extends Component {
 
 
         // build options
-        $this->buildOptions($this->_options['table_name'], $config, Component::OPTION_FORM);
+        $this->buildOptions($this->_options['table_name'], $config, Component::OPTION_FORM, $this->type);
 
 
         // Prepare DB connection
@@ -77,22 +105,15 @@ class Form extends Component {
             throw new BuilderException('Table "' . $table . '" does not exists');
         }
 
-
         // Set extender class template
-        $extends = '\\Engine\\Crud\\Form';
-
-
-        // Set $_title template
-        $templateTitle = "
-    protected \$_title = '{$this->_builderOptions['className']}';
-";
-
-
-        // Set container model template
-        $templateContainerModel = "
-    protected \$_containerModel = '".$this->getNameSpace($table, self::OPTION_MODEL).'\\'.$this->_builderOptions['className']."';
-";
-
+        switch($this->type) {
+            case self::TYPE_SIMPLE: $extends = $this->templateSimpleFormExtends;
+                break;
+            case self::TYPE_EXTJS: $extends = $this->templateExtJsFormExtends;
+                break;
+            default: $extends = $this->templateSimpleFormExtends;
+            break;
+        }
 
         // Set action template
         $nameSpace = $this->_builderOptions['namespaceClear'];
@@ -100,24 +121,7 @@ class Form extends Component {
         array_shift($pieces);
         array_shift($pieces);
         $nameSpace = implode('-', $pieces);
-        $action = $this->_builderOptions['moduleName'].'/form/'.\Engine\Tools\Inflector::slug($nameSpace.'-'.$this->_builderOptions['className']);
-        $templateAction = "
-    protected \$_action = '/".$action."';
-";
-
-
-        $templateInitFields = "
-    protected function _initFields()
-    {
-        \$this->_fields = [
-%s
-        ];
-    }
-";
-
-
-        $templateSimpleField = "\t\t\t'%s' => new \\Engine\\Crud\\Form\\Field\\%s('%s', '%s'),\n";
-        $templateComplexField = "\t\t\t'%s' => new \\Engine\\Crud\\Form\\Field\\%s('%s', '%s', %s),\n";
+        $action = '/'.$this->_builderOptions['moduleName'].'/form/'.Inflector::slug($nameSpace.'-'.$this->_builderOptions['className']);
 
 
         $initFields = '';
@@ -125,9 +129,9 @@ class Form extends Component {
             $type = $this->getType($field->getType());
 
             if ($field->getName() == 'id') {
-                $initFields .= sprintf($templateSimpleField, $field->getName(), 'Primary', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                $initFields .= sprintf($this->templateSimpleFormSimpleField, $field->getName(), 'Primary', Inflector::humanize($field->getName()), $field->getName());
             } elseif ($field->getName() == 'title' || $field->getName() == 'name') {
-                $initFields .= sprintf($templateSimpleField, $field->getName(), 'Name', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                $initFields .= sprintf($this->templateSimpleFormSimpleField, $field->getName(), 'Name', Inflector::humanize($field->getName()), $field->getName());
             } elseif ($this->isEnum($this->_options['table_name'], $field->getName())) {
                 $templateArray = "[%s]";
                 $templateArrayPair = "%s => '%s',";
@@ -139,22 +143,42 @@ class Form extends Component {
                         $i++;
                 }
                 $templateArray = sprintf($templateArray, $enumValsContent);
-                $initFields .= sprintf($templateComplexField, $field->getName(), 'ArrayToSelect', \Engine\Tools\Inflector::humanize($field->getName()), $field->getName(), $templateArray);
+                $initFields .= sprintf($this->templateSimpleFormComplexField, $field->getName(), 'ArrayToSelect', Inflector::humanize($field->getName()), $field->getName(), $templateArray);
             } else {
-                $initFields .= sprintf($templateSimpleField, $field->getName(), $type, \Engine\Tools\Inflector::humanize($field->getName()), $field->getName());
+                $initFields .= sprintf($this->templateSimpleFormSimpleField, $field->getName(), $type, Inflector::humanize($field->getName()), $field->getName());
             }
         }
 
 
         // Set init fields method
-        $templateInitFields = sprintf($templateInitFields, $initFields);
+        $templateInitFields = sprintf($this->templateSimpleFormInitFields, $initFields);
 
 
         // Prepare class content
-        $content = $templateTitle;
-        $content .= $templateContainerModel;
-        $content .= $templateAction;
-        $content .= $templateInitFields;
+        $content = '';
+        switch($this->type) {
+            case self::TYPE_SIMPLE:
+                $content .= sprintf($this->templateSimpleFormTitle, $this->_builderOptions['className']);
+                $content .= sprintf($this->templateSimpleFormContainerModel, $this->getNameSpace($table, self::OPTION_MODEL).'\\'.$this->_builderOptions['className']);
+                $content .= sprintf($this->templateSimpleFormAction, $action);
+                $content .= $templateInitFields;
+                break;
+            case self::TYPE_EXTJS:
+                $content .= sprintf($this->templateExtJsFormKey, Inflector::underscore($this->_builderOptions['className']));
+                $content .= $this->templateExtJsFormModulePrefix;
+                $content .= sprintf($this->templateExtJsFormModuleName, $this->_builderOptions['moduleName']);
+                $content .= sprintf($this->templateSimpleFormTitle, $this->_builderOptions['className']);
+                $content .= sprintf($this->templateSimpleFormContainerModel, $this->getNameSpace($table, self::OPTION_MODEL).'\\'.$this->_builderOptions['className']);
+                $content .= sprintf($this->templateSimpleFormAction, $action);
+                $content .= $templateInitFields;
+                break;
+            default:
+                $content .= sprintf($this->templateSimpleFormTitle, $this->_builderOptions['className']);
+                $content .= sprintf($this->templateSimpleFormContainerModel, $this->getNameSpace($table, self::OPTION_MODEL).'\\'.$this->_builderOptions['className']);
+                $content .= sprintf($this->templateSimpleFormAction, $action);
+                $content .= $templateInitFields;
+                break;
+        }
 
 
         $code = sprintf(
