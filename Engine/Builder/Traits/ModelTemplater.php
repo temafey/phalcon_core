@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by Slava Basko.
- * Email: basko.slava@gmail.com
- * Date: 2/19/14
- * Time: 4:47 PM
- */
 
 namespace Engine\Builder\Traits;
 

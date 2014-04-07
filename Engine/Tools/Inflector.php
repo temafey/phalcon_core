@@ -1,9 +1,4 @@
 <?php
-/**
- * Class Inflector
- *
- * @author Slava Basko <basko.slava@gmail.com> - Modified CakePHP inflector. Remove cake dependancy
- */
 
 namespace Engine\Tools;
 
@@ -502,7 +497,7 @@ class Inflector {
         if (!($result = self::_cache(__FUNCTION__, $lowerCaseAndUnderscoredWord))) {
             $pieces = explode('_', $lowerCaseAndUnderscoredWord);
             array_shift($pieces);
-            $result = str_replace(' ', '', Inflector::humanize(implode('_', $pieces)));
+            $result = str_replace(' ', '\\', Inflector::humanize(implode('_', $pieces)));
             self::_cache(__FUNCTION__, $lowerCaseAndUnderscoredWord, $result);
         }
         return $result;

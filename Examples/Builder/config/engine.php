@@ -19,8 +19,9 @@ return new \Phalcon\Config([
     'builder' => [
         'modules' => [
             'front' => [
-                'modelsDir' => ROOT.'/apps/front/model/',
-                'formsDir' => ROOT.'/apps/front/form/'
+                'modelsDir' => ROOT.'/apps/front/Model/',
+                'formsDir' => ROOT.'/apps/front/Form/',
+                'gridsDir' => ROOT.'/apps/front/Grid/'
             ]
         ]
     ]
