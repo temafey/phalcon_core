@@ -291,8 +291,9 @@ class Mysql extends Container implements FormContainer
             unset($data[$primary]);
             $record = $this->_model->findFirst($id);
             $isUpdate = false;
+            $properties = get_object_vars($record);
             foreach ($data as $key => $value) {
-                if (isset($record->{$key})) {
+                if (array_key_exists($key, $properties)) {
                     $isUpdate = true;
                     $record->{$key} = $value;
                 }
@@ -333,8 +334,9 @@ class Mysql extends Container implements FormContainer
                 $records = $model->findByColumn($referenceColumn, [$id]);
                 foreach ($records as $record) {
                     $isUpdate = false;
+                    $properties = get_object_vars($record);
                     foreach ($data as $key => $value) {
-                        if (isset($record->{$key})) {
+                        if (array_key_exists($key, $properties)) {
                             $isUpdate = true;
                             $record->$key = $value;
                         }
