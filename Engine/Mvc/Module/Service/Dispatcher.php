@@ -58,6 +58,9 @@ class Dispatcher extends AbstractService
                     return false;
                 }
 
+                if ($di->get('request')->isAjax() == true) {
+                }
+
                 //Handle other exceptions
                 $dispatcher->forward([
                     'controller' => 'error',

@@ -24,10 +24,31 @@ class Components extends BaseHelper
 	static public function _(Grid $grid)
 	{
 
-        $code = "
+        $buildStore = $grid->isBuildStore();
 
-            initComponent : function() {
+        $additionals = [];
+        foreach ($grid->getAdditionals() as $addional) {
+            $additionals[] = "
+                {
+                    type: '".$addional['type']."',
+                    controller: '".ucfirst($addional['module']).'.controller.'.ucfirst($addional['key'])."',
+                    param: '".$addional['param']."'
+                }";
+        }
+
+        $code = "
+            buildStore: ".($buildStore ? 'true' : 'false').",
+            additionals: [".implode(",", $additionals)."
+            ],
+
+            initComponent: function() {
                 var me = this;
+
+                if (me.buildStore) {
+                    Ext.apply(me, {
+                        store : me.createStore(me.store)
+                    });
+                }
 
                 ";
 
@@ -44,9 +65,10 @@ class Components extends BaseHelper
         }
 
         $code .= "
+                me.plugins = me.cellEditing;
                 me.columns = me.columnsGet();
-                me.tbar    = me.tbarGet();
-                me.bbar    = me.bbarGet();
+                me.tbar    = me.getTopToolbarItems();
+                me.bbar    = me.getBottomToolbarItems();
 
                 me.callParent(arguments);
             },

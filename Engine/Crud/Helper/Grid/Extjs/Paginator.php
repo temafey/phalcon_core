@@ -33,16 +33,14 @@ class Paginator extends BaseHelper
         }
 
         $code = "
-            bbarGet: function(){
-                return [
-                    {
-                        xtype: 'pagingtoolbar',
-                        store: '".static::getStoreName()."',
-                        displayInfo: true,
-                        displayMsg: 'Displaying topics {0} - {1} of {2}',
-                        emptyMsg: 'No topics to display'
-                    }
-                ]
+            getBottomToolbarItems: function() {
+                var me = this;
+
+                var items = [
+                    me.getPagingToolbar()
+                ];
+
+                return items;
             },";
 
         return $code;

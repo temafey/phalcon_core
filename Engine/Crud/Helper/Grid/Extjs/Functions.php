@@ -24,23 +24,24 @@ class Functions extends BaseHelper
 	static public function _(Grid $grid)
 	{
         $code = "
-            tbarGet: function(){
-                var me = this;
+            getTopToolbarItems: function() {
+                var me = this,
+                    items = [];
 
-                return [
+                items = [
                     {
                         xtype: 'button',
                         scope: me,
                         text: 'Add',
                         iconCls: 'icon-add',
-                        handler: this.onCreate
+                        handler: me.onCreate
                     },
                     {
                         type: 'button',
                         scope: me,
                         text: 'Remove',
                         iconCls: 'icon-delete',
-                        handler: this.onDelete
+                        handler: me.onDelete
                     },
                     '|',
                     'Search: ',{
@@ -55,7 +56,9 @@ class Functions extends BaseHelper
                             }
                         }
                     }
-                ]
+                ];
+
+                return items;
             },
             ";
 

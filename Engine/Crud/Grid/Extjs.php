@@ -51,6 +51,12 @@ abstract class Extjs extends Grid
     protected $_editType = 'row';
 
     /**
+     * Build store in extjs grid
+     * @var boolean
+     */
+    protected $_buildStore = false;
+
+    /**
      * Get grid action
      *
      * @return string
@@ -269,5 +275,15 @@ abstract class Extjs extends Grid
     public function getEditingType()
     {
         return $this->_editType;
+    }
+
+    /**
+     * Is build store in extjs grid
+     *
+     * @return boolean
+     */
+    public function isBuildStore()
+    {
+        return $this->_buildStore;
     }
 } 

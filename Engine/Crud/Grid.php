@@ -90,7 +90,13 @@ abstract class Grid implements
 	 * @var array|string
 	 */
 	protected $_containerJoins = [];
-	
+
+    /**
+     * Grid additionals
+     * @var array
+     */
+    protected $_additionals = [];
+
 	/**
 	 * Filter object.
 	 * @var \Engine\Crud\Grid\Filter
@@ -609,6 +615,38 @@ abstract class Grid implements
         if (null === $this->_data) {
             $this->_setData();
         }
+    }
+
+    /**
+     * Add grid additional
+     *
+     * @param string $type
+     * @param string $module
+     * @param string $key
+     * @param string $param
+     * @return \Engine\Crud\Grid
+     */
+    public function addAdditional($type, $module, $key, $param)
+    {
+        $additional = [
+            'type' => $type,
+            'module' => $module,
+            'key' => $key,
+            'param' => $param
+        ];
+        $this->_additionals[] = $additional;
+
+        return $this;
+    }
+
+    /**
+     * Return grid additionals
+     *
+     * @return array
+     */
+    public function getAdditionals()
+    {
+        return $this->_additionals;
     }
 
     /**
