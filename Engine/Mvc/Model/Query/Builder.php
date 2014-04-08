@@ -15,6 +15,22 @@ use Phalcon\Mvc\Model\Query\Builder as PhBuilder;
  */
 class Builder extends PhBuilder
 {
+    const DISTINCT       = 'distinct';
+    const COLUMNS        = 'columns';
+    const FROM           = 'from';
+    const UNION          = 'union';
+    const WHERE          = 'where';
+    const GROUP          = 'group';
+    const HAVING         = 'having';
+    const ORDER          = 'order';
+    const LIMIT_COUNT    = 'limitcount';
+    const LIMIT_OFFSET   = 'limitoffset';
+    const FOR_UPDATE     = 'forupdate';
+
+    const COUNT = "COUNT(*)";
+    const SEPARATOR = "\n";
+    const ALIAS = "t";
+
     /**
      * @var \Engine\Mvc\Model
      */
@@ -65,12 +81,13 @@ class Builder extends PhBuilder
      *
      * @param string $column
      * @param string $alias
+     * @param boolean $useTableAlias
      * @return \Engine\Mvc\Model\Query\Builder
      */
-    public function setColumn($column, $alias = null)
+    public function setColumn($column, $alias = null, $useTableAlias = true)
     {
         if (!is_string($column)) {
-            throw new \Engine\Exception("Column value should be only string date type");
+            throw new \Engine\Exception("Column value should be only string data type");
         }
         if ($alias == $column || is_numeric($alias)) {
             $alias = null;
@@ -79,11 +96,13 @@ class Builder extends PhBuilder
             return $this;
         }
 
-        $model = $this->getAlias();
-        if (null === $alias) {
-            $this->_columns[] = $model.".".$column;
+        if ($useTableAlias) {
+            $column = $this->getAlias().".".$column;
+        }
+        if ($alias) {
+            $this->_columns[$alias] = $column;
         } else {
-            $this->_columns[$alias] = $model.".".$column;
+            $this->_columns[] = $column;
         }
 
         return $this;
@@ -162,6 +181,104 @@ class Builder extends PhBuilder
 
         return $this;
     }
+
+    /**
+     * Set field to current table by many to many rule path.
+     *
+     * @param string|array $path
+     * @param string $fieldAlias
+     * @param string $tableField
+     * @param string $orderBy
+     * @param string $separator
+     * @return \Engine\Mvc\Model\Query\Builder
+     */
+    public function columnsJoinMany($path, $fieldAlias = null, $tableField = null, $orderBy = null, $separator = null)
+    {
+        if (!$path) {
+            throw new \Engine\Exception("Non empty path is required, model '".get_class($this->_model)."'");
+        }
+        if (!is_array($path)) {
+            $path = [$path];
+        }
+
+        $relationPath = $this->_model->getRelationPath($path);
+        $this->joinPath($relationPath);
+        $this->groupBy($this->getAlias().".".$this->_model->getPrimary());
+
+        $prevRef = array_pop($relationPath);
+        $refModel = $prevRef->getReferencedModel();
+        $refOptions = $prevRef->getOptions();
+        $refAlias = (isset($refOptions['alias'])) ? $refOptions['alias'] : $refModel;
+        if ($fieldAlias == null) {
+            $fieldAlias = $refAlias;
+        }
+        $refModel = new $refModel;
+        $field = ($tableField !== null) ? $tableField : $refModel->getNameExpr();
+
+        if ($separator === null) {
+            $separator = self::SEPARATOR;
+        }
+        if ($tableField == self::COUNT) {
+            $this->setColumn("COUNT({$refAlias}.{$refModel->getPrimary()})", $fieldAlias, false);
+        } else {
+            if (!$orderBy) {
+                $orderBy = $refModel->getOrderExpr();
+            }
+            $this->setColumn("(LEFT(GROUP_CONCAT($refAlias.$field ORDER BY $refAlias.$orderBy SEPARATOR '$separator'), 250))", $fieldAlias, false);
+        }
+
+        return $this;
+    }
+
+    /*public function columnsJoinMany($path, $fieldAlias = null, $tableField = null, $orderBy = null, $separator = null)
+    {
+        if (!$path) {
+            throw new \Engine\Exception("Non empty path is required, model '".get_class($this->_model)."'");
+        }
+        if (!is_array($path)) {
+            $path = [$path];
+        }
+        $relationPath = $this->_model->getRelationPath($path);
+        $relationPath = array_reverse($relationPath);
+        $prevRef = array_shift($relationPath);
+        $refModel = $prevRef->getReferencedModel();
+        $refModel = new $refModel;
+        $query = $refModel->queryBuilder("m");
+        $field = ($tableField !== null) ? $tableField : $refModel->getNameExpr();
+
+        if ($separator === null) {
+            $separator = self::SEPARATOR;
+        }
+        //$query->reset(self::COLUMNS);
+        if ($tableField === self::COUNT) {
+            $query->setColumn("COUNT(*)", 'c', false);
+        } else {
+            $alias = $query->getAlias();
+            if ($orderBy) {
+                $query->setColumn("LEFT(GROUP_CONCAT($alias.$field ORDER BY $orderBy SEPARATOR '$separator'), 250)", 'c', false);
+            } else {
+                $query->setColumn("LEFT(GROUP_CONCAT($alias.$field SEPARATOR '$separator'), 250)", 'c', false);
+            }
+        }
+
+        $refPath = array_slice(array_reverse($path), 1);
+        $alias = $query->getAlias();
+        if ($refPath) {
+            $joinPathRev = $refModel->getRelationPath($refPath);
+            $query->joinPath($joinPathRev);
+            $prevRef = array_pop($joinPathRev);
+            $alias = $prevRef->getReferencedModel();
+        }
+        $query->where($alias.".".$prevRef->getReferencedFields()." = ".$this->getAlias().".".$prevRef->getFields());
+
+        if ($fieldAlias == null) {
+            $fieldAlias = get_class($refModel);
+        }
+
+        $this->setColumn($query, $fieldAlias, false);
+
+        return $this;
+    }*/
 
     /**
      * Join all models
@@ -274,6 +391,27 @@ class Builder extends PhBuilder
                 $orderPre[] = $alias.".".$key." ".$direction[$i];
             }
             $this->orderBy(implode(",", $orderPre));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Clear parts of the Query object, or an individual part.
+     *
+     * @param string $part OPTIONAL
+     * @return \Engine\Mvc\Model\Query\Builder
+     */
+    public function reset($part = null)
+    {
+        if ($part == null) {
+            $this->_columns = [];
+        } else {
+            switch ($part) {
+                case self::COLUMNS:
+                    $this->_columns = [];
+                    break;
+            }
         }
 
         return $this;

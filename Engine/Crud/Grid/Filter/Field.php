@@ -62,7 +62,7 @@ abstract class Field implements FieldInterface
      */
     public function __construct(
         $label = null,
-        $name = false,
+        $name = null,
         $desc = null,
         $criteria = \Engine\Filter\SearchFilterInterface::CRITERIA_EQ
     ) {
@@ -83,7 +83,7 @@ abstract class Field implements FieldInterface
 	{
 		$this->_gridFilter = $filter;
 		$this->_key = $key;
-		if ($this->_name === false) {
+		if ($this->_name === null) {
 		    $this->_name = $key;
 		}
         $this->_init();
@@ -136,11 +136,21 @@ abstract class Field implements FieldInterface
      */
     public function applyFilter($dataSource, Container $container)
     {
-        if($filter = $this->getFilter($container)) {
+        if ($filter = $this->getFilter($container)) {
             $filter->applyFilter($dataSource);
         }
 
         return $this;
+    }
+
+    /**
+     * Return filter object
+     *
+     * @return \Engine\Crud\Grid\Filter
+     */
+    public function getGridFilter()
+    {
+        return $this->_gridFilter;
     }
 
     /**
@@ -168,6 +178,7 @@ abstract class Field implements FieldInterface
     	foreach ($messages as $message) {
     		$this->_errorMessage = (string) $message;
     	}
+
         return $this->_errorMessage = $messages;
     }
 }

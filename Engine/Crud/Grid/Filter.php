@@ -26,13 +26,19 @@ class Filter
     /**
      * Default decorator
      */
-    const DEFAULT_DECORATOR = 'Standart';
+    const DEFAULT_DECORATOR = 'standart';
 
 	/**
 	 * Phalcon form
 	 * @var \Engine\Forms\Form
 	 */
 	protected $_form;
+
+    /**
+     * Crud grid
+     * @var \Engine\Crud\Grid
+     */
+    protected $_grid;
 
     /**
      * Filter title
@@ -112,6 +118,17 @@ class Filter
         $this->_method = $method;
         $this->_autoloadInitMethods();
 	}
+
+    /**
+     * Initialaize filter
+     *
+     * @param \Engine\Crud\Grid $grid
+     * @return void
+     */
+    public function init(\Engine\Crud\Grid $grid)
+    {
+        $this->_grid = $grid;
+    }
 
     /**
      * Autoload all methods in class with prefix in function name _init
@@ -268,6 +285,16 @@ class Filter
     public function getFields()
     {
         return $this->_fields;
+    }
+
+    /**
+     * Return grid
+     *
+     * @return \Engine\Crud\Grid
+     */
+    public function getGrid()
+    {
+        return $this->_grid;
     }
     
     /**

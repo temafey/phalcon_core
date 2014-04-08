@@ -43,7 +43,7 @@ class Standart extends Field
         $name = null,
         $desc = null,
         $criteria = Criteria::CRITERIA_EQ,
-        $width = 60,
+        $width = 280,
         $default = null,
         $length = 100)
 	{

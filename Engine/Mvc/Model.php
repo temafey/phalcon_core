@@ -117,7 +117,7 @@ class Model extends \Phalcon\Mvc\Model
             $columns[] = $column;
         }
         $nameExprResult = (array_key_exists('function', $nameExpr) && !empty($nameExpr['function']))
-            ? $nameExpr['function'] ."(" . implode(', ',$columns) . ")"
+            ? $nameExpr['function'] ."(" . implode(', ',$columns).")"
             : implode(', ',$columns);
 
         return $nameExprResult;
@@ -160,13 +160,13 @@ class Model extends \Phalcon\Mvc\Model
     /**
      * Create a criteria for a especific model
      *
-     * @param \Phalcon\DiInterface $dependencyInjection
+     * @param string $alias
      * @return \Engine\Mvc\Model\Query\Builder
      */
-    public function queryBuilder()
+    public function queryBuilder($alias = null)
     {
         $builder = new Builder();
-        $builder->setModel($this);
+        $builder->setModel($this, $alias);
 
         return $builder;
     }
@@ -194,7 +194,7 @@ class Model extends \Phalcon\Mvc\Model
                 return $relation;
             }
         }
-        $relations = $this->getModelsManager()->getHasMany($refModel);
+        $relations = $this->getModelsManager()->getHasMany($this);
         foreach ($relations as $relation) {
             if ($relation->getReferencedModel() == $refName) {
                 return $relation;

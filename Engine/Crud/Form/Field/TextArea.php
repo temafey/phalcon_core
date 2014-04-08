@@ -11,7 +11,7 @@ namespace Engine\Crud\Form\Field;
  * @package    Crud
  * @subpackage Form
  */
-class TextArea extends Text 
+class TextArea extends Text
 {
     /**
      * Form element type
@@ -19,23 +19,23 @@ class TextArea extends Text
      */
     protected $_type = 'textarea';
 
-	/**
-	 * Textarea input height
-	 * @var integer
-	 */
-	protected $_height;
-	
-	/**
-	 * Textarea input rows
-	 * @var integer
-	 */
-	protected $_rows;
-	
-	/**
-	 * Textarea input columns
-	 * @var integer
-	 */
-	protected $_cols;
+    /**
+     * Textarea input height
+     * @var integer
+     */
+    protected $_height;
+
+    /**
+     * Textarea input rows
+     * @var integer
+     */
+    protected $_rows;
+
+    /**
+     * Textarea input columns
+     * @var integer
+     */
+    protected $_cols;
 
     /**
      * @param bool $name
@@ -44,10 +44,11 @@ class TextArea extends Text
      * @param bool $required
      * @param int $width
      * @param string $default
-     * @param bool $length
      * @param int $height
      * @param int $rows
      * @param int $cols
+     * @param int $lengthMax
+     * @param int $lengthMin
      */
     public function __construct(
         $label = null,
@@ -56,28 +57,29 @@ class TextArea extends Text
         $required = false,
         $width = 280,
         $default = '',
-        $length = false,
         $height = 100,
         $rows = 4,
-        $cols = 30
+        $cols = 30,
+        $lengthMax = false,
+        $lengthMin = false
     ) {
-		parent::__construct($label, $name, $desc, $required, $width, $default, $length);
+        parent::__construct($label, $name, $desc, $required, $width, $default, $lengthMax, $lengthMin);
 
-		$this->_height = intval($height);
-		$this->_rows = $rows;
-		$this->_cols = $cols;
-	}
+        $this->_height = intval($height);
+        $this->_rows = $rows;
+        $this->_cols = $cols;
+    }
 
     /**
      * Initialize field (used by extending classes)
      *
      * @return void
      */
-	protected function _init()
-	{
-		parent::_init();
-		$this->setAttrib('height', $this->_height);
-		$this->setAttrib('rows', $this->_rows);
-		$this->setAttrib('cols', $this->_cols);
-	}
+    protected function _init()
+    {
+        parent::_init();
+        $this->setAttrib('height', $this->_height);
+        $this->setAttrib('rows', $this->_rows);
+        $this->setAttrib('cols', $this->_cols);
+    }
 }

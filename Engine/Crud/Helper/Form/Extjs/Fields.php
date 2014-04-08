@@ -25,6 +25,7 @@ class Fields extends BaseHelper
 	static public function _(Form $form)
 	{
         $code = "
+
             fieldsGet: function(){
                 return [";
 

@@ -24,18 +24,22 @@ class Session extends AbstractService
         $eventsManager = $this->getEventsManager();
 
         if (!isset($this->_config->application->session)) {
-            $session = new \Phalcon\Session\Adapter\Files();
+            $sessionAdapter = $this->_getSessioneAdapter('files');
+            $sessionOptions = [];
         } else {
             $sessionAdapter = $this->_getSessioneAdapter($this->_config->application->session->adapter);
             if (!$sessionAdapter) {
                 throw new \Engine\Exception("Session adapter '{$this->_config->application->session->adapter}' not exists!");
             }
             $sessionOptions = $this->_config->application->session->toArray();
-
-            $session = new $sessionAdapter($sessionOptions);
         }
-        $session->start();
-        $di->set('session', $session, true);
+        //$session->start();
+
+        $di->setShared('session', function() use ($sessionAdapter, $sessionOptions) {
+            $session = new $sessionAdapter($sessionOptions);
+            $session->start();
+            return $session;
+        });
     }
 
     /**

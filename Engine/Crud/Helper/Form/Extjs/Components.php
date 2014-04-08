@@ -25,12 +25,15 @@ class Components extends BaseHelper
 	{
 
         $code = "
+
             initComponent : function() {
-                this.items   = this.fieldsGet();
-                this.tbar    = this.tbarGet();
-                this.bbar    = this.bbarGet();
-                this.buttons = this.buttonsGet();
-                this.callParent();
+                var me = this;
+
+                me.items   = this.fieldsGet();
+                me.tbar    = this.tbarGet();
+                me.bbar    = this.bbarGet();
+                me.buttons = this.buttonsGet();
+                me.callParent();
             },";
 
         return $code;

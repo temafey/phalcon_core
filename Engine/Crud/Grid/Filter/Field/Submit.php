@@ -25,7 +25,7 @@ class Submit extends Field
 	 * @param string $title
 	 * @param int $width
 	 */
-	public function __construct($label = null, $width = 60)
+	public function __construct($label = null, $width = 280)
 	{
         $this->_label = $label;
         $this->_width = intval($width);

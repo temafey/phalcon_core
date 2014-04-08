@@ -1,23 +1,5 @@
 <?php
 
-/*
-  +------------------------------------------------------------------------+
-  | Phalcon Framework                                                      |
-  +------------------------------------------------------------------------+
-  | Copyright (c) 2011-2013 Phalcon Team (http://www.phalconphp.com)       |
-  +------------------------------------------------------------------------+
-  | This source file is subject to the New BSD License that is bundled     |
-  | with this package in the file docs/LICENSE.txt.                        |
-  |                                                                        |
-  | If you did not receive a copy of the license and are unable to         |
-  | obtain it through the world-wide-web, please send an email             |
-  | to license@phalconphp.com so we can send you a copy immediately.       |
-  +------------------------------------------------------------------------+
-  | Authors: Andres Gutierrez <andres@phalconphp.com>                      |
-  |          Eduar Carvajal <eduar@phalconphp.com>                         |
-  +------------------------------------------------------------------------+
-*/
-
 namespace Engine\Builder;
 
 use Phalcon\Db\Column,
@@ -25,42 +7,23 @@ use Phalcon\Db\Column,
     Engine\Builder\BuilderException,
     Engine\Builder\Script\Color,
     Phalcon\Text as Utils;
+use Engine\Builder\Traits\BasicTemplater as TBasicTemplater;
+use Engine\Builder\Traits\ModelTemplater as TModelTemplater;
+use Engine\Tools\Inflector;
 
 /**
  * ModelBuilderComponent
  *
  * Builder to generate models
- *
- * @category    Phalcon
- * @package    Builder
- * @subpackage  Model
- * @copyright   Copyright (c) 2011-2013 Phalcon Team (team@phalconphp.com)
- * @license    New BSD License
  */
 class Model extends Component
 {
-    /**
-     * Mapa de datos escalares a objetos
-     *
-     * @var array
-     */
-    private $_typeMap = array(//'Date' => 'Date',
-        //'Decimal' => 'Decimal'
-    );
+    use TBasicTemplater, TModelTemplater;
 
     public function __construct($options)
     {
-        if (!isset($options['name'])) {
+        if (!isset($options['table_name']) || empty($options['table_name'])) {
             throw new BuilderException("Please, specify the model name");
-        }
-        if (!isset($options['force'])) {
-            $options['force'] = false;
-        }
-        if (!isset($options['className'])) {
-            $options['className'] = Utils::camelize($options['name']);
-        }
-        if (!isset($options['fileName'])) {
-            $options['fileName'] = $options['name'];
         }
         $this->_options = $options;
     }
@@ -96,502 +59,137 @@ class Model extends Component
 
     public function build()
     {
-        $getSource = "
-    public function getSource()
-    {
-        return '%s';
-    }
-";
-        $templateThis = "\t\t\$this->%s(%s);\n";
-        $templateRelation = "\t\t\$this->%s(\"%s\", \"%s\", \"%s\", %s);\n";
-        $templateSetter = "
-    /**
-     * Method to set the value of field %s
-     *
-     * @param %s \$%s
-     * @return \$this
-     */
-    public function set%s(\$%s)
-    {
-        \$this->%s = \$%s;
-        return \$this;
-    }
-";
-
-        $templateValidateInclusion = "
-        \$this->validate(
-            new InclusionIn(
-                array(
-                    \"field\"    => \"%s\",
-                    \"domain\"   => array(%s),
-                    \"required\" => true,
-                )
-            )
-        );";
-
-        $templateValidateEmail = "
-        \$this->validate(
-            new Email(
-                array(
-                    \"field\"    => \"%s\",
-                    \"required\" => true,
-                )
-            )
-        );";
-
-        $templateValidationFailed = "
-        if (\$this->validationHasFailed() == true) {
-            return false;
-        }";
-
-        $templateAttributes = "
-    /**
-     *
-     * @var %s
-     */
-    %s \$%s;
-     ";
-
-        $templateGetterMap = "
-    /**
-     * Returns the value of field %s
-     *
-     * @return %s
-     */
-    public function get%s()
-    {
-        if (\$this->%s) {
-            return new %s(\$this->%s);
-        } else {
-           return null;
-        }
-    }
-";
-
-        $templateGetter = "
-    /**
-     * Returns the value of field %s
-     *
-     * @return %s
-     */
-    public function get%s()
-    {
-        return \$this->%s;
-    }
-";
-
-        $templateValidations = "
-    /**
-     * Validations and business logic
-     */
-    public function validation()
-    {
-%s
-    }
-";
-
-        $templateInitialize = "
-    /**
-     * Initialize method for model.
-     */
-    public function initialize()
-    {
-%s
-    }
-";
-
-        $templateFind = "
-    /**
-     * @return %s[]
-     */
-    public static function find(\$parameters = array())
-    {
-        return parent::find(\$parameters);
-    }
-
-    /**
-     * @return %s
-     */
-    public static function findFirst(\$parameters = array())
-    {
-        return parent::findFirst(\$parameters);
-    }
-";
-
-        $templateCode = "<?php
-%s
-%s
-class %s extends %s
-{
-%s
-}
-";
-
-        if (!$this->_options['name']) {
+        // Check name (table name)
+        if (!$this->_options['table_name']) {
             throw new BuilderException("You must specify the table name");
         }
 
-        $path = '';
-        if (isset($this->_options['directory'])) {
-            if ($this->_options['directory']) {
-                $path = $this->_options['directory'] . '/';
-            }
-        }
 
-        $config = $this->_getConfig($path);
+        // Get config
+        $config = $this->_getConfig('');
 
-        if (!isset($this->_options['modelsDir'])) {
-            if (!isset($config->application->modelsDir)) {
-                throw new BuilderException(
-                    "Builder doesn't knows where is the models directory"
-                );
-            }
-            $modelsDir = $config->application->modelsDir;
-        } else {
-            $modelsDir = $this->_options['modelsDir'];
-        }
 
-        if ($this->isAbsolutePath($modelsDir) == false) {
-            $modelPath = $path . "public" . DIRECTORY_SEPARATOR . $modelsDir;
-        } else {
-            $modelPath = $modelsDir;
-        }
+        // build options
+        $this->buildOptions($this->_options['table_name'], $config);
 
-        $methodRawCode = array();
-        $className = $this->_options['className'];
-        $modelPath .= $className . '.php';
 
-        if (file_exists($modelPath)) {
-            if (!$this->_options['force']) {
-                throw new BuilderException(
-                    "The model file '" . $className .
-                    ".php' already exists in models dir"
-                );
-            }
-        }
+        // Prepare DB connection
+        $this->prepareDbConnection($config);
 
-        if (!isset($config->database)) {
-            throw new BuilderException(
-                "Database configuration cannot be loaded from your config file"
-            );
-        }
 
-        if (!isset($config->database->adapter)) {
-            throw new BuilderException(
-                "Adapter was not found in the config. " .
-                "Please specify a config variable [database][adapter]"
-            );
-        }
-
-        if (isset($this->_options['namespace'])) {
-            $namespace = 'namespace ' . $this->_options['namespace'] . ';'
-                . PHP_EOL . PHP_EOL;
-            $methodRawCode[] = sprintf($getSource, $this->_options['name']);
-        } else {
-            $namespace = '';
-        }
-
-        $useSettersGetters = $this->_options['genSettersGetters'];
-        if (isset($this->_options['genDocMethods'])) {
-            $genDocMethods = $this->_options['genDocMethods'];
-        } else {
-            $genDocMethods = false;
-        }
-
-        $adapter = $config->database->adapter;
-        $this->isSupportedAdapter($adapter);
-
-        if (isset($config->database->adapter)) {
-            $adapter = $config->database->adapter;
-        } else {
-            $adapter = 'Mysql';
-        }
-
-        if (is_object($config->database)) {
-            $configArray = $config->database->toArray();
-        } else {
-            $configArray = $config->database;
-        }
-
-        $adapterName = 'Phalcon\Db\Adapter\Pdo\\' . $adapter;
-        unset($configArray['adapter']);
-        $db = new $adapterName($configArray);
-
-        $initialize = array();
-        if (isset($this->_options['schema'])) {
-            if ($this->_options['schema'] != $config->database->dbname) {
-                $initialize[] = sprintf(
-                    $templateThis, 'setSchema', '"' . $this->_options['schema'] . '"'
-                );
-            }
-            $schema = $this->_options['schema'];
-        } elseif ($adapter == 'Postgresql') {
-            $schema = 'public';
-            $initialize[] = sprintf(
-                $templateThis, 'setSchema', '"' . $this->_options['schema'] . '"'
-            );
-        } else {
-            $schema = $config->database->dbname;
-        }
-
-        if ($this->_options['fileName'] != $this->_options['name']) {
-            $initialize[] = sprintf(
-                $templateThis, 'setSource',
-                '\'' . $this->_options['name'] . '\''
-            );
-        }
-
-        $table = $this->_options['name'];
-        if ($db->tableExists($table, $schema)) {
-            $fields = $db->describeColumns($table, $schema);
+        // Check if table exist in database
+        $table = $this->_options['table_name'];
+        if ($this->db->tableExists($table, $config->database->dbname)) {
+            $fields = $this->db->describeColumns($table, $config->database->dbname);
         } else {
             throw new BuilderException('Table "' . $table . '" does not exists');
         }
 
-        if (isset($this->_options['hasMany'])) {
-            if (count($this->_options['hasMany'])) {
-                foreach ($this->_options['hasMany'] as $relation) {
-                    if (is_string($relation['fields'])) {
-                        $entityName = $relation['camelizedName'];
-                        $initialize[] = sprintf(
-                            $templateRelation,
-                            'hasMany',
-                            $relation['fields'],
-                            $entityName,
-                            $relation['relationFields'],
-                            $this->_buildRelationOptions( isset($relation['options']) ? $relation["options"] : NULL)
-                        );
-                    }
-                }
-            }
-        }
 
-        if (isset($this->_options['belongsTo'])) {
-            if (count($this->_options['belongsTo'])) {
-                foreach ($this->_options['belongsTo'] as $relation) {
-                    if (is_string($relation['fields'])) {
-                        $entityName = $relation['referencedModel'];
-                        $initialize[] = sprintf(
-                            $templateRelation,
-                            'belongsTo',
-                            $relation['fields'],
-                            $entityName,
-                            $relation['relationFields'],
-                            $this->_buildRelationOptions(isset($relation['options']) ? $relation["options"] : NULL)
-                        );
-                    }
-                }
-            }
-        }
+        // Set extender class
+        $extends = '\\Engine\\Mvc\\Model';
 
-        $alreadyInitialized = false;
-        $alreadyValidations = false;
-        if (file_exists($modelPath)) {
-            try {
-                $possibleMethods = array();
-                if ($useSettersGetters) {
-                    foreach ($fields as $field) {
-                        $methodName = Utils::camelize($field->getName());
-                        $possibleMethods['set' . $methodName] = true;
-                        $possibleMethods['get' . $methodName] = true;
-                    }
-                }
-
-                require $modelPath;
-
-                $linesCode = file($modelPath);
-                $reflection = new \ReflectionClass($this->_options['className']);
-                foreach ($reflection->getMethods() as $method) {
-                    if ($method->getDeclaringClass()->getName() == $this->_options['className']) {
-                        $methodName = $method->getName();
-                        if (!isset($possibleMethods[$methodName])) {
-                            $methodRawCode[$methodName] = join(
-                                '',
-                                array_slice(
-                                    $linesCode,
-                                    $method->getStartLine() - 1,
-                                    $method->getEndLine() - $method->getStartLine() + 1
-                                )
-                            );
-                        } else {
-                            continue;
-                        }
-                        if ($methodName == 'initialize') {
-                            $alreadyInitialized = true;
-                        } else {
-                            if ($methodName == 'validation') {
-                                $alreadyValidations = true;
-                            }
-                        }
-                    }
-                }
-            } catch (\ReflectionException $e) {
-            }
-        }
-
-        $validations = array();
-        foreach ($fields as $field) {
-            if ($field->getType() === Column::TYPE_CHAR) {
-                $domain = array();
-                if (preg_match('/\((.*)\)/', $field->getType(), $matches)) {
-                    foreach (explode(',', $matches[1]) as $item) {
-                        $domain[] = $item;
-                    }
-                }
-                if (count($domain)) {
-                    $varItems = join(', ', $domain);
-                    $validations[] = sprintf(
-                        $templateValidateInclusion, $field->getName(), $varItems
-                    );
-                }
-            }
-            if ($field->getName() == 'email') {
-                $validations[] = sprintf(
-                    $templateValidateEmail, $field->getName()
-                );
-            }
-        }
-        if (count($validations)) {
-            $validations[] = $templateValidationFailed;
-        }
-
-        /**
-         * Check if there has been an extender class
-         */
-        $extends = '\\Phalcon\\Mvc\\Model';
-        if (isset($this->_options['extends'])) {
-            if (!empty($this->_options['extends'])) {
-                $extends = $this->_options['extends'];
-            }
-        }
-
-        /**
-         * Check if there have been any excluded fields
-         */
-        $exclude = array();
-        if (isset($this->_options['excludeFields'])) {
-            if (!empty($this->_options['excludeFields'])) {
-                $keys = explode(',', $this->_options['excludeFields']);
-                if (count($keys) > 0) {
-                    foreach ($keys as $key) {
-                        $exclude[trim($key)] = '';
-                    }
-                }
-            }
-        }
 
         $attributes = array();
-        $setters = array();
-        $getters = array();
+        $belongsTo = array();
         foreach ($fields as $field) {
             $type = $this->getPHPType($field->getType());
-            if ($useSettersGetters) {
+            $attributes[] = sprintf(
+                $this->templateEmptyAttribute, $type, 'public', $field->getName()
+            );
 
-                if (!array_key_exists(strtolower($field->getName()), $exclude)) {
-                    $attributes[] = sprintf(
-                        $templateAttributes, $type, 'protected', $field->getName()
-                    );
-                    $setterName = Utils::camelize($field->getName());
-                    $setters[] = sprintf(
-                        $templateSetter,
-                        $field->getName(),
-                        $type,
-                        $field->getName(),
-                        $setterName,
-                        $field->getName(),
-                        $field->getName(),
-                        $field->getName()
-                    );
+            // Build belongsTo relations
+            preg_match('/^(.*)\_i{1}d{1}$/', $field->getName(), $matches);
+            if (!empty($matches)) {
+                $belongsTo[] = sprintf($this->templateModelRelation, 'belongsTo', 'id', ucfirst($this->_builderOptions['moduleName']).'\Model\\'.Inflector::modelize($matches[1]), $matches[0], $this->_buildRelationOptions([
+                    'alias' => $this->getAlias($matches[1])
+                ]));
+            }
 
-                    if (isset($this->_typeMap[$type])) {
-                        $getters[] = sprintf(
-                            $templateGetterMap,
-                            $field->getName(),
-                            $type,
-                            $setterName,
-                            $field->getName(),
-                            $this->_typeMap[$type],
-                            $field->getName()
-                        );
-                    } else {
-                        $getters[] = sprintf(
-                            $templateGetter,
-                            $field->getName(),
-                            $type,
-                            $setterName,
-                            $field->getName()
-                        );
-                    }
-                }
-            } else {
-                $attributes[] = sprintf(
-                    $templateAttributes, $type, 'public', $field->getName()
-                );
+            if ($field->getName() == 'id') {
+                $this->_options['primary_column'] = $field->getName();
+                $this->_options['order_expr'] = $field->getName();
+            }
+
+            if ($field->getName() == 'title' || $field->getName() == 'name') {
+                $this->_options['name_expr'] = $field->getName();
             }
         }
 
-        if ($alreadyValidations == false) {
-            if (count($validations) > 0) {
-                $validationsCode = sprintf(
-                    $templateValidations, join("", $validations)
-                );
-            } else {
-                $validationsCode = "";
+
+        // Model::initialize() code
+        $initializeCode = "";
+        if (count($belongsTo) > 0) {
+            foreach ($belongsTo as $rel) {
+                $initializeCode .= $rel."\n";
             }
-        } else {
-            $validationsCode = "";
         }
 
-        if ($alreadyInitialized == false) {
-            if (count($initialize) > 0) {
-                $initCode = sprintf(
-                    $templateInitialize,
-                    join('', $initialize)
-                );
-            } else {
-                $initCode = "";
-            }
-        } else {
-            $initCode = "";
-        }
 
-        $license = '';
-        if (file_exists('license.txt')) {
-            $license = file_get_contents('license.txt');
-        }
-
+        // Join attributes to content
         $content = join('', $attributes);
 
-        if ($useSettersGetters) {
-            $content .= join('', $setters)
-                . join('', $getters);
+
+        // Join engine properties
+        if (isset($this->_options['primary_column'])) {
+            $content .= sprintf($this->templateModelPrimaryColumn, $this->_options['primary_column']);
         }
 
-        $content .= $validationsCode . $initCode;
-        foreach ($methodRawCode as $methodCode) {
-            $content .= $methodCode;
+
+        // Join engine name_expr
+        if (isset($this->_options['name_expr'])) {
+            $content .= sprintf($this->templateModelDefaultTitleColumn, $this->_options['name_expr']);
         }
 
-        if ($genDocMethods) {
-            $content .= sprintf($templateFind, $className, $className);
+
+        // Join engine attributes
+        if (isset($this->_options['attributes']) && is_array($this->_options['attributes'])) {
+            $content .= sprintf($this->templateModelAttribute, $this->_options['attributes']);
         }
+
+
+        // Join engine orderExpr
+        if (isset($this->_options['order_expr'])) {
+            $content .= sprintf($this->templateModelOrderExpr, $this->_options['order_expr']);
+        }
+
+
+        // Join engine orderAsc
+        if (isset($this->_options['order_asc']) && is_bool($this->_options['order_asc'])) {
+            $content .= sprintf($this->templateModelOrder, $this->_options['order_asc']);
+        }else {
+            $content .= sprintf($this->templateModelOrder, 'true');
+        }
+
+
+        // Join initialize code to content
+        $content .= '';
+        if (!empty($initializeCode)) {
+            $content .= sprintf($this->templateInitialize, $initializeCode);
+        }
+
+
+        // Join Model::getSource() code to content
+        $content .= sprintf($this->templateModelGetSource, $this->_options['table_name']);
+
 
         if (isset($this->_options['mapColumn'])) {
             $content .= $this->_genColumnMapCode($fields);
         }
 
+
         $code = sprintf(
-            $templateCode,
-            $license,
-            $namespace,
-            $className,
+            $this->templateClassFullStack,
+            '',
+            $this->_builderOptions['namespace'],
+            $this->_builderOptions['className'],
             $extends,
             $content
         );
-        file_put_contents($modelPath, $code);
+        file_put_contents($this->_builderOptions['path'], $code);
 
         print Color::success(
-                'Model "' . $this->_options['name'] .
+                'Model "' . $this->_builderOptions['className'] .
                 '" was successfully created.'
             ) . PHP_EOL;
     }
@@ -607,17 +205,17 @@ class %s extends %s
             return 'NULL';
         }
 
-        $values = array();
-        foreach ($options as $name=>$val)
+        $values = [];
+        foreach ($options as $name => $val)
         {
             if (is_bool($val)) {
                 $val = $val ? 'true':'false';
             }
             else if (!is_numeric($val)) {
-                $val = '"$val"';
+                $val = '\''.$val.'\'';
             }
 
-            $values[] = sprintf('"%s"=>%s', $name, $val);
+            $values[] = sprintf('\'%s\' => %s', $name, $val);
         }
 
 
@@ -638,7 +236,7 @@ class %s extends %s
         );
     }
 ';
-        $contents = array();
+        $contents = [];
         foreach ($fields as $field) {
             $name = $field->getName();
             $contents[] = sprintf('\'%s\' => \'%s\'', $name, $name);

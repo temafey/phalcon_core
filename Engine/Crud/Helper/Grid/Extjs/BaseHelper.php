@@ -76,6 +76,16 @@ class BaseHelper extends \Engine\Crud\Helper
     }
 
     /**
+     * Return grid filter object name
+     *
+     * @return string
+     */
+    public static function getFilterName()
+    {
+        return static::$_module.".view.".static::$_prefix.".Filter";
+    }
+
+    /**
      * Return window object name
      *
      * @return string

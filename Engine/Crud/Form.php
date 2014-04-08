@@ -150,7 +150,7 @@ abstract class Form implements
      * @param \Phalcon\DiInterface $di
      * @param \Phalcon\Events\ManagerInterface $eventsManager
      */
-    final public function __construct(
+    public function __construct(
         $id = null,
         array $params = [],
         \Phalcon\DiInterface $di = null,
@@ -590,13 +590,23 @@ abstract class Form implements
 	        throw new \Engine\Exception('Form not init!');
 	    }
 
-        if (!empty($data)) {
-            if ($validate) {
-                if(!$this->isValid($data)) {
-                    return ['error' => 'Data not valid'];
+        if (empty($data)) {
+            $data = $this->getData();
+        }
+
+        if ($validate) {
+            if (!$this->isValid($data)) {
+                $messages = [];
+                foreach ($this->_form->getMessages() as $message) {
+                    /*$result = [];
+                    $result[] = "Message: ".$message->getMessage();
+                    $result[] = "Field: ".$message->getField();
+                    $result[] = "Type: ".$message->getType();
+                    $messages[] = implode (", ", $result);*/
+                    $messages[] = $message->getMessage();
                 }
+                return ['error' => $messages];
             }
-            $this->setData($data);
         }
 
 		$this->_preSave();
@@ -712,7 +722,7 @@ abstract class Form implements
 	public function update($id, array $data) 
 	{
 		$valid = true;
-		$errors = array ();
+		$errors = [];
 		foreach ($data as $name => $value) {
 			$element = $this->getElement($name);
 			if (! $element) {
@@ -721,17 +731,26 @@ abstract class Form implements
 			}
 			if ($element->isValid($value) !== true) {
 				$valid = false;
-				$errors[$name] = implode (",", $element->getMessages());
+                $messages = [];
+                foreach ($element->getMessages() as $message) {
+                    /*$result = [];
+                    $result[] = "Message: ".$message->getMessage();
+                    $result[] = "Field: ".$message->getField();
+                    $result[] = "Type: ".$message->getType();
+                    $messages[] = implode (", ", $result);*/
+                    $messages[] = $message->getMessage();
+                }
+				$errors[$name] = implode ("; ", $messages);
 			} else {
 				$field = $this->getName($name);
 				$field->setValue($value);
 				$d = $field->getSaveData();
-				if (! $d) {
-					$alter [] = $name;
+				if (!$d) {
+					$alter[] = $name;
 					continue;
 				}
-				if ($d ['model'] == 'default') {
-					$data [$d ['data'] ['key']] = $d ['data'] ['value'];
+				if ($d['model'] == 'default') {
+					$data[$d['data']['key']] = $d['data']['value'];
 				}
 			}
 		}
@@ -740,7 +759,7 @@ abstract class Form implements
 			$result = $this->_update($id, $data);			
 			return ($result === 0) ? true : $result;
 		} else {
-			return array ('valid' => $errors );
+			return ['error' => $errors];
 		}
 
 	}

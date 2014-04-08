@@ -39,7 +39,7 @@ class Router extends AbstractService
             $router = new \Phalcon\Mvc\Router\Annotations(false);
             $router->removeExtraSlashes(true);
             $router->setDefaultModule($defaultModule);
-            $router->setDefaultNamespace(ucfirst($defaultModule) . '\Controller');
+            $router->setDefaultNamespace(ucfirst($defaultModule).'\Controller');
             $router->setDefaultController("index");
             $router->setDefaultAction("index");
 
@@ -49,20 +49,31 @@ class Router extends AbstractService
                 'action' => 3
             ]);
 
-           /*$router->notFound([
+            $router->add('/:controller/:action', [
+                'controller' => 1,
+                'action' => 2
+            ]);
+
+            $router->add('/:controller', [
+                'controller' => 1
+            ]);
+
+           $router->notFound([
                 'module' => $defaultModule,
-                'namespace' => ucfirst($defaultModule) . '\Controller',
+                'namespace' => ucfirst($defaultModule).'\Controller',
                 'controller' => 'error',
                 'action' => 'show404'
             ]);
-*/
+
             //Read the annotations from controllers
             foreach ($modules as $module => $enabled) {
                 if (!$enabled) {
                     continue;
                 }
-
-                $files = scandir($this->_config->application->modulesDir . ucfirst($module) . '/Controller'); // get all file names
+                if (!file_exists($this->_config->application->modulesDir.ucfirst($module).'/Controller')) {
+                    continue;
+                }
+                $files = scandir($this->_config->application->modulesDir.ucfirst($module).'/Controller'); // get all file names
                 foreach ($files as $file) { // iterate files
                     if ($file == "." || $file == "..") {
                         continue;

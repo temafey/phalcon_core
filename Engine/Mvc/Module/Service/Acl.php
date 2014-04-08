@@ -26,16 +26,30 @@ class Acl extends AbstractService
         $di = $this->getDi();
         $eventsManager = $this->getEventsManager();
 
-        $aclAdapter = $this->_getAclAdapter($this->_config->application->acl->adapter);
-        if (!$aclAdapter) {
-            throw new \Engine\Exception("Acl adapter '{$this->_config->application->acl->adapter}' not exists!");
-        }
+        $di->set('acl', function () use ($di) {
+            $acl = new \Engine\Acl\Service($di);
+            return $acl;
+        });
+
         $options = $this->_config->application->acl->toArray();
-        $adapter = new $aclAdapter($options, $di);
-        $di->set('aclAdapter', $adapter);
+        $aclAdapter = $this->_getAclAdapter($options['adapter']);
+        $di->set('aclAdapter', function () use ($aclAdapter, $options, $di) {
+            if (!$aclAdapter) {
+                throw new \Engine\Exception("Acl adapter '{$options['adapter']}' not exists!");
+            }
+            $adapter = new $aclAdapter($options, $di);
+            return $adapter;
+        });
 
         $aclDispatcher = new \Engine\Acl\Dispatcher($di);
         $eventsManager->attach('dispatch:beforeDispatch', $aclDispatcher);
+
+        if (isset($options['adminModule'])) {
+            $registry = $di->get('registry');
+            $registry->adminModule = $options['adminModule'];
+
+            $registry2 = $di->get('registry');
+        }
     }
 
     /**

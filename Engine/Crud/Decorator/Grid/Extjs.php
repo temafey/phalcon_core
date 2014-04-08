@@ -81,7 +81,7 @@ class Extjs extends Decorator
         foreach ($sections as $key => $fileSections) {
             $elementContent = implode("", $fileSections);
             $elementContent .= call_user_func([$helpers[$key]['helper'], 'endTag']);
-            if (!file_put_contents($helpers[$key]['createFile'], $elementContent)) {
+            if (empty($elementContent) || !file_put_contents($helpers[$key]['createFile'], $elementContent)) {
                 throw new \Engine\Exception("File '".$helpers[$key]['createFile']."' not save");
             }
         }
@@ -111,8 +111,9 @@ class Extjs extends Decorator
             'extjs\Model',
             'extjs\Store',
             'extjs\Store\Local',
-            //'filter',
+            'extjs\Store\Local',
             'extjs',
+            'extjs\Filter',
             'extjs\Components',
             'extjs\Columns',
             'extjs\Functions',

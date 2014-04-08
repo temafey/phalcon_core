@@ -27,8 +27,8 @@ class Name extends Standart
     public function __construct(
         $label = null,
         $desc = null,
-        $criteria = Criteria::CRITERIA_EQ,
-        $width = 60,
+        $criteria = Criteria::CRITERIA_BEGINS,
+        $width = 280,
         $defaultValue = null,
         $length = 100)
     {

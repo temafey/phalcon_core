@@ -129,7 +129,7 @@ abstract class Decorator
      */
     public function clearOptions()
     {
-        $this->_options = array();
+        $this->_options = [];
         return $this;
     }
 

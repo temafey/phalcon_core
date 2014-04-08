@@ -97,21 +97,21 @@ class File extends Field
     protected function _init()
 	{
         parent::_init();
-		if (null !== $this->_extensions) {
-			$this->_validators[] = array(
-				'validator' => 'Engine\Validation\File\Extension',
-				'options' => array(
-					$this->_extensions
-				),			
-			);
-		}
-		$this->_validators[] = array(
-			'validator' => 'Engine\Validation\File\Count',
-			'options' => array(
-				'min' => 0,
-				'max' => 1
-			),			
-		);
+        /*if (null !== $this->_extensions) {
+            $this->_validators[] = [
+                'validator' => 'FileExtension',
+                'options' => [
+                    $this->_extensions
+                ]
+            ];
+        }
+        $this->_validators[] = array(
+            'validator' => 'FileCount',
+            'options' => [
+                'min' => 0,
+                'max' => 1
+            ],
+        );*/
 	}
 
     /**

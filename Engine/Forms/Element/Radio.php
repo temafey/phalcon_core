@@ -11,7 +11,7 @@ namespace Engine\Forms\Element;
  * @package     Forms
  * @subcategory Element
  */
-class Radio extends \Phalcon\Forms\Element\Select implements \Engine\Forms\ElementInterface
+class Radio extends \Phalcon\Forms\Element\Radio implements \Engine\Forms\ElementInterface
 {
     /**
      * Form element description

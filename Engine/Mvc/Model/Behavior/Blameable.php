@@ -93,7 +93,7 @@ class Blameable extends Behavior implements BehaviorInterface
 
 		$fields = $metaData->getAttributes($model);
 
-		$details = array();
+		$details = [];
 		foreach ($fields as $field) {
 
 			$auditDetail = new AuditDetail();
@@ -128,7 +128,7 @@ class Blameable extends Behavior implements BehaviorInterface
 			//Date the model had before modifications
 			$originalData = $model->getSnapshotData();
 
-			$details = array();
+			$details = [];
 			foreach ($changedFields as $field) {
 
 				$auditDetail = new AuditDetail();

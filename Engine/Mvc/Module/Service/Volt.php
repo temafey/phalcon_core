@@ -37,7 +37,7 @@ class Volt extends AbstractService
 
             $compiler = $volt->getCompiler();
             $compiler->addFilter('dump', function ($resolvedArgs) {
-                return 'var_dump(' . $resolvedArgs . ')';
+                return 'var_dump('.$resolvedArgs.')';
             });
 
             return $volt;

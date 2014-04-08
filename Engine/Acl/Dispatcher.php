@@ -14,6 +14,9 @@ class Dispatcher
 {
     use \Engine\Tools\Traits\DIaware;
 
+    const ACL_ADMIN_MODULE = 'admin';
+    const ACL_ADMIN_CONTROLLER = 'area';
+
     /**
      * @param \Phalcon\DiInterface $di
      */
@@ -40,32 +43,34 @@ class Dispatcher
             return;
         }*/
 
-        $viewer = $this->_di->get('viewer');
-        $aclService = new Service($this->_di);
-        $acl = $aclService->getAdapter();
-
         $module = $dispatcher->getModuleName();
         $controller = $dispatcher->getControllerName();
         $action = $dispatcher->getActionName();
 
-        $resource = $aclService->getResource($module, $controller);
-        $access = $action;
+        $viewer = $this->_di->get('viewer');
+        $acl = $this->_di->get('acl');
+
+        $registry = $this->_di->get('registry');
+        $adminModuleName = ($registry->adminModule) ? $registry->adminModule : 'admin';
 
         // check admin area
-        if ($module == 'admin' || $module == 'cms') {
-            if ($acl->isAllowed($viewer->getRole(), Service::ACL_ADMIN_AREA, '*') != \Phalcon\Acl::ALLOW) {
-                return $dispatcher->forward([
-                    'module' => \Engine\Application::$defaultModule,
-                    'namespace' => ucfirst(\Engine\Application::$defaultModule).'\Controller',
-                    "controller" => 'error',
-                    "action" => 'show404'
-                ]);
+        if ($module == $adminModuleName) {
+            if ($controller != 'admin' && !$acl->isAllowed($viewer->getRole(), self::ACL_ADMIN_MODULE, self::ACL_ADMIN_CONTROLLER, '*')) {
+                if ($this->_di->get('request')->isAjax() == true) {
+                    return $dispatcher->forward([
+                        "controller" => 'admin',
+                        "action" => 'denied'
+                    ]);
+                } else {
+                    return $dispatcher->forward([
+                        "controller" => 'admin',
+                        "action" => 'index'
+                    ]);
+                }
             }
         } else {
-            if ($acl->isResource($resource) && $acl->isAllowed($viewer->getRole(), $resource, $access) != \Phalcon\Acl::ALLOW) {
+            if (!$acl->isAllowed($viewer->getRole(), $module, $controller, $action, true)) {
                 return $dispatcher->forward([
-                    'module' => \Engine\Application::$defaultModule,
-                    'namespace' => ucfirst(\Engine\Application::$defaultModule).'\Controller',
                     "controller" => 'error',
                     "action" => 'show404'
                 ]);
