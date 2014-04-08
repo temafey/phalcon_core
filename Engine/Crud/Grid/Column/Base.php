@@ -39,7 +39,7 @@ class Base extends Column
 	 */
 	public function render($row)
 	{
-		$value = $row[$this->_key];
+		$value = $row->{$this->_key};
 		$value = $this->filter($value);
 		
 		return $value;

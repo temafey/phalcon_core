@@ -178,7 +178,7 @@ class Paginator extends \Engine\Crud\Helper
     static function parseStr($urlParamStr)
     {
         $paramArr = explode('&', $urlParamStr);
-        $return = array();
+        $return = [];
         foreach ($paramArr as $param) {
             $tmp = explode('=', $param);
             if ($tmp[0])

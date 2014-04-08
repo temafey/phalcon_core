@@ -171,7 +171,7 @@ class File
             fwrite($file, "<?php\r\n");
         }
 
-        fwrite($file, $string."=array();\r\n");
+        fwrite($file, $string."=[];\r\n");
         foreach ($array as $ind => $val) {
             $str = $string."[".self::_quote($ind)."]";
             if (is_array($val)) {
@@ -213,7 +213,7 @@ class File
 
     /**
      * Compresses an array into a string:
-     * $array=array();
+     * $array=[];
      * $array[0]=0;
      * $array["one"]="one";
      * compress_array($array) will return 'array(0=>0,"one"=>"one")'
@@ -226,7 +226,7 @@ class File
         if (!is_array($array)) {
             return self::_quote($array);
         }
-        $strings=array();
+        $strings=[];
 
         foreach ($array as $ind => $val) {
             $strings[] = self::_quote($ind)."=>".
@@ -318,7 +318,7 @@ class File
         }
     } // end of dirmv()
 
-    static function getFiles($directory, $exempt = array('.','..','.ds_store','.svn'), &$files = array())
+    static function getFiles($directory, $exempt = array('.','..','.ds_store','.svn'), &$files = [])
     {
         $directory = rtrim($directory, '/').'/';
         $handle = opendir($directory);

@@ -26,7 +26,7 @@ class Annotations extends AbstractService
         $config = $this->_config;
         $di->set('annotations', function () use ($config) {
             if (!$config->application->debug && isset($config->annotations)) {
-                $annotationsAdapter = '\Phalcon\Annotations\Adapter\\' . $config->annotations->adapter;
+                $annotationsAdapter = '\Phalcon\Annotations\Adapter\\'.$config->annotations->adapter;
                 $adapter = new $annotationsAdapter($config->annotations->toArray());
             } else {
                 $adapter = new \Phalcon\Annotations\Adapter\Memory();

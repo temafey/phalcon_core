@@ -52,7 +52,7 @@ abstract class Application extends PhApplication
     {
         if (empty($this->_configPath)) {
             $class = new \ReflectionClass($this);
-            throw new \Engine\Exception('Application has no config path: ' . $class->getFileName());
+            throw new \Engine\Exception('Application has no config path: '.$class->getFileName());
         }
 
         $loader = new \Phalcon\Loader();
@@ -80,9 +80,7 @@ abstract class Application extends PhApplication
     {
         $modules = $this->_config->get('modules');
         if (!$modules) {
-            $modules = [];
-        } else {
-            $modules = $modules->toArray();
+            $modules = (object) [];
         }
 
         $di = $this->_dependencyInjector;
@@ -114,8 +112,8 @@ abstract class Application extends PhApplication
                 }
                 $moduleName = ucfirst($module);
                 $enabledModules[$module] = array(
-                    'className' => $moduleName . '\Module',
-                    'path' => ROOT_PATH . '/apps/modules/' . $moduleName . '/Module.php',
+                    'className' => $moduleName.'\Module',
+                    'path' => ROOT_PATH.'/apps/modules/'.$moduleName.'/Module.php',
                 );
             }
 

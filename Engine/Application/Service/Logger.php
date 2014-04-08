@@ -26,7 +26,7 @@ class Logger extends AbstractService
         $config = $this->_config;
         if ($config->application->logger->enabled) {// && $config->installed) {
             $di->set('logger', function () use ($config) {
-                $logger = new \Phalcon\Logger\Adapter\File($config->application->logger->path . "main.log");
+                $logger = new \Phalcon\Logger\Adapter\File($config->application->logger->path."main.log");
                 $formatter = new \Phalcon\Logger\Formatter\Line($config->application->logger->format);
                 $logger->setFormatter($formatter);
                 return $logger;

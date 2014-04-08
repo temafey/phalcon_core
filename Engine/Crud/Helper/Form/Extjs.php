@@ -32,9 +32,13 @@ class Extjs extends BaseHelper
 	{
         $title = $form->getTitle();
 
+        $primary = $form->getPrimaryField();
+        $key = ($primary) ? $primary->getKey() : false;
+        $url = $form->getAction()."/save";
+
         $code = "
         Ext.define('".static::getFormName()."', {
-            extend: 'Ext.form.Panel',
+            extend: 'Ext.ux.crud.Form',
             store: '".static::getStoreName()."',
             alias: 'widget.".static::$_module.ucfirst(static::$_prefix)."Form',
             title: '".$form->getTitle()."',
@@ -63,14 +67,21 @@ class Extjs extends BaseHelper
             $code .= "height: ".$height.",
             ";
         }*/
-
+        $code .= "url: '".$url."',
+            ";
         $code .= "link: '".$form->getLink()."',
             ";
+        if ($key) {
+            $code .= "primaryKey: '".$key."',
+            ";
+        }
 
         $code .= "requires: [";
         $requires = [];
 
         $requires[] = "'Ext.form.field.*'";
+        $requires[] = "'Ext.ux.crud.Form'";
+
         $code .= implode(",", $requires);
 
         $code .= "],

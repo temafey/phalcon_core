@@ -30,6 +30,9 @@ class Environment extends AbstractService
         if ($this->_config->application->debug && $this->_config->application->profiler) {
             $profiler = new \Engine\Profiler();
             $di->set('profiler', $profiler);
+
+            $debug = new \Phalcon\Debug();
+            $debug->listen();
         }
     }
 } 

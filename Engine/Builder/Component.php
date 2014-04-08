@@ -50,7 +50,7 @@ abstract class Component
 
     protected $db = null;
 
-	protected $_options = array();
+	protected $_options = [];
 
     protected $_builderOptions = array();
 
@@ -69,8 +69,8 @@ abstract class Component
     protected function _getConfig($path)
 	{
 		foreach (array('app/config/', '../config/') as $configPath) {
-			if (file_exists($path . $configPath . "engine.ini")) {
-				return new \Phalcon\Config\Adapter\Ini($path . $configPath . "/engine.ini");
+			if (file_exists($path . $configPath."engine.ini")) {
+				return new \Phalcon\Config\Adapter\Ini($path . $configPath."/engine.ini");
 			} else {
 				if (file_exists($path . $configPath. "engine.php")) {
 					$config = include($path . $configPath . "engine.php");

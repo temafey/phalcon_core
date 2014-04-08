@@ -24,6 +24,7 @@ class Loader extends AbstractService
         $eventsManager = $this->getEventsManager();
 
         $modules = $di->get('modules');
+
         foreach ($modules as $module => $enabled) {
             if (!$enabled) {
                 continue;
@@ -40,7 +41,7 @@ class Loader extends AbstractService
         if ($this->_config->application->debug && $this->_config->installed) {
             $eventsManager->attach('loader', function ($event, $loader, $className) use ($di) {
                 if ($event->getType() == 'afterCheckClass') {
-                    $di->get('logger')->error("Can't load class '" . $className . "'");
+                    $di->get('logger')->error("Can't load class '".$className."'");
                 }
             });
             $loader->setEventsManager($eventsManager);

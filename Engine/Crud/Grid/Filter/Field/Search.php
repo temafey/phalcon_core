@@ -38,7 +38,7 @@ class Search extends Standart
         $name = null,
         array $fields,
         $desc = null,
-        $width = 60,
+        $width = 280,
         $default = null,
         $length = 255)
 	{
@@ -113,7 +113,7 @@ class Search extends Standart
 	protected function _parseValue($value)
 	{		
 		if (strpos($value, ';') !== false) {
-			$values = array();
+			$values = [];
 			$tmp_values = explode(';', $value);
 			foreach ($tmp_values as $value){
 				$values[] = $this->subParseValue($value);
@@ -132,7 +132,7 @@ class Search extends Standart
 	 */
 	protected function _subParseValue($value)
 	{
-		$values = array();
+		$values = [];
 		if (strpos($value, ',') !== false) {
 			return explode(',', $value);			
 		} else {

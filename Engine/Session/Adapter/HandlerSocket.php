@@ -75,7 +75,7 @@ class HandlerSocket extends Adapter implements AdapterInterface
     /**
      * Stores session data results
      */
-    private $_fields = array();
+    private $_fields = [];
 
 
     /**
@@ -84,7 +84,7 @@ class HandlerSocket extends Adapter implements AdapterInterface
      * @param array $options associative array of options
      * @return void
      */
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
         //initialize the handlersocket database
         if (empty($options))
@@ -199,7 +199,7 @@ class HandlerSocket extends Adapter implements AdapterInterface
      * @param array $options associative array of options
      * @return void
      */
-    public function start($options = array())
+    public function start($options = [])
     {
         $object = new self($options);
 
@@ -265,7 +265,7 @@ class HandlerSocket extends Adapter implements AdapterInterface
     {
         if (isset($this->_fields['id']) && $this->_fields['id'] != $id)
         {
-            $this->_fields = array();
+            $this->_fields = [];
         }
 
         if (empty($this->_fields))

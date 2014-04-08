@@ -52,9 +52,9 @@ class Match extends Standart
             $values = $this->_parseValue($values);
         }
 
-        $filters = array();
+        $filters = [];
         foreach ($values as $sub_values) {
-            $sub_filters = array();
+            $sub_filters = [];
             foreach ($sub_values as $value) {
                 if (empty($value)) {
                     continue;

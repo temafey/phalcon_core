@@ -95,7 +95,7 @@ class FormField extends Base
 	public function render($row) 
 	{
 		$attribs ['rowId'] = $this->row_id;
-		$attribs ['id'] = $this->key . "-" . $this->row_id;
+		$attribs ['id'] = $this->key."-".$this->row_id;
 
 		foreach ( $this->attibutes as $key => $value ) {
 			$attribs [$key] = $value;
@@ -130,7 +130,7 @@ class FormField extends Base
 			$value = $field->getValue();
 			$column = $field->getName();
 			$data = array($column => $value);
-			$where = $model->q($model->getPrimary() . " = ?", $id);
+			$where = $model->q($model->getPrimary()." = ?", $id);
 
 			return $model->update($data, $where);
 		}

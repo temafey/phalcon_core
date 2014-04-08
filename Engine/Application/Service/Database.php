@@ -46,7 +46,7 @@ class Database extends AbstractService
 
         if ($config->application->debug) {
             // Attach logger & profiler
-            $logger = new \Phalcon\Logger\Adapter\File($config->application->logger->path . "db.log");
+            $logger = new \Phalcon\Logger\Adapter\File($config->application->logger->path."db.log");
             $profiler = new \Phalcon\Db\Profiler();
 
             $eventsManager->attach('db', function ($event, $connection) use ($logger, $profiler) {

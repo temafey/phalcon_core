@@ -147,7 +147,7 @@ class ImageAdmin extends Image
 
             if ($this->_fileFullName === false) {
                 $file = explode(".", $_FILES [$key] ['name']);
-                $this->_fileFullName = str_replace(" ", "_", trim($file [0])) . "_" . $this->getId();
+                $this->_fileFullName = str_replace(" ", "_", trim($file [0]))."_".$this->getId();
             }
 
 			$file_type = strtolower(end(explode(".", $_FILES [$key] ['name'])));
@@ -155,7 +155,7 @@ class ImageAdmin extends Image
 			if ($this->_saveFilename) {
 				$file = explode(".", $_FILES [$key] ['name']);
 				$pathinfo = pathinfo($this->_fileFullName);
-				$this->_fileName = $pathinfo['dirname'] . "/" . str_replace(" ", "_", trim($file [0])) . "_" . $this->getId() . '.'.$file_type;
+				$this->_fileName = $pathinfo['dirname']."/" . str_replace(" ", "_", trim($file [0]))."_".$this->getId().'.'.$file_type;
 			} else {
 				$this->_fileName = $this->_fileFullName.'.'.$file_type;
 			}
@@ -238,7 +238,7 @@ class ImageAdmin extends Image
 			    $def_data[$statusColumn\Name] = 1;
 			}
             $model = $container->getModel();
-            $model->update($def_data, $model->getPrimary() . " = ?", $this->getId());
+            $model->update($def_data, $model->getPrimary()." = ?", $this->getId());
 		}
 	}
 

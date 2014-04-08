@@ -28,7 +28,7 @@ class Primary extends Standart
         $label = null,
         $desc = null,
         $criteria = Criteria::CRITERIA_EQ,
-        $width = 60,
+        $width = 280,
         $defaultValue = null,
         $length = 100)
     {

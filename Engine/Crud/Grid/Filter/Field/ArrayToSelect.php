@@ -63,7 +63,7 @@ class ArrayToSelect extends Standart
         array $options = [],
         $desc= null,
         $criteria = Criteria::CRITERIA_EQ,
-        $width = 60,
+        $width = 280,
         $default = null
     ) {
 		parent::__construct($label, $name, $desc, $criteria, $width, $default);

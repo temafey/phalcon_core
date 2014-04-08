@@ -40,6 +40,6 @@ class In extends Standart
             return "";
         }
         
-        return $compare . "(".implode(", ", $values).")";
+        return $compare."(".implode(", ", $values).")";
     }
 }

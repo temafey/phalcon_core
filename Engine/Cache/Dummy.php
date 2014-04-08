@@ -62,7 +62,7 @@ class Dummy extends \Phalcon\Cache\Backend
      */
     public function getOptions()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -146,7 +146,7 @@ class Dummy extends \Phalcon\Cache\Backend
      */
     public function queryKeys($prefix=null)
     {
-        return array();
+        return [];
     }
 
     /**
@@ -157,6 +157,16 @@ class Dummy extends \Phalcon\Cache\Backend
      * @return boolean
      */
     public function exists($keyName=null, $lifetime=null)
+    {
+        return false;
+    }
+
+    /**
+     * Immediately invalidates all existing items.
+     *
+     * @return boolean
+     */
+    public function flush()
     {
         return false;
     }

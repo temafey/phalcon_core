@@ -42,7 +42,7 @@ class Mysql extends Container implements FormContainer
      * @param mixed $options
      * @return void
      */
-	public function __construct(Form $form, $options = array())
+	public function __construct(Form $form, $options = [])
 	{
 		$this->_form = $form;
 		if (!is_array($options)) {

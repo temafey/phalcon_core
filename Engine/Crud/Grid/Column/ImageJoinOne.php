@@ -117,10 +117,10 @@ class ImageJoinOne extends JoinOne
         $alt = '';
         $fullPath = realpath(DOCUMENT_ROOT.$image);
         if (file_exists($fullPath)) {
-            $src = ' src="' . $image . '"';
-			$alt = ($alt) ? ' alt="' . $alt . '"' : "";
-            $width = 'width: ' . $this->width .'px;';
-            if($this->height) $height = 'height: ' . $this->height .'px;'; else $height = '';
+            $src = ' src="'.$image.'"';
+			$alt = ($alt) ? ' alt="'.$alt.'"' : "";
+            $width = 'width: '.$this->width .'px;';
+            if($this->height) $height = 'height: '.$this->height .'px;'; else $height = '';
 
             $endTag = ' />';
 
@@ -129,7 +129,7 @@ class ImageJoinOne extends JoinOne
             $xhtml = '<img '
             . $src
             . $alt
-            . ' style="' . $width . $height . 'margin: auto;"'
+           .' style="'.$width . $height.'margin: auto;"'
             . $endTag;
 
             return $xhtml;

@@ -134,16 +134,16 @@ class Mongo extends Adapter implements AdapterInterface
 	 */
 	public function addInherit($roleName, $roleToInherit)
 	{
-		$sql = 'SELECT COUNT(*) FROM ' . $this->_options['roles'] . " WHERE name = ?";
+		$sql = 'SELECT COUNT(*) FROM '.$this->_options['roles']." WHERE name = ?";
 		$exists = $this->_options['db']->fetchOne($sql, null, array($roleToInherit));
 		if (!$exists[0]) {
-			throw new Exception("Role '" . $roleToInherit . "' does not exist in the role list");
+			throw new Exception("Role '".$roleToInherit."' does not exist in the role list");
 		}
 
-		$sql = 'SELECT COUNT(*) FROM ' . $this->_options['rolesInherits'] . " WHERE roles_name = ? AND roles_inherit = ?";
+		$sql = 'SELECT COUNT(*) FROM '.$this->_options['rolesInherits']." WHERE roles_name = ? AND roles_inherit = ?";
 		$exists = $this->_options['db']->fetchOne($sql, null, array($roleName, $roleToInherit));
 		if (!$exists[0]) {
-			$this->_options['db']->execute('INSERT INTO ' . $this->_options['rolesInherits'] . " VALUES (?, ?)", array($roleName, $roleToInherit));
+			$this->_options['db']->execute('INSERT INTO '.$this->_options['rolesInherits']." VALUES (?, ?)", array($roleName, $roleToInherit));
 		}
 	}
 
@@ -225,7 +225,7 @@ class Mongo extends Adapter implements AdapterInterface
 	{
 
 		if (!$this->isResource($resourceName)) {
-			throw new Exception("Resource '" . $resourceName . "' does not exist in ACL");
+			throw new Exception("Resource '".$resourceName."' does not exist in ACL");
 		}
 
 		$resourcesAccesses = $this->_getCollection('resourcesAccesses');
@@ -266,7 +266,7 @@ class Mongo extends Adapter implements AdapterInterface
 	 */
 	public function getResources()
 	{
-		$resources = array();
+		$resources = [];
 		foreach ($this->_getCollection('resources')->find() as $row) {
 			$resources[] = new Resource($row['name'], $row['description']);
 		}
@@ -280,7 +280,7 @@ class Mongo extends Adapter implements AdapterInterface
 	 */
 	public function getRoles()
 	{
-		$roles = array();
+		$roles = [];
 		foreach ($this->_getCollection('roles')->find() as $row) {
 			$roles[] = new Role($row['name'], $row['description']);
 		}
@@ -318,7 +318,7 @@ class Mongo extends Adapter implements AdapterInterface
 			'access_name' => $accessName
 		));
 		if (!$exists) {
-			throw new Exception("Access '" . $accessName . "' does not exist in resource '" . $resourceName . "' in ACL");
+			throw new Exception("Access '".$accessName."' does not exist in resource '".$resourceName."' in ACL");
 		}
 
 		$accessList = $this->_getCollection('accessList');
@@ -373,7 +373,7 @@ class Mongo extends Adapter implements AdapterInterface
 	{
 
 		if (!$this->isRole($roleName)) {
-			throw new Exception('Role "' . $roleName. '" does not exist in the list');
+			throw new Exception('Role "'.$roleName. '" does not exist in the list');
 		}
 
 		if (is_array($access)) {
@@ -494,7 +494,7 @@ class Mongo extends Adapter implements AdapterInterface
 		 * Check inherited roles for a specific rule
 		 */
 		/*foreach ($inheritedRoles as $row) {
-			$sql = 'SELECT allowed FROM ' . $this->_options['accessList'] . " WHERE roles_name = ? AND resources_name = ? AND access_name = ?";
+			$sql = 'SELECT allowed FROM '.$this->_options['accessList']." WHERE roles_name = ? AND resources_name = ? AND access_name = ?";
 			$allowed = $this->_options['db']->fetchOne($sql, \Phalcon\Db::FETCH_NUM, array($row[0], $resource, $access));
 			if (is_array($allowed)) {
 				return (int) $allowed[0];
@@ -505,7 +505,7 @@ class Mongo extends Adapter implements AdapterInterface
 		 * Check inherited roles for a specific rule
 		 */
 		/*foreach ($inheritedRoles as $row) {
-			$sql = 'SELECT allowed FROM ' . $this->_options['accessList'] . " WHERE roles_name = ? AND resources_name = ? AND access_name = ?";
+			$sql = 'SELECT allowed FROM '.$this->_options['accessList']." WHERE roles_name = ? AND resources_name = ? AND access_name = ?";
 			$allowed = $this->_options['db']->fetchOne($sql, \Phalcon\Db::FETCH_NUM, array($row[0], $resource, '*'));
 			if (is_array($allowed)) {
 				return (int) $allowed[0];
@@ -515,7 +515,7 @@ class Mongo extends Adapter implements AdapterInterface
 		/**
 		 * Check if there is a common rule for that access
 		 */
-		/*$sql = 'SELECT allowed FROM ' . $this->_options['accessList'] . " WHERE roles_name = ? AND resources_name = ? AND access_name = ?";
+		/*$sql = 'SELECT allowed FROM '.$this->_options['accessList']." WHERE roles_name = ? AND resources_name = ? AND access_name = ?";
 		$allowed = $this->_options['db']->fetchOne($sql, \Phalcon\Db::FETCH_NUM, array($role, '*', $access));
 		if (is_array($allowed)) {
 			return (int) $allowed[0];

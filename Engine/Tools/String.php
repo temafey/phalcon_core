@@ -188,7 +188,7 @@ class String
 			return $value;
 		}
 
-		return "'" . addcslashes ($value, "\000\n\r\\'\"\032" ) . "'";
+		return "'" . addcslashes ($value, "\000\n\r\\'\"\032" )."'";
 	}
 
 	/**
@@ -433,7 +433,7 @@ class String
 	    if ($host[$p] == '/') {
 	        $host = substr($host, 0, $p);
 	    }
-	    $link .= $host . "/";
+	    $link .= $host."/";
 	    
 	    if ($templateHref[0] == '/') {
 	        $templateHref = substr($templateHref, 1);
@@ -529,7 +529,7 @@ class String
         $pattern = '/&(#)?[a-zA-Z0-9]{0,};/';
        
         if (is_array($var)) {    // If variable is an array
-            $out = array();      // Set output as an array
+            $out = [];      // Set output as an array
             foreach ($var as $key => $v) {
                 // Run formSpecialChars on every element of the array and return the result. Also maintains the keys.
                 $out[$key] = self::formSpecialChars($v);

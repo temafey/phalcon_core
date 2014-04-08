@@ -205,7 +205,7 @@ class Model extends Component
             return 'NULL';
         }
 
-        $values = array();
+        $values = [];
         foreach ($options as $name => $val)
         {
             if (is_bool($val)) {
@@ -236,7 +236,7 @@ class Model extends Component
         );
     }
 ';
-        $contents = array();
+        $contents = [];
         foreach ($fields as $field) {
             $name = $field->getName();
             $contents[] = sprintf('\'%s\' => \'%s\'', $name, $name);

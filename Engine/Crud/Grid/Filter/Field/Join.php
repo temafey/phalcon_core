@@ -109,12 +109,12 @@ class Join extends ArrayToSelect
 	public function __construct(
         $label = null,
         $model,
-        $name = null,
+        $name = false,
         $optionName = null,
         $path = null,
         $desc = null,
         $criteria = Criteria::CRITERIA_EQ,
-        $width = 100,
+        $width = 280,
         $loadSelectOptions = true,
         $separatedQueries = false,
         $default = null

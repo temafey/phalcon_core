@@ -77,7 +77,7 @@ class IpCheck
 	public function addFileAllow($filepath, $namespace = 0)
 	{
 		if (!isset($this->_data['allow'][$namespace] )) {
-			$this->_data['allow'][$namespace] = array();
+			$this->_data['allow'][$namespace] = [];
 		}
 		if (file_exists($filepath)) {
     		$this->_data['allow'][$namespace] += file($filepath);
@@ -95,7 +95,7 @@ class IpCheck
 	public function addFileDeny($filepath, $namespace = 0)
 	{
 		if (!isset($this->_data['deny'][$namespace] )) {
-			$this->_data['deny'][$namespace] = array();
+			$this->_data['deny'][$namespace] = [];
 		}
 		if (file_exists($filepath)) {
     		$this->_data['deny'][$namespace] += file($filepath);
@@ -113,7 +113,7 @@ class IpCheck
 	public function addIpAllow($ip, $namespace = 0)
 	{
 		if (!isset($this->_data['allow'][$namespace])) {
-			$this->_data['allow'][$namespace] = array();
+			$this->_data['allow'][$namespace] = [];
 		}
 		$this->_data['allow'][$namespace][] = $ip;
 		
@@ -129,7 +129,7 @@ class IpCheck
 	public function addIpDeny($ip, $namespace = 0)
 	{
 		if (!isset($this->_data['deny'][$namespace])) {
-			$this->_data['deny'][$namespace] = array();
+			$this->_data['deny'][$namespace] = [];
 		}
 		$this->_data['deny'][$namespace][] = $ip;
 		
@@ -143,7 +143,7 @@ class IpCheck
 	 */
 	public function clearIpAllow()
 	{
-		$this->_data['allow'] = array();
+		$this->_data['allow'] = [];
 		
 		return $this;
 	}
@@ -155,7 +155,7 @@ class IpCheck
 	 */
 	public function clearIpDeny()
 	{
-		$this->_data['deny'] = array();
+		$this->_data['deny'] = [];
 		
 		return $this;
 	}
@@ -167,9 +167,9 @@ class IpCheck
 	 */
 	public function clearIpData()
 	{
-		$this->_data = array('allow' => array(), 'deny' => allow());
-		$this->_allow = array();
-		$this->_deny = array();
+		$this->_data = array('allow' => [], 'deny' => allow());
+		$this->_allow = [];
+		$this->_deny = [];
 		
 		return $this;
 	}
@@ -196,12 +196,12 @@ class IpCheck
 	 */
 	protected function _setIpList()
 	{
-		$this->_allow = array();
-		$this->_deny = array();
+		$this->_allow = [];
+		$this->_deny = [];
 
 		foreach($this->_data['allow'] as $namespace => &$lines) {
 			if (!isset($this->_allow [$namespace])) {
-				$this->_allow [$namespace] = array();
+				$this->_allow [$namespace] = [];
 			}
 			foreach($lines as &$line) {				
 				$item = $this->_processItem($line);
@@ -211,7 +211,7 @@ class IpCheck
 		
 		foreach($this->_data['deny'] as $namespace => &$lines) {
 			if (!isset($this->_deny [$namespace])) {
-				$this->_deny [$namespace] = array();
+				$this->_deny [$namespace] = [];
 			} 
 			foreach($lines as &$line) {
 				$item = $this->_processItem($line);
