@@ -131,7 +131,7 @@ class Model extends BaseHelper
                     {
                         name: '".$field."',
                         type: 'date',
-                        DateFormat: '".$format."',
+                        dateFormat: '".$format."',
                     }";
 
         return $columnCode;
