@@ -104,6 +104,18 @@ abstract class Column implements ColumnInterface
 	 * @var string
 	 */
 	protected $_actionParam = false;
+
+    /**
+     * Use table alias for table field
+     * @var bool
+     */
+    protected $_useTableAlias = true;
+
+    /**
+     * Use correlaton name
+     * @var bool
+     */
+    protected $_useCorrelationTableName = false;
 	
 	/**
 	 * Constructor 
@@ -426,4 +438,28 @@ abstract class Column implements ColumnInterface
 		
 		return $this;
 	}
+
+    /**
+     * Set flag to add table alias
+     *
+     * @param boolean $useTableAlias
+     * @return \Engine\Crud\Grid\Column
+     */
+    public function useTableAlias($useTableAlias = true)
+    {
+        $this->_useTableAlias = $useTableAlias;
+        return $this;
+    }
+
+    /**
+     * Set flag to add correlation table alias
+     *
+     * @param boolean $useCorrelationTableName
+     * @return \Engine\Crud\Grid\Column
+     */
+    public function useCorrelationTableName($useCorrelationTableName = true)
+    {
+        $this->_useCorrelationTableName = $useCorrelationTableName;
+        return $this;
+    }
 }

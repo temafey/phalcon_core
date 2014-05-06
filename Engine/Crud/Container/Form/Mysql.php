@@ -103,11 +103,11 @@ class Mysql extends Container implements FormContainer
     public function setJoinModels(array $models)
     {
         foreach ($models as $model) {
-            if (!($model instanceof Model)) {
-                throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
-            }
             if (!is_object($model)) {
                 $model = new $model;
+            }
+            if (!($model instanceof Model)) {
+                throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
             }
             $key = $model->getSource();
             $this->_joins[$key] = $model;
@@ -121,7 +121,7 @@ class Mysql extends Container implements FormContainer
      *
      * @param string $model
      * @throws \Exception
-     * @return Crud\Container\Grid\Mysql
+     * @return \Crud\Container\Grid\Mysql
      */
     public function addJoin($model)
     {

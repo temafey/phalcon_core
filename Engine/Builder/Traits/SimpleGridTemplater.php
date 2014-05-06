@@ -14,12 +14,9 @@ trait SimpleGridTemplater {
     public $templateSimpleGridFileCode = '<?php
 %s
 
-use Engine\Crud\Grid\AbstractGrid as Grid,
-    Engine\Crud\Grid\Column,
-    Engine\Crud\Grid\Filter,
-    Engine\Crud\Grid\Filter\Field,
-    Engine\Filter\SearchFilterInterface as Criteria;
+%s;
 
+%s
 class %s extends %s
 {
 %s
@@ -34,7 +31,15 @@ class %s extends %s
     protected \$_containerModel = '%s';
 ";
 
-    public $templateSimpleGridExtends = '\\Engine\\Crud\\Grid';
+    public $templateSimpleGridExtends = 'Grid';
+
+    public $templateSimpleUseGrid = array(
+        'Engine\Crud\Grid',
+        'Engine\Crud\Grid\Column',
+        'Engine\Crud\Grid\Filter',
+        'Engine\Crud\Grid\Filter\Field',
+        'Criteria' => 'Engine\Filter\SearchFilterInterface'
+    );
 
     public $templateSimpleGridInitColumns = "
     /**
@@ -68,10 +73,13 @@ class %s extends %s
 		 ], null, 'get');
     }
 ";
+    public $templateShortGridColumn = "\t\t\t'%s' => new Column\\%s('%s'),\n";
 
     public $templateSimpleGridColumn = "\t\t\t'%s' => new Column\\%s('%s', '%s'),\n";
 
     public $templateSimpleGridComplexColumn = "\t\t\t'%s' => new Column\\%s('%s', '%s', %s),\n";
+
+    public $templateShortGridFilterColumn = "\t\t\t'%s' => new Field\\%s('%s'),\n";
 
     public $templateSimpleGridFilterColumn = "\t\t\t'%s' => new Field\\%s('%s', '%s'),\n";
 

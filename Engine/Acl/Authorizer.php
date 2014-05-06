@@ -80,7 +80,6 @@ class Authorizer extends Component
             $this->_message = 'Wrong user credentials';
             return false;
         }
-
         // Check the password
         if (!$this->security->checkHash($credentials['password'], $user->getPasswordCredential())) {
             $this->_message = 'Wrong user credentials';
@@ -108,10 +107,16 @@ class Authorizer extends Component
      */
     public function checkRememberMe($crypt)
     {
-        $value = $this->crypt->decryptBase64($crypt);
+        try {
+            $value = $this->crypt->decryptBase64($crypt);
+        } catch (\Exception $e) {
+            $this->_message = 'Wrong auth params';
+            return false;
+        }
+
         $userId = $this->cookies->get($this->_key)->getValue();
         if ($value == $userId) {
-            $user = forward_static_call([$this->_model, 'findUserById'], $value);
+            $user = forward_static_call([$this->_model, 'findUserById'], trim($value));
             if ($user) {
                 return true;
             }
@@ -246,7 +251,7 @@ class Authorizer extends Component
             if ($this->hasRememberMe()) {
                 $this->loginWithRememberMe();
                 if ($this->_viewer->getId()) {
-                    $this->_viewer->getRole();die;
+                    $this->_viewer->getRole();
                     $result = true;
                 }
             }

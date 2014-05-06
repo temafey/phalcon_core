@@ -6,17 +6,6 @@ namespace Engine\Acl\Tools;
 
 trait User
 {
-    /**
-     * Login model name
-     * @var string
-     */
-    protected static $_loginCredential = 'email';
-
-    /**
-     * Password model name
-     * @var string
-     */
-    protected static $_passwordCredential = 'password';
 
     /**
      * Return user by auth credentials

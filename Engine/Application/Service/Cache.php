@@ -23,7 +23,7 @@ class Cache extends AbstractService
         $di = $this->getDi();
         $eventsManager = $this->getEventsManager();
 
-        if (!$this->_config->application->debug) {
+        if (!$this->_config->application->debug || $this->_config->application->useCachingInDebugMode) {
             $cacheAdapter = $this->_getBackendCacheAdapter($this->_config->application->cache->data->adapter);
             if (!$cacheAdapter) {
                 throw new \Engine\Exception("Cache adapter '{$this->_config->application->cache->data->adapter}' not exists!");

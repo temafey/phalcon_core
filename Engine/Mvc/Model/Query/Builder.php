@@ -4,7 +4,8 @@
  */
 namespace Engine\Mvc\Model\Query;
 
-use Phalcon\Mvc\Model\Query\Builder as PhBuilder;
+use Phalcon\Mvc\Model\Query\Builder as PhBuilder,
+    Engine\Mvc\Model\Query as EnQuery;
 
 /**
  * Class Builder
@@ -82,9 +83,10 @@ class Builder extends PhBuilder
      * @param string $column
      * @param string $alias
      * @param boolean $useTableAlias
+     * @param boolean $useCorrelationName
      * @return \Engine\Mvc\Model\Query\Builder
      */
-    public function setColumn($column, $alias = null, $useTableAlias = true)
+    public function setColumn($column, $alias = null, $useTableAlias = true, $useCorrelationName = false)
     {
         if (!is_string($column)) {
             throw new \Engine\Exception("Column value should be only string data type");
@@ -97,8 +99,13 @@ class Builder extends PhBuilder
         }
 
         if ($useTableAlias) {
-            $column = $this->getAlias().".".$column;
+            if ($useCorrelationName) {
+                $column = $this->getCorrelationName($column).".".$column;
+            } else {
+                $column = $this->getAlias().".".$column;
+            }
         }
+
         if ($alias) {
             $this->_columns[$alias] = $column;
         } else {
@@ -156,7 +163,13 @@ class Builder extends PhBuilder
         }
         $this->_columns = [];
         foreach ($columns as $alias => $column) {
-            $this->setColumn($column, $alias);
+            if (is_array($column)) {
+                $useTableAlias = (isset($column['useTableAlias'])) ? $column['useTableAlias'] : true;
+                $useCorrelationName = (isset($column['useCorrelationName'])) ? $column['useCorrelationName'] : false;
+                $this->setColumn($column[0], $alias, $useTableAlias, $useCorrelationName);
+            } else {
+                $this->setColumn($column, $alias);
+            }
         }
 
         return $this;
@@ -365,7 +378,20 @@ class Builder extends PhBuilder
             }
         }
 
-        return current($correlationNameKeys);
+        $correlationNameKeys = $this->_joins;
+        if (!$correlationNameKeys) {
+            return $this->getAlias();
+        }
+        $modelName = $this->getFrom();
+        foreach ($correlationNameKeys as $modelName) {
+            $model = new $modelName[0];
+            $cols = $model->getAttributes();
+            if (in_array($col, $cols)) {
+                return $modelName[2];
+            }
+        }
+
+        return $this->getAlias();
     }
 
     /**
@@ -415,5 +441,17 @@ class Builder extends PhBuilder
         }
 
         return $this;
+    }
+
+    /**
+     * Returns the query built
+     *
+     * @return \Phalcon\Mvc\Model\Query
+     */
+    public function getQuery()
+    {
+        $query = new EnQuery($this->getPhql());
+        $query->setDI($this->getDI());
+        return $query;
     }
 }

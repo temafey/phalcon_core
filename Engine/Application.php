@@ -86,6 +86,14 @@ abstract class Application extends PhApplication
         $di = $this->_dependencyInjector;
         $config = $this->_config;
 
+        if (isset($this->_config->application)) {
+            if ($this->_config->application->debug) {
+                if (!isset($this->_config->application->useCachingInDebugMode)) {
+                    $this->_config->application->useCachingInDebugMode = false;
+                }
+            }
+        }
+
         $di->set('modules', function () use ($modules) {
             return $modules;
         });

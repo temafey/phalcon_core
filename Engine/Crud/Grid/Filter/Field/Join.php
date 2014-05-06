@@ -155,7 +155,7 @@ class Join extends ArrayToSelect
             $model = $dataSource->getModel();
             $path = ($this->_path) ? $this->_path : $this->_model;
             $relations = $model->getRelationPath($path);
-            $relation = array_shift($relations);
+            $relation = array_pop($relations);
             $this->_name = $relation->getFields();
         }
 

@@ -20,10 +20,10 @@
 
 namespace Engine\Builder;
 
-use Engine\Builder\Script\Color;
-use	Engine\Builder\BuilderException;
-use Engine\Tools\Inflector;
-use Engine\Tools\File;
+use Engine\Builder\Script\Color,
+    Engine\Builder\BuilderException,
+    Engine\Tools\Inflector,
+    Engine\Tools\File;
 
 /**
  * \Phalcon\Builder\Component
@@ -68,12 +68,15 @@ abstract class Component
      */
     protected function _getConfig($path)
 	{
-		foreach (array('app/config/', '../config/') as $configPath) {
-			if (file_exists($path . $configPath."engine.ini")) {
-				return new \Phalcon\Config\Adapter\Ini($path . $configPath."/engine.ini");
+        if ($path) {
+            $path = rtrim(trim($path), "/")."/";
+        }
+		foreach (array('', 'config/', 'app/config/', '../config/') as $configPath) {
+			if (file_exists($path.$configPath."engine.ini")) {
+				return new \Phalcon\Config\Adapter\Ini($path.$configPath."/engine.ini");
 			} else {
-				if (file_exists($path . $configPath. "engine.php")) {
-					$config = include($path . $configPath . "engine.php");
+				if (file_exists($path.$configPath."engine.php")) {
+					$config = include($path.$configPath."engine.php");
 					return $config;
 				}
 			}
@@ -115,7 +118,15 @@ abstract class Component
 
         // If model already exist throw exception
         if (file_exists($this->_builderOptions['path'])) {
-            if (!$this->_options['force']) {
+            if (!array_key_exists('force', $this->_options) || !$this->_options['force']) {
+                if (array_key_exists('forceContinue', $this->_options) && $this->_options['forceContinue']) {
+                    print Color::colorize(
+                            'The model file "' . $this->_builderOptions['path'] .
+                            '" already exists in models dir',
+                            Color::FG_YELLOW
+                        ) . PHP_EOL;
+                    return false;
+                }
                 throw new BuilderException(
                     "The model file '" . $this->_builderOptions['path'] .
                     "' already exists in models dir"
@@ -130,7 +141,7 @@ abstract class Component
         if (isset($config->database->adapter)) {
             $adapter = $config->database->adapter;
         } else {
-            $adapter = 'Mysql';
+            $adapter = 'pdo\Mysql';
         }
         // Get database configs
         if (is_object($config->database)) {
@@ -138,12 +149,14 @@ abstract class Component
         } else {
             $configArray = $config->database;
         }
-        $adapterName = 'Phalcon\Db\Adapter\Pdo\\' . $adapter;
+        $adapterName = 'Phalcon\Db\Adapter\\'.ucfirst($adapter);
         unset($configArray['adapter']);
         // Open Connection
         $db = new $adapterName($configArray);
 
         $this->db = $db;
+
+        return true;
     }
 
     /**
@@ -184,7 +197,7 @@ abstract class Component
 	 */
 	public function isSupportedAdapter($adapter)
 	{
-		if (!class_exists('\Phalcon\Db\Adapter\Pdo\\' . $adapter)) {
+		if (!class_exists('\Phalcon\Db\Adapter\\' . ucfirst($adapter))) {
 			throw new BuilderException("Adapter $adapter is not supported");
 		}
 	}
@@ -205,7 +218,9 @@ abstract class Component
     {
         $moduleName = $this->getModuleNameByTableName($table);
         $className = $this->getclassName($table);
-        $modelNamespace = $this->getNameSpace($table, $type, $buildType);
+        list($modelNamespace, $namespaceClear) = $this->getNameSpace($table, $type, $buildType);
+        $useComponents = $this->getUseComponennts($type, $buildType);
+        $classHead = $this->getClassHead($table, $type, $buildType);
 
         if ($type === self::OPTION_MODEL) {
             $path = $config->builder->modules->{$moduleName}->modelsDir;
@@ -222,8 +237,10 @@ abstract class Component
         $this->_builderOptions = array(
             'moduleName' => $moduleName,
             'className' => $className,
-            'namespace' => 'namespace '.$modelNamespace.';',
-            'namespaceClear' => $modelNamespace,
+            'namespace' => $modelNamespace,
+            'use'       => $useComponents,
+            'head'      => $classHead,
+            'namespaceClear' => $namespaceClear,
             'path' => $modelPath
         );
 
@@ -274,7 +291,10 @@ abstract class Component
     protected function getAlias($str)
     {
         $pieces = explode('_', strtolower($str));
-        array_shift($pieces);
+        if (count($pieces) > 1) {
+            array_shift($pieces);
+        }
+
         return implode('_', $pieces);
     }
 
@@ -283,6 +303,7 @@ abstract class Component
         $pieces = explode('_', $table);
         array_shift($pieces);
 
+        $dirPath = rtrim(trim($dirPath), "/")."/";
         switch($buildType) {
             case self::TYPE_EXTJS: $dirPath .= 'Extjs/';
                 break;
@@ -291,7 +312,6 @@ abstract class Component
         if (!file_exists($dirPath)) {
             File::rmkdir($dirPath, 0755, true);
         }
-
         if (count($pieces) > 1) {
             $modelName = ucfirst(array_pop($pieces));
 
@@ -305,17 +325,29 @@ abstract class Component
             if (!file_exists($path)) {
                 File::rmkdir($path, 0755, true);
             }
-
+            $path = rtrim(trim($path), "/")."/";
             $modelsDirPath = $path . $modelName . '.php';
-        }else {
+        } else {
             $modelsDirPath = $dirPath . $this->getClassName($table) . '.php';
         }
 
         return $modelsDirPath;
     }
 
+    /**
+     * Return class namespace
+     *
+     * @param string $table
+     * @param string $type
+     * @param int $builderType
+     * @return array
+     * @throws \InvalidArgumentException
+     */
     protected function getNameSpace($table, $type, $builderType = self::TYPE_SIMPLE)
     {
+        $namespace = '';
+        $namespaceClear = '';
+
         $pieces = explode('_', $table);
         $moduleName = array_shift($pieces);
         array_pop($pieces);
@@ -344,7 +376,104 @@ abstract class Component
             }
         }
 
-        return $namespace;
+        if ($namespace) {
+            $namespaceClear = $namespace;
+            $namespace = "/**\n * @namespace\n */\nnamespace ".$namespace.";";
+        }
+
+        return array($namespace, $namespaceClear);
+    }
+
+    /**
+     * Return class head section
+     *
+     * @param string $table
+     * @param string $type
+     * @param int $builderType
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    protected function getClassHead($table, $type, $builderType = self::TYPE_SIMPLE)
+    {
+        $pieces = explode('_', $table);
+        $fullTemplate = false;
+        $template = (count($pieces) == 2) ? $this->templateClassHeadSimple : $this->templateClassHeadFull;
+        $packageName = ucfirst(array_shift($pieces));
+        $className = ucfirst(array_pop($pieces));
+        if ($pieces) {
+            $subPackageName = ucfirst(array_pop($pieces));
+            $fullTemplate = true;
+        }
+
+        switch($type) {
+            case self::OPTION_MODEL: $categoryName = 'Model';
+                break;
+            case self::OPTION_FORM: $categoryName = 'Form';
+                break;
+            case self::OPTION_GRID: $categoryName = 'Grid';
+                break;
+            default: throw new \InvalidArgumentException('Invalid build type');
+            break;
+        }
+
+        $head = ($fullTemplate)
+            ?
+        sprintf(
+            $this->templateClassHeadFull,
+            $className,
+            $categoryName,
+            $packageName,
+            $subPackageName
+        )
+            :
+        sprintf(
+            $this->templateClassHeadSimple,
+            $className,
+            $categoryName,
+            $packageName
+        );
+
+        return $head;
+    }
+
+    /**
+     * Return all class components for 'use' class section
+     *
+     * @param $type
+     * @param int $builderType
+     * @return string
+     */
+    protected function getUseComponennts($type, $builderType = self::TYPE_SIMPLE)
+    {
+        $useProperty = 'templateSimpleUse';
+        switch($type) {
+            case self::OPTION_MODEL: $useProperty .= 'Model';
+                break;
+            case self::OPTION_FORM: $useProperty .= 'Form';
+                break;
+            case self::OPTION_GRID: $useProperty .= 'Grid';
+                break;
+            default: throw new \InvalidArgumentException('Invalid build type');
+            break;
+        }
+        switch($builderType) {
+            case self::TYPE_EXTJS: $useProperty .= 'Extjs';
+                break;
+        }
+
+        $use = [];
+        foreach ($this->{$useProperty} as $alias => $namespace) {
+            $use[] = (!is_numeric($alias)) ? $namespace." as ".$alias : $namespace;
+        }
+
+        if (!$use) {
+            return '';
+        }
+
+        $delimeter = ",
+    ";
+
+        return "use ".implode($delimeter, $use).";";
     }
 
     protected function isEnum($table, $filed)

@@ -50,7 +50,6 @@ class Service implements \Phalcon\DI\InjectionAwareInterface
                 $cacheData = $this->_di->get('cacheData');
                 $acl = $cacheData->get(self::ACL_CACHE_KEY);
             }
-            $acl = null;
             if ($acl === null) {
                 $acl = new AclMemory();
                 $acl->setDefaultAction(PhAcl::DENY);

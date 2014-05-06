@@ -287,6 +287,76 @@ class Filter
         return $this->_fields;
     }
 
+
+
+    /**
+     * Return if exists Field by form field key
+     *
+     * @param string $name
+     * @return \Engine\Crud\Grid\Filter\Field
+     */
+    public function getFieldByKey($key)
+    {
+        if (isset($this->_fields[$key])) {
+            return $this->_fields[$key];
+        }
+
+        return false;
+    }
+
+    public function getId()
+    {
+        return $this->_id;
+    }
+
+    /**
+     * Return if exists form field by field name
+     *
+     * @param string $name
+     * @return \Engine\Crud\Grid\Filter\Field
+     */
+    public function getFieldByName($name)
+    {
+        foreach ($this->_fields as $key => $field) {
+            $c_name = $field->getName();
+            if ($c_name === $name) {
+                return $field;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Return if exists field key by name
+     *
+     * @param string $name
+     * @return string
+     */
+    public function getFieldKeyByName($name)
+    {
+        if ($field = $this->getFieldByName($name)) {
+            return $field->getKey();
+        }
+
+        return false;
+    }
+
+    /**
+     * Return if exists field name by key
+     *
+     * @param string $key
+     * @return string
+     */
+    public function getFieldNameByKey($key)
+    {
+        if (isset($this->_fields[$key])) {
+            return $this->_fields[$key]->getName();
+        }
+
+        return false;
+    }
+
     /**
      * Return grid
      *
