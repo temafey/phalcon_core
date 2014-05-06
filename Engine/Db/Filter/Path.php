@@ -4,7 +4,8 @@
  */
 namespace Engine\Db\Filter;
 
-use \Engine\Mvc\Model\Query\Builder;
+use Engine\Mvc\Model\Query\Builder,
+    Phalcon\Mvc\Model\Relation;
 
 /**
  * Join path filter
@@ -13,31 +14,37 @@ use \Engine\Mvc\Model\Query\Builder;
  * @package    Db
  * @subpackage Filter
  */
-class Path extends AbstractFilter 
+class Path extends AbstractFilter
 {
-	/**
-	 * Join path
-	 * @var string|arrat
-	 */
-	protected $_path;
-	
-	/**
-	 * Filter
-	 * @var \Engine\Db\Filter\AbstractFilter
-	 */
-	protected $_filter;
+    /**
+     * Join path
+     * @var string|array
+     */
+    protected $_path;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param  $path
-	 * @param AbstractFilter $filter
-	 */
-	public function __construct($path, AbstractFilter $filter) 
-	{
-		$this->_path = $path;
-		$this->_filter = $filter;
-	}
+    /**
+     * Filter
+     * @var \Engine\Db\Filter\AbstractFilter
+     */
+    protected $_filter;
+
+    /**
+     * Build query with all joins
+     * @var bool
+     */
+    protected $_fullJoin = true;
+
+    /**
+     * Constructor
+     *
+     * @param array $path
+     * @param \Engine\Db\Filter\AbstractFilter $filter
+     */
+    public function __construct($path, AbstractFilter $filter)
+    {
+        $this->_path = $path;
+        $this->_filter = $filter;
+    }
 
     /**
      * Apply filter to query builder
@@ -45,47 +52,74 @@ class Path extends AbstractFilter
      * @param \Engine\Mvc\Model\Query\Builder $dataSource
      * @return string
      */
-	public function filterWhere(Builder $dataSource)
-	{
-		if (!$this->_path) {
-			return $this->_filter->filterWhere($dataSource);
-		}
+    public function filterWhere(Builder $dataSource)
+    {
+        if (!$this->_path) {
+            return $this->_filter->filterWhere($dataSource);
+        }
         $model = $dataSource->getModel();
-		$joinPath = $model->getRelationPath($this->_path);
-		$last = end($joinPath);
-		$dataSource->joinPath($joinPath);
-		if ($joinPath) {
-			$relation = array_shift($joinPath);
+        $joinPath = $model->getRelationPath($this->_path);
 
-            $refModel = $relation->getReferencedModel();
-            $refModel = new $refModel;
-            $fields = $relation->getFields();
-            $refFields = $relation->getReferencedFields();
-            $options = $relation->getOptions();
+        if ($joinPath) {
+            if ($this->_fullJoin) {
+                $dataSource->joinPath($joinPath);
+            } else {
+                $relation = array_shift($joinPath);
+                if (!$ids = $this->_processJoins($relation, $joinPath)) {
+                    return false;
+                }
+                $fields = $relation->getFields();
+                $alias = $dataSource->getCorrelationName($fields);
 
-			$dataSourceIn = $refModel->queryBuilder();
-			$aliasIn = $dataSourceIn->columnsJoinOne($joinPath);
-			$dataSourceIn->setColumn($refFields);
-			if ($joinPath) {
-				throw new \Engine\Exception('Could not filter embedded one-to-many rule: '.reset(array_keys($joinPath)));
-			}
-			$where = $this->_filter->filterWhere($dataSourceIn);
-            $dataSourceIn->andWhere($where);
-            $dataSourceIn->columnsId();
-			$alias = $dataSource->getCorrelationName($fields);
-            $result = $dataSourceIn->getQuery()->execute()->toArray();
-            if (count($result) == 0) {
+                return "(".$alias.".".$fields." IN (".implode($ids, ",")."))";
+            }
+        }
+
+        return $this->_filter->filterWhere($dataSource);
+    }
+
+    /**
+      Process all search query joins
+     *
+     * @param \Phalcon\Mvc\Model\Relation $relation
+     * @param array $joinPath
+     * @return array|bool
+     */
+    protected function _processJoins(Relation $relation, array $joinPath)
+    {
+        $refModel = $relation->getReferencedModel();
+        $refModel = new $refModel;
+        $refFields = $relation->getReferencedFields();
+        $options = $relation->getOptions();
+
+        $dataSourceIn = $refModel->queryBuilder();
+        $dataSourceIn->setColumn($refFields);
+        $relation = array_shift($joinPath);
+
+        if ($joinPath) {
+            if (!$ids = $this->_processJoins($relation, $joinPath)) {
                 return false;
             }
-            $ids = [];
-            foreach ($result as $row) {
-                $ids[] = $row['id'];
-            }
+            $fields = $relation->getFields();
+            $where = "(".$fields." IN (".implode($ids, ",")."))";
+        } else {
+            //$dataSourceIn->joinPath($joinPath);
+            $where = $this->_filter->filterWhere($dataSourceIn);
+        }
+        $dataSourceIn->andWhere($where);
+        //$dataSourceIn->columnsId();
+        $result = $dataSourceIn->getQuery()->execute()->toArray();
 
-			return "(".$alias.".".$fields." IN (".implode($ids, ",")."))";
-		}
+        if (count($result) == 0) {
+            return false;
+        }
+        $ids = [];
+        $adapter =  $dataSourceIn->getModel()->getReadConnection();
+        foreach ($result as $row) {
+            $ids[] = $adapter->escapeString($row[$refFields]);
+        }
 
-		return $this->_filter->filterWhere($dataSource);
-	}
+        return $ids;
+    }
 
 }

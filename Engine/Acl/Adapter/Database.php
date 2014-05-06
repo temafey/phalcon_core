@@ -489,7 +489,7 @@ class Database extends Adapter implements AdapterInterface
 	public function isAllowed($roleName, $resourceName, $accessName)
 	{
         $exists = $this->_db->fetchOne('SELECT id FROM '.$this->_options['roles']." WHERE name = ?", null, [$roleName]);
-        if (!$exists[0]) {
+        if (!array_key_exists(0, $exists)) {
             throw new \Engine\Exception("Role '".$roleName."' does not exist in ACL");
         }
         $roleId = $exists[0];

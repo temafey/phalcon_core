@@ -69,7 +69,7 @@ class Combobox extends BaseHelper
         $key = $field->getKey();
         $grid = $field->getGridFilter()->getGrid();
         $gridKey = $grid->getKey();
-        $url = $grid->getAction()."/".$key."/options";
+        $url = $grid->getAction()."/".$key."/filter-options";
 
 
         $store = "new Ext.data.Store({

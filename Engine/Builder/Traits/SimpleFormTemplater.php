@@ -11,7 +11,12 @@ namespace Engine\Builder\Traits;
 
 trait SimpleFormTemplater {
 
-    public $templateSimpleFormExtends = '\\Engine\\Crud\\Form';
+    public $templateSimpleFormExtends = 'Form';
+
+    public $templateSimpleUseForm = array(
+        'Engine\Crud\Form',
+        'Engine\Crud\Form\Field'
+    );
 
     public $templateSimpleFormTitle = "
     protected \$_title = '%s';
@@ -26,6 +31,11 @@ trait SimpleFormTemplater {
 ";
 
     public $templateSimpleFormInitFields = "
+    /**
+     * Initialize form fields
+     *
+     * @return void
+     */
     protected function _initFields()
     {
         \$this->_fields = [
@@ -33,9 +43,10 @@ trait SimpleFormTemplater {
         ];
     }
 ";
+    public $templateShortFormSimpleField = "\t\t\t'%s' => new Field\\%s('%s'),\n";
 
-    public $templateSimpleFormSimpleField = "\t\t\t'%s' => new \\Engine\\Crud\\Form\\Field\\%s('%s', '%s'),\n";
+    public $templateSimpleFormSimpleField = "\t\t\t'%s' => new Field\\%s('%s', '%s'),\n";
 
-    public $templateSimpleFormComplexField = "\t\t\t'%s' => new \\Engine\\Crud\\Form\\Field\\%s('%s', '%s', %s),\n";
+    public $templateSimpleFormComplexField = "\t\t\t'%s' => new Field\\%s('%s', '%s', %s),\n";
 
 } 

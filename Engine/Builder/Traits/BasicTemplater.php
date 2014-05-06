@@ -8,7 +8,9 @@ trait BasicTemplater {
     public $templateClassSimple = "<?php
 %s
 
+%s
 
+%s
 class %s
 {
 %s
@@ -18,7 +20,9 @@ class %s
     public $templateClassSimpleWithExtend = "<?php
 %s
 
+%s
 
+%s
 class %s extends %s
 {
 %s
@@ -29,7 +33,9 @@ class %s extends %s
 %s
 %s
 
+%s
 
+%s
 class %s extends %s
 {
 %s
@@ -53,5 +59,20 @@ class %s extends %s
      */
     %s \$%s = %s;
 ";
+
+    public $templateClassHeadSimple = "/**
+ * Class %s
+ *
+ * @category    %s
+ * @package     %s
+ */";
+
+    public $templateClassHeadFull = "/**
+ * Class %s
+ *
+ * @category    %s
+ * @package     %s
+ * @subpackage  %s
+ */";
 
 } 

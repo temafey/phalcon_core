@@ -74,16 +74,17 @@ class Search extends Standart
                     if (!is_array($filterSetting) && !is_array($filterSetting)) {
                         $filterSetting = ((int) $field !== $field) ? [$field => $filterSetting] : [$filterSetting => Criteria::CRITERIA_LIKE];
                     }
-					if (isset($filterSetting['path'])) {
+					if (isset($filterSetting['path']) && $filterSetting['path'] !== null) {
 						$tmp_filters[] = $container->getFilter('path', $filterSetting['path'], $container->getFilter('search', $filterSetting['filters'], $value));
-					} elseif (isset($filterSetting['cache'])) {
-						$cfilter = $container->getFilter('cache', $value, $filterSetting['field'], $filterSetting['cache'], $filterSetting['criteria']);							
+					} elseif (isset($filterSetting['cache']) && $filterSetting['cache'] !== null) {
+						$cfilter = $container->getFilter('cache', $value, $filterSetting['field'], $filterSetting['cache'], $filterSetting['criteria']);
 						if (true === $cfilter->isCached()){
 							$tmp_filters[] = $cfilter;
-							break; 
+							break;
 						}
 					} else {
-                        $tmp_filters[] = $container->getFilter('search', $filterSetting, $value);
+                        $credentials = (isset($filterSetting['filters'])) ? $filterSetting['filters'] : $filterSetting;
+                        $tmp_filters[] = $container->getFilter('search', $credentials, $value);
                     }
 				}
 				if (empty($tmp_filters)) {
