@@ -42,10 +42,35 @@ class Controller extends BaseHelper
         $code .= "'".static::getStoreLocalName()."',";
         $code .= "'".static::getStoreName()."',";
         $code .= "'".static::getGridName()."',";
-        $code .= "'".static::getFormName()."',";
         $code .= "'".static::getFilterName()."'";
+        if ($grid->isEditable()) {
+            $code .= ",'".static::getFormName()."'";
+        }
         $code .= "],
         ";
+
+        $additionals = [];
+        if ($grid->isEditable()) {
+            $additionals[] = "
+                {
+                    type: 'form',
+                    controller: '".static::getControllerName()."'
+                }";
+        }
+        foreach ($grid->getAdditionals() as $addional) {
+            $additionals[] = "
+                {
+                    type: '".$addional['type']."',
+                    controller: '".ucfirst($addional['module']).'.controller.'.ucfirst($addional['key'])."',
+                    param: '".$addional['param']."'
+                }";
+        }
+
+        $code .= "
+            additionals: [".implode(",", $additionals)."
+            ],
+        ";
+
         $code .= "
             init: function() {
                 var me = this;
@@ -53,8 +78,12 @@ class Controller extends BaseHelper
                 me.storeLocal = this.getStore('".static::getStoreLocalName()."');
                 me.store = this.getStore('".static::getStoreName()."');
                 me.grid = this.getView('".static::getGridName()."');
-                me.form = this.getView('".static::getFormName()."');
-                me.filter = this.getView('".static::getFilterName()."');
+                ";
+        if ($grid->isEditable()) {
+            $code .= "me.form = this.getView('".static::getFormName()."');
+        ";
+        }
+        $code .= "me.filter = this.getView('".static::getFilterName()."');
                 me.store.addBaseParams(me.baseParams);
                 /*me.storeLocal.addListener('load', function(){
                        me._onPingSuccess();

@@ -26,7 +26,7 @@ trait ExtJsGridTemplater {
      * Content managment system module router prefix
      * @var string
      */
-    protected \$_modulePrefix = 'admin';
+    protected \$_modulePrefix = ADMIN_PREFIX;
 ";
 
     public $templateExtJsGridModuleName = "
