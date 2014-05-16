@@ -276,6 +276,18 @@ abstract class Column implements ColumnInterface
     {
         return ($this->_fieldKey) ? $this->_fieldKey : $this->getKey();
     }
+
+    /**
+     * Set if data can be sort by column
+     *
+     * @param bool $sortable
+     * @return \Engine\Crud\Grid\Column
+     */
+    public function setSortable($sortable)
+    {
+        $this->_isSortable = (bool) $sortable;
+        return $this;
+    }
 	
 	/**
 	 * Check is column sortable.
@@ -287,6 +299,18 @@ abstract class Column implements ColumnInterface
 		return $this->_isSortable;
 	}
 
+    /**
+     * Set if data by column is hidden
+     *
+     * @param bool $hidden
+     * @return \Engine\Crud\Grid\Column
+     */
+    public function setHidden($hidden)
+    {
+        $this->_isHidden = (bool) $hidden;
+        return $this;
+    }
+
 	/**
 	 * Is column hidden.
 	 * 
@@ -296,6 +320,18 @@ abstract class Column implements ColumnInterface
 	{
 		return $this->_isHidden;
 	}
+
+    /**
+     * Set if data by column can be edit
+     *
+     * @param bool $editable
+     * @return \Engine\Crud\Grid\Column
+     */
+    public function setEditable($editable)
+    {
+        $this->_isEditable = (bool) $editable;
+        return $this;
+    }
 
     /**
      * Is column can be editing

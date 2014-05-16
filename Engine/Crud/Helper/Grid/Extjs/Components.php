@@ -23,23 +23,12 @@ class Components extends BaseHelper
 	 */
 	static public function _(Grid $grid)
 	{
-
         $buildStore = $grid->isBuildStore();
 
-        $additionals = [];
-        foreach ($grid->getAdditionals() as $addional) {
-            $additionals[] = "
-                {
-                    type: '".$addional['type']."',
-                    controller: '".ucfirst($addional['module']).'.controller.'.ucfirst($addional['key'])."',
-                    param: '".$addional['param']."'
-                }";
-        }
+
 
         $code = "
             buildStore: ".($buildStore ? 'true' : 'false').",
-            additionals: [".implode(",", $additionals)."
-            ],
 
             initComponent: function() {
                 var me = this;
