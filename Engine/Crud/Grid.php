@@ -90,7 +90,13 @@ abstract class Grid implements
 	 * @var array|string
 	 */
 	protected $_containerJoins = [];
-	
+
+    /**
+     * Grid additionals
+     * @var array
+     */
+    protected $_additionals = [];
+
 	/**
 	 * Filter object.
 	 * @var \Engine\Crud\Grid\Filter
@@ -183,6 +189,12 @@ abstract class Grid implements
 	 */
 	protected $_isCountQuery = true;
 
+    /**
+     * is grid data can be edit
+     * @var bool
+     */
+    protected $_isEditable = true;
+
 	/**
      * Constructor
      *
@@ -264,7 +276,7 @@ abstract class Grid implements
             }
         }
         if (is_string($this->_form)) {
-            $this->_form = new $this->_form;
+            $this->_form = new $this->_form(null, [], $this->_di, $this->_eventsManager);
         }
     }
 	
@@ -316,6 +328,7 @@ abstract class Grid implements
 	 */
 	protected function _setupFilter()
 	{
+        $this->_filter->init($this);
 	}
 	
 	/**
@@ -611,6 +624,38 @@ abstract class Grid implements
     }
 
     /**
+     * Add grid additional
+     *
+     * @param string $type
+     * @param string $module
+     * @param string $key
+     * @param string $param
+     * @return \Engine\Crud\Grid
+     */
+    public function addAdditional($type, $module, $key, $param)
+    {
+        $additional = [
+            'type' => $type,
+            'module' => $module,
+            'key' => $key,
+            'param' => $param
+        ];
+        $this->_additionals[] = $additional;
+
+        return $this;
+    }
+
+    /**
+     * Return grid additionals
+     *
+     * @return array
+     */
+    public function getAdditionals()
+    {
+        return $this->_additionals;
+    }
+
+    /**
      * Return paginate params
      *
      * @return array
@@ -696,6 +741,28 @@ abstract class Grid implements
 	{
 		return $this->_isCountQuery;
 	}
+
+    /**
+     * Set grid data can be edit
+     *
+     * @param bool $editable
+     * @return \Engine\Crud\Grid
+     */
+    public function setEditable($editable)
+    {
+        $this->_isEditable = (bool) $editable;
+        return $this;
+    }
+
+    /**
+     * Is grid data can be edit
+     *
+     * @return mixed
+     */
+    public function isEditable()
+    {
+        return $this->_isEditable;
+    }
 
     /**
      * Set id param

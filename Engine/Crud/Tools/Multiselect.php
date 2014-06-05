@@ -132,9 +132,9 @@ class Multiselect
                     if (is_array($value)) {
                         if (isset($value ['case'])) {
                             $case = self::selectCase($field, $value ['case'], $select->getAlias ());
-                            $select->from(null, array ($field . "_case" => new Zend_Db_Expr($case)));
+                            $select->from(null, array ($field."_case" => new Zend_Db_Expr($case)));
                             unset($fields [$field]);
-                            $fields [$field . "_case"] = $value ['title'];
+                            $fields [$field."_case"] = $value ['title'];
                         }
                     }
                 }
@@ -148,7 +148,7 @@ class Multiselect
             } else {
                 $select->order($category_order);
             }
-            $data = (($result = $model->fetchAll($select)) === null) ? array() : $result->toArray();
+            $data = (($result = $model->fetchAll($select)) === null) ? [] : $result->toArray();
             $options = array ();
             foreach ($data as $item) {
                 if ($item ['id'] === 0)
@@ -159,7 +159,7 @@ class Multiselect
         } else {
             $select->orderNatural ();
             $select->order('name');
-            $data = (($result = $model->fetchAll($select)) === null) ? array() : $result->toArray();
+            $data = (($result = $model->fetchAll($select)) === null) ? [] : $result->toArray();
             $options = array ();
             foreach ($data as $item) {
                 if ($item ['id'] === 0)
@@ -216,13 +216,13 @@ class Multiselect
     static function selectCase($field, $options, $table_name = "") {
 
         if (null !== $table_name) {
-            $field = $table_name . "." . $field;
+            $field = $table_name.".".$field;
         }
-        $select = "(CASE " . $field . " ";
+        $select = "(CASE ".$field." ";
         foreach ($options as $key => $value) {
-            $select .= "WHEN '" . $key . "' THEN '" . $value . "' ";
+            $select .= "WHEN '".$key."' THEN '".$value."' ";
         }
-        $select .= " ELSE " . $field;
+        $select .= " ELSE ".$field;
         $select .= " END)";
 
         return $select;

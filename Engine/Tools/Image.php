@@ -262,7 +262,7 @@ function imagebmp(&$img, $filename = "")
 
 
     // is faster than chr()
-    $arrChr = array();
+    $arrChr = [];
     for($i = 0; $i < 256; $i ++) {
         $arrChr [$i] = chr($i);
     }

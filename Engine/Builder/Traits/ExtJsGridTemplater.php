@@ -11,14 +11,22 @@ namespace Engine\Builder\Traits;
 
 trait ExtJsGridTemplater {
 
-    public $templateExtJsGridExtends = '\\Engine\\Crud\\Grid\\Extjs';
+    public $templateExtJsGridExtends = 'Grid';
+
+    public $templateSimpleUseGridExtjs = array(
+        'Grid' => 'Engine\Crud\Grid\Extjs',
+        'Engine\Crud\Grid\Column',
+        'Filter' => 'Engine\Crud\Grid\Filter\Extjs',
+        'Engine\Crud\Grid\Filter\Field',
+        'Criteria' => 'Engine\Filter\SearchFilterInterface'
+    );
 
     public $templateExtJsGridModulePrefix = "
     /**
      * Content managment system module router prefix
      * @var string
      */
-    protected \$_modulePrefix = 'admin';
+    protected \$_modulePrefix = ADMIN_PREFIX;
 ";
 
     public $templateExtJsGridModuleName = "

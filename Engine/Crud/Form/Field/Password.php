@@ -4,7 +4,8 @@
  */
 namespace Engine\Crud\Form\Field;
 
-use Engine\Crud\Form\Field;
+use Engine\Crud\Form\Field,
+    Phalcon\Security;
 
 /**
  * Phone field
@@ -20,6 +21,11 @@ class Password extends Field
      * @var string
      */
 	protected $_type = 'password';
+
+    /**
+     * @var \Phalcon\Secutiry
+     */
+    protected $_security;
 
     /**
      * Crypt type
@@ -42,9 +48,10 @@ class Password extends Field
     /**
      * @param string $label
      * @param string $name
-     * @param string $description
-     * @param int $length
+     * @param \Phalcon\Security $security
      * @param string $keyTemplate
+     * @param int $length
+     * @param string $description
      * @param string $cryptType
      * @param bool $required
      * @param bool $notEdit
@@ -53,6 +60,7 @@ class Password extends Field
     public function __construct(
         $label = null,
         $name = null,
+        Security $security = null,
         $keyTemplate = '{name}',
         $length = 8,
         $description = null,
@@ -63,6 +71,7 @@ class Password extends Field
     ) {
 		parent::__construct($label, $name, $description, $required, $notEdit, $width);
 
+        $this->_security = $security;
         $this->_length = (int) $length;
 		$this->_keyTemplate = $keyTemplate;
 		$this->_cryptType = $cryptType;
@@ -83,7 +92,7 @@ class Password extends Field
         $this->_validators[] = [
             'validator' => 'StringLength',
             'options' => [
-                'max' => $this->_length
+                'min' => $this->_length
             ]
         ];
 
@@ -109,8 +118,19 @@ class Password extends Field
         if ($this->_notSave) {
             return false;
         }
+        $value = ($this->_security) ? $this->getHashValue() : $this->getCryptValue();
+        //var_dump($value);die;
+        return ['key' => $this->getName(), 'value' => $value];
+    }
 
-        return ['key' => $this->getName(), 'value' => $this->getCryptValue()];
+    /**
+     * Return hashed password
+     *
+     * @return string
+     */
+    public function getHashValue()
+    {
+        return $this->_security->hash($this->_element->getValue());
     }
 
     /**

@@ -99,6 +99,18 @@ abstract class Form implements
 	 * @var string|object
 	 */
 	protected $_containerModel = null;
+
+    /**
+     * Container condition
+     * @var array|string
+     */
+    protected $_containerConditions = null;
+
+    /**
+     * Container joins
+     * @var array|string
+     */
+    protected $_containerJoins = [];
 	
 	/**
 	 * Filter params
@@ -150,7 +162,7 @@ abstract class Form implements
      * @param \Phalcon\DiInterface $di
      * @param \Phalcon\Events\ManagerInterface $eventsManager
      */
-    final public function __construct(
+    public function __construct(
         $id = null,
         array $params = [],
         \Phalcon\DiInterface $di = null,
@@ -191,11 +203,15 @@ abstract class Form implements
 		if (null !== $this->_container) {
 			$config = [];
 			$config['container'] = $this->_container;
-			$this->_container = Container::factory($this, $config);
+            $config['conditions'] = $this->_containerConditions;
+            $config['joins'] = $this->_containerJoins;
+            $this->_container = Container::factory($this, $config);
 		} else {
 			$config = [];
 			$config['adapter'] = (null === $this->_containerAdapter) ? static::DEFAULT_CONTAINER : $this->_containerAdapter;
-			$config['model'] = $this->_containerModel; 
+			$config['model'] = $this->_containerModel;
+            $config['conditions'] = $this->_containerConditions;
+            $config['joins'] = $this->_containerJoins;
 			$this->_container = Container::factory($this, $config);
 		}
 	}
@@ -275,7 +291,7 @@ abstract class Form implements
     			$elements = [$elements];
     		}
     		foreach ($elements as $element) {
-    			if(!($element instanceof \Phalcon\Forms\Element)) { 
+    			if (!($element instanceof \Phalcon\Forms\Element)) { 
     				throw new \Engine\Exception('Element not instance if \Phalcon\Forms\Element');
     			}
     			$fieldNames[$key] = $field->getName();
@@ -344,20 +360,20 @@ abstract class Form implements
 			/*if ($field instanceof Field\TranslationText) {
 				$values = false;
 				$key = $field->getKey();
-				if(isset($data[$key]) && is_array($data[$key])) {
+				if (isset($data[$key]) && is_array($data[$key])) {
 					$values = $data[$key];
 				} else {
 					$names = $field->getNames();
 					foreach ($names as $code => $name) {					
-						if(isset($data[$name])) {
-							if($values === false) {
+						if (isset($data[$name])) {
+							if ($values === false) {
 								$values = [];
 							}
 							$values[$code] = $data[$name];
 						}
 					}
 				}
-				if($values === false && $this->_id === null) {
+				if ($values === false && $this->_id === null) {
 					continue;
 				}
 				$field->setValue($values);
@@ -428,7 +444,7 @@ abstract class Form implements
 	public function getRenderData() 
 	{
 		$data = [];
-		foreach ($this->_fields as $key => $field){
+		foreach ($this->_fields as $key => $field) {
 			$data[$key] = $field->getRenderValue();
 		}
 		$data = $data = array_merge($this->_addData, $data);
@@ -590,13 +606,23 @@ abstract class Form implements
 	        throw new \Engine\Exception('Form not init!');
 	    }
 
-        if (!empty($data)) {
-            if ($validate) {
-                if(!$this->isValid($data)) {
-                    return ['error' => 'Data not valid'];
+        if (empty($data)) {
+            $data = $this->getData();
+        }
+
+        if ($validate) {
+            if (!$this->isValid($data)) {
+                $messages = [];
+                foreach ($this->_form->getMessages() as $message) {
+                    /*$result = [];
+                    $result[] = "Message: ".$message->getMessage();
+                    $result[] = "Field: ".$message->getField();
+                    $result[] = "Type: ".$message->getType();
+                    $messages[] = implode (", ", $result);*/
+                    $messages[] = $message->getMessage();
                 }
+                return ['error' => $messages];
             }
-            $this->setData($data);
         }
 
 		$this->_preSave();
@@ -610,8 +636,8 @@ abstract class Form implements
 				$alter[] = $key;
 				continue;
 			}
-            /*if($field instanceof Field\TranslationText) {
-                if(!isset($saveData['translations'])) {
+            /*if ($field instanceof Field\TranslationText) {
+                if (!isset($saveData['translations'])) {
                     $saveData['translations'] = [];
                 }
                 $saveData['translations'][$d['data']['key']] = $d['data']['value'];
@@ -678,10 +704,10 @@ abstract class Form implements
 		foreach ($this->_fields as $field) {
 			$field->postSaveAction($data);
 		}
-		if($this->_isInsertData) {
+		if ($this->_isInsertData) {
 		    $this->afterInsert();
 		}
-	    if($this->_isUpdateData) {
+	    if ($this->_isUpdateData) {
 		    $this->afterUpdate();
 		}
 		$this->postSave();
@@ -690,17 +716,17 @@ abstract class Form implements
 	/**
 	 * After insert trigger function
 	 */
-	protected function afterInsert(){}
+	protected function afterInsert() {}
 	
 	/**
 	 * After update trigger function
 	 */
-    protected function afterUpdate(){}
+    protected function afterUpdate() {}
     
     /**
 	 * After save trigger function
 	 */
-    protected function postSave(){}
+    protected function postSave() {}
 	
     /**
      * Update some field
@@ -712,7 +738,7 @@ abstract class Form implements
 	public function update($id, array $data) 
 	{
 		$valid = true;
-		$errors = array ();
+		$errors = [];
 		foreach ($data as $name => $value) {
 			$element = $this->getElement($name);
 			if (! $element) {
@@ -721,17 +747,26 @@ abstract class Form implements
 			}
 			if ($element->isValid($value) !== true) {
 				$valid = false;
-				$errors[$name] = implode (",", $element->getMessages());
+                $messages = [];
+                foreach ($element->getMessages() as $message) {
+                    /*$result = [];
+                    $result[] = "Message: ".$message->getMessage();
+                    $result[] = "Field: ".$message->getField();
+                    $result[] = "Type: ".$message->getType();
+                    $messages[] = implode (", ", $result);*/
+                    $messages[] = $message->getMessage();
+                }
+				$errors[$name] = implode ("; ", $messages);
 			} else {
 				$field = $this->getName($name);
 				$field->setValue($value);
 				$d = $field->getSaveData();
-				if (! $d) {
-					$alter [] = $name;
+				if (!$d) {
+					$alter[] = $name;
 					continue;
 				}
-				if ($d ['model'] == 'default') {
-					$data [$d ['data'] ['key']] = $d ['data'] ['value'];
+				if ($d['model'] == 'default') {
+					$data[$d['data']['key']] = $d['data']['value'];
 				}
 			}
 		}
@@ -740,7 +775,7 @@ abstract class Form implements
 			$result = $this->_update($id, $data);			
 			return ($result === 0) ? true : $result;
 		} else {
-			return array ('valid' => $errors );
+			return ['error' => $errors];
 		}
 
 	}
@@ -770,7 +805,7 @@ abstract class Form implements
 	 */
 	public function duplicate($ids) 
 	{
-		if(!is_array($ids)) {
+		if (!is_array($ids)) {
 			$ids = [$ids];
 		}
 		$primary = $this->_container->getModel()->getPrimary();
@@ -781,18 +816,18 @@ abstract class Form implements
 		foreach ($ids as &$id) {
 			$data = $form->loadData($id)->getData();	
 			$form->clearData();
-			if(isset($data[$primary])) {			
+			if (isset($data[$primary])) {			
 				unset($data[$primary]);
 			}
-			if($primary !== 'id' && isset($data['id'])) {
+			if ($primary !== 'id' && isset($data['id'])) {
 				unset($data['id']);
 			}
 			$this->fixDuplicateRowData($data);
 			$result = $form->saveData($data);
-			if($result === false) {
+			if ($result === false) {
 				print_r($form->getErrors());die;
 				throw new \Engine\Exception("Data no duplicate with error");
-			} elseif(is_array($result)) {
+			} elseif (is_array($result)) {
 				throw new \Engine\Exception("Data no duplicate with error ".$result['error']);
 			} 
 			$new[] = $result;
@@ -818,7 +853,7 @@ abstract class Form implements
 	 */
 	public function getFieldByKey($key) 
 	{
-		if(isset($this->_fields[$key])){
+		if (isset($this->_fields[$key])) {
 			return $this->_fields[$key];
 		}
 		
@@ -838,7 +873,7 @@ abstract class Form implements
 	 */
 	public function getFieldByName($name) 
 	{
-		foreach ( $this->_fields as $key => $field ) {
+		foreach ($this->_fields as $key => $field) {
 			$c_name = $field->getName();
 			if ($c_name === $name) {
 			    return $field;
@@ -856,7 +891,7 @@ abstract class Form implements
 	 */
 	public function getFieldKeyByName($name) 
 	{
-		if($field = $this->getFieldByName($name)) {
+		if ($field = $this->getFieldByName($name)) {
 			return $field->getKey();
 		}
 		
@@ -871,7 +906,7 @@ abstract class Form implements
 	 */
 	public function getFieldNameByKey($key)
 	{
-		if(isset($this->_fields[$key])) {
+		if (isset($this->_fields[$key])) {
 			return $this->_fields[$key]->getName();
 		}
 		
@@ -900,7 +935,7 @@ abstract class Form implements
 	public function setFields(array $fields)
 	{
 		if (count($fields) == 0) {
-		    return;
+		    return false;
 		}
         $this->_fields = [];
 		$this->addFields($fields);

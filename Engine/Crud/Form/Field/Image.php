@@ -100,10 +100,10 @@ class Image extends File
 	 */
 	public function createImage($image, $label = null, $class = null)
 	{
-		$src = ' src="' . $image . '"';
-		$imageTitle = ($label) ? ' title="' . $label . '"' : '';
-		$imageAlt =  ($label) ? ' alt="' . $label . '"' : '';
-        $class = ($class) ? ' class="' . $class . '"' : '';
+		$src = ' src="'.$image.'"';
+		$imageTitle = ($label) ? ' title="'.$label.'"' : '';
+		$imageAlt =  ($label) ? ' alt="'.$label.'"' : '';
+        $class = ($class) ? ' class="'.$class.'"' : '';
 		$endTag = ' />';
 		// build the element
 		$xhtml = '<img '

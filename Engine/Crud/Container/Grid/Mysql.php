@@ -104,12 +104,12 @@ class Mysql extends Container implements GridContainer
     public function setJoinModels(array $models)
 	{
 	    foreach ($models as $model) {
-		    if (!($model instanceof Model)) {
-	            throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
-	        }
             if (!is_object($model)) {
                 $model = new $model;
             }
+		    if (!($model instanceof Model)) {
+	            throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
+	        }
 	    	$key = $model->getSource();
 	    	$this->_joins[$key] = $model;
 	    }
@@ -126,11 +126,11 @@ class Mysql extends Container implements GridContainer
 	 */
 	public function addJoin($model)
 	{
-		if (!($model instanceof Model)) {
-            throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
-        }
         if (!is_object($model)) {
             $model = new $model;
+        }
+		if (!($model instanceof Model)) {
+            throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
         }
     	$key = $model->getSource();
 		if (isset($this->_joins[$key])) {
@@ -150,16 +150,22 @@ class Mysql extends Container implements GridContainer
 	 * 
 	 * @param string $key
 	 * @param string $name
+     * @param boolean $useTableAlias
+     * @param boolean $useCorrelationTableName
 	 * @return \Engine\Crud\Container\Grid\Mysql
 	 */
-	public function setColumn($key, $name)
+	public function setColumn($key, $name, $useTableAlias = true, $useCorrelationTableName = false)
 	{
 		if (isset($this->_columns[$key])) {
 			return $this;
 		}
-		$this->_columns[$key] = $name;
+		$this->_columns[$key] = [
+            $name,
+            'useTableAlias' => $useTableAlias,
+            'useCorrelationName' => $useCorrelationTableName
+        ];
 		if (null !== $this->_dataSource) {
-			$this->_dataSource->setColumn($name, $key);
+			$this->_dataSource->setColumn($name, $key, $useTableAlias, $useCorrelationTableName);
 		}
 		
 		return $this;
@@ -186,7 +192,7 @@ class Mysql extends Container implements GridContainer
 	protected function _setDataSource()
 	{
 		$this->_dataSource = $this->_model->queryBuilder();
-		
+
 	    foreach ($this->_joins as $table) {
 	    	$this->_dataSource->columnsJoinOne($table);
 	    }
@@ -233,8 +239,9 @@ class Mysql extends Container implements GridContainer
         $page = $this->_grid->getPage();
         $extraPage = (int) ceil(($limit*$page)/$extraLimit);
 		$paginator = $this->_getPaginator($dataSource, $extraLimit, $extraPage);
+
         $items = [];
-        $position = $limit*($page-1);
+        $position = $limit*($page-1)-($extraLimit*($extraPage-1));
         if ($paginator->total_items > 0) {
             for ($i = $position; $i < $position+$limit; ++$i) {
                 if (!isset($paginator->items[$i])) {
@@ -254,7 +261,7 @@ class Mysql extends Container implements GridContainer
 	    	$data['pages'] = (int) ceil($paginator->total_items/$limit);
 	    	$data['lines'] = $paginator->total_items;
 	    }
-	    
+
 	    return $data;
 	}
 	

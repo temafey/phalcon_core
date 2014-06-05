@@ -115,11 +115,11 @@ class Image extends Base
         /*if (!file_exists($fullPath)) {
             return 'Image not exists';
         }*/
-        $src = ' src="' . $image . '"';
-        $alt = ($alt) ? ' alt="' . $alt . '"' : "";
-        $width = 'width: ' . $this->width .'px;';
+        $src = ' src="'.$image.'"';
+        $alt = ($alt) ? ' alt="'.$alt.'"' : "";
+        $width = 'width: '.$this->width .'px;';
         if($this->height) {
-            $height = 'height: ' . $this->height .'px;';
+            $height = 'height: '.$this->height .'px;';
         } else {
             $height = '';
         }
@@ -130,7 +130,7 @@ class Image extends Base
         $xhtml = '<img '
         . $src
         . $alt
-        . ' style="' . $width . $height . 'margin: auto;"'
+       .' style="'.$width . $height.'margin: auto;"'
         . $endTag;
 
         return $xhtml;

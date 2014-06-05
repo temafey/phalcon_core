@@ -42,7 +42,7 @@ class Mysql extends Container implements FormContainer
      * @param mixed $options
      * @return void
      */
-	public function __construct(Form $form, $options = array())
+	public function __construct(Form $form, $options = [])
 	{
 		$this->_form = $form;
 		if (!is_array($options)) {
@@ -103,11 +103,11 @@ class Mysql extends Container implements FormContainer
     public function setJoinModels(array $models)
     {
         foreach ($models as $model) {
-            if (!($model instanceof Model)) {
-                throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
-            }
             if (!is_object($model)) {
                 $model = new $model;
+            }
+            if (!($model instanceof Model)) {
+                throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
             }
             $key = $model->getSource();
             $this->_joins[$key] = $model;
@@ -121,7 +121,7 @@ class Mysql extends Container implements FormContainer
      *
      * @param string $model
      * @throws \Exception
-     * @return Crud\Container\Grid\Mysql
+     * @return \Crud\Container\Grid\Mysql
      */
     public function addJoin($model)
     {
@@ -291,8 +291,9 @@ class Mysql extends Container implements FormContainer
             unset($data[$primary]);
             $record = $this->_model->findFirst($id);
             $isUpdate = false;
+            $properties = get_object_vars($record);
             foreach ($data as $key => $value) {
-                if (isset($record->{$key})) {
+                if (array_key_exists($key, $properties)) {
                     $isUpdate = true;
                     $record->{$key} = $value;
                 }
@@ -333,8 +334,9 @@ class Mysql extends Container implements FormContainer
                 $records = $model->findByColumn($referenceColumn, [$id]);
                 foreach ($records as $record) {
                     $isUpdate = false;
+                    $properties = get_object_vars($record);
                     foreach ($data as $key => $value) {
-                        if (isset($record->{$key})) {
+                        if (array_key_exists($key, $properties)) {
                             $isUpdate = true;
                             $record->$key = $value;
                         }

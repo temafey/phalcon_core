@@ -95,7 +95,7 @@ class JoinMany extends Column
 	 */
 	public function updateDataSource($dataSource)
 	{
-		$dataSource->columnsJoinMany($this->_path, $this->_key, $this->_column, $this->_orderBy);
+		$dataSource->columnsJoinMany($this->_path, $this->_key, $this->_column, $this->_orderBy, $this->_separator);
 		return $this;
 	}
 
@@ -107,7 +107,7 @@ class JoinMany extends Column
      */
     public function updateContainer(\Engine\Crud\Container\Grid\Adapter $container)
     {
-        $container->setColumn($this->_key, $this->_name);
+        //$container->setColumn($this->_key, $this->_name);
         return $this;
     }
 
@@ -130,18 +130,18 @@ class JoinMany extends Column
 		if (null !== $this->_tag) {
 		    foreach ($values as $i => $val) {
 		        if($this->_tag == '<b>' || $this->_tag == 'b') {
-		            $values = "<b>" . $val ."</b>";
+		            $values = "<b>".$val ."</b>";
 		        } elseif($this->_tag == '<strong>' || $this->_tag == 'strong') {
-		            $values[$i] = "<strong>" . $val ."</strong>";
+		            $values[$i] = "<strong>".$val ."</strong>";
 		        } elseif($this->_tag == '<li>' || $this->_tag == 'li') {
-		            $values[$i] = "<li>" . $val ."</li>";
+		            $values[$i] = "<li>".$val ."</li>";
 		        }
 		    }
 		}
 		
 		$value = implode($this->_separator, $values);
 		if(($this->_count !== false) && ($this->_count !== null) && $count > $this->_count) {
-			$value .= $this->_separator . "...";
+			$value .= $this->_separator."...";
 		}
 		if($count == 0) {
 			 $value = $this->_na;

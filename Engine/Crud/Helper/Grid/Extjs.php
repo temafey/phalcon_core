@@ -34,7 +34,7 @@ class Extjs extends BaseHelper
 
         $code = "
         Ext.define('".static::getGridName()."', {
-            extend: 'Ext.grid.Panel',
+            extend: 'Ext.ux.crud.Grid',
             store: '".static::getStoreName()."',
             alias: 'widget.".static::$_module.ucfirst(static::$_prefix)."Grid',
             ";
@@ -58,6 +58,7 @@ class Extjs extends BaseHelper
 
         }
         $requires[] = "'Ext.form.field.*'";
+        $requires[] = "'Ext.ux.crud.Grid'";
         $code .= implode(",", $requires);
         $code .= "],
             ";

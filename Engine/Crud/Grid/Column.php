@@ -104,6 +104,18 @@ abstract class Column implements ColumnInterface
 	 * @var string
 	 */
 	protected $_actionParam = false;
+
+    /**
+     * Use table alias for table field
+     * @var bool
+     */
+    protected $_useTableAlias = true;
+
+    /**
+     * Use correlaton name
+     * @var bool
+     */
+    protected $_useCorrelationTableName = false;
 	
 	/**
 	 * Constructor 
@@ -264,6 +276,18 @@ abstract class Column implements ColumnInterface
     {
         return ($this->_fieldKey) ? $this->_fieldKey : $this->getKey();
     }
+
+    /**
+     * Set if data can be sort by column
+     *
+     * @param bool $sortable
+     * @return \Engine\Crud\Grid\Column
+     */
+    public function setSortable($sortable)
+    {
+        $this->_isSortable = (bool) $sortable;
+        return $this;
+    }
 	
 	/**
 	 * Check is column sortable.
@@ -275,6 +299,18 @@ abstract class Column implements ColumnInterface
 		return $this->_isSortable;
 	}
 
+    /**
+     * Set if data by column is hidden
+     *
+     * @param bool $hidden
+     * @return \Engine\Crud\Grid\Column
+     */
+    public function setHidden($hidden)
+    {
+        $this->_isHidden = (bool) $hidden;
+        return $this;
+    }
+
 	/**
 	 * Is column hidden.
 	 * 
@@ -284,6 +320,18 @@ abstract class Column implements ColumnInterface
 	{
 		return $this->_isHidden;
 	}
+
+    /**
+     * Set if data by column can be edit
+     *
+     * @param bool $editable
+     * @return \Engine\Crud\Grid\Column
+     */
+    public function setEditable($editable)
+    {
+        $this->_isEditable = (bool) $editable;
+        return $this;
+    }
 
     /**
      * Is column can be editing
@@ -386,7 +434,7 @@ abstract class Column implements ColumnInterface
 	 */
 	public function getValue($row)
 	{
-		$value = $row[$this->_key];
+		$value = $row->{$this->_key};
 		$value = $this->filter($value);
 
 		return $value;
@@ -426,4 +474,28 @@ abstract class Column implements ColumnInterface
 		
 		return $this;
 	}
+
+    /**
+     * Set flag to add table alias
+     *
+     * @param boolean $useTableAlias
+     * @return \Engine\Crud\Grid\Column
+     */
+    public function useTableAlias($useTableAlias = true)
+    {
+        $this->_useTableAlias = $useTableAlias;
+        return $this;
+    }
+
+    /**
+     * Set flag to add correlation table alias
+     *
+     * @param boolean $useCorrelationTableName
+     * @return \Engine\Crud\Grid\Column
+     */
+    public function useCorrelationTableName($useCorrelationTableName = true)
+    {
+        $this->_useCorrelationTableName = $useCorrelationTableName;
+        return $this;
+    }
 }

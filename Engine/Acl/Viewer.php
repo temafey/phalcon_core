@@ -34,10 +34,7 @@ class Viewer extends \Phalcon\Session\Bag
      */
     public function getRole()
     {
-        if (!isset($this->_role)) {
-            $this->_role = self::DEFAULT_ROLE;
-        }
-        return $this->_role;
+        return $this->get('role', self::DEFAULT_ROLE);
     }
 
     /**
@@ -48,7 +45,7 @@ class Viewer extends \Phalcon\Session\Bag
      */
     public function setRole($role)
     {
-        $this->_role = $role;
+        $this->set('role', $role);
         return $this;
     }
 
@@ -59,10 +56,11 @@ class Viewer extends \Phalcon\Session\Bag
      */
     public function getId()
     {
-        if (!isset($this->_id)) {
+        $id = $this->get('id');
+        if (!$id) {
             return false;
         }
-        return $this->_id;
+        return $id;
     }
 
     /**
@@ -73,7 +71,7 @@ class Viewer extends \Phalcon\Session\Bag
      */
     public function setId($id)
     {
-        $this->_id = $id;
+        $this->set('id', $id);
         return $this;
     }
 } 

@@ -40,13 +40,13 @@ class Database extends AbstractService
 
         if (!$config->application->debug && $config->database->useCache) {
             if ($di->offsetExists('modelsCache')) {
-                $connection->setCache($di->get('modelsCache'));
+                //$connection->setCache($di->get('modelsCache'));
             }
         }
 
         if ($config->application->debug) {
             // Attach logger & profiler
-            $logger = new \Phalcon\Logger\Adapter\File($config->application->logger->path . "db.log");
+            $logger = new \Phalcon\Logger\Adapter\File($config->application->logger->path."db.log");
             $profiler = new \Phalcon\Db\Profiler();
 
             $eventsManager->attach('db', function ($event, $connection) use ($logger, $profiler) {
@@ -80,13 +80,15 @@ class Database extends AbstractService
                 return $modelsManager;
             }, true);
         }
+
         /**
          * If the configuration specify the use of metadata adapter use it or use memory otherwise
          */
-        $di->set('modelsMetadata', function () use ($config) {
-            if (!$config->application->debug && isset($config->metadata)) {
+        $service = $this;
+        $di->set('modelsMetadata', function () use ($config, $service) {
+            if ((!$config->application->debug || $config->application->useCachingInDebugMode) && isset($config->metadata)) {
                 $metaDataConfig = $config->metadata;
-                $metadataAdapter = $this->_getMetaDataAdapter($metaDataConfig->adapter);
+                $metadataAdapter = $service->_getMetaDataAdapter($metaDataConfig->adapter);
                 if (!$metadataAdapter) {
                     throw new \Engine\Exception("MetaData adapter '{$metaDataConfig->adapter}' not exists!");
                 }

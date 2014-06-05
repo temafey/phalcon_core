@@ -115,7 +115,7 @@ class Cache extends Search
 	 */
 	protected function _arraySearch($needle, array $haystack, $type = NULL)
 	{
-		$keys = array();
+		$keys = [];
 		$needle = strtolower($needle);
 		foreach($haystack as $key => $value) {
 			$value = strtolower($value);

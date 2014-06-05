@@ -35,49 +35,91 @@ class Controller extends BaseHelper
         $code = "
         Ext.define('".static::getControllerName()."', {
             extend: 'Ext.app.Controller',
+            title: '".$title."',
+            baseParams: {},
             ";
         $code .= "requires: [";
         $code .= "'".static::getStoreLocalName()."',";
         $code .= "'".static::getStoreName()."',";
         $code .= "'".static::getGridName()."',";
-        $code .= "'".static::getFormName()."'";
-        $code .= "],";
+        $code .= "'".static::getFilterName()."'";
+        if ($grid->isEditable()) {
+            $code .= ",'".static::getFormName()."'";
+        }
+        $code .= "],
+        ";
+
+        $additionals = [];
+        if ($grid->isEditable()) {
+            $additionals[] = "
+                {
+                    type: 'form',
+                    controller: '".static::getControllerName()."'
+                }";
+        }
+        foreach ($grid->getAdditionals() as $addional) {
+            $additionals[] = "
+                {
+                    type: '".$addional['type']."',
+                    controller: '".ucfirst($addional['module']).'.controller.'.ucfirst($addional['key'])."',
+                    param: '".$addional['param']."'
+                }";
+        }
+
         $code .= "
-            init: function(){
-                this.storeLocal = this.getStore('".static::getStoreLocalName()."');
-                this.store = this.getStore('".static::getStoreName()."');
-                this.grid = this.getView('".static::getGridName()."');
-                this.form = this.getView('".static::getFormName()."');
-                /*this.storeLocal.addListener('load', function(){
-                       this._onPingSuccess();
-                    }, this);
-                this.storeLocal.load();*/
-                this.store.load();
-                this.activeStore = this.store;
+            additionals: [".implode(",", $additionals)."
+            ],
+        ";
+
+        $code .= "
+            init: function() {
+                var me = this;
+
+                me.storeLocal = this.getStore('".static::getStoreLocalName()."');
+                me.store = this.getStore('".static::getStoreName()."');
+                me.grid = this.getView('".static::getGridName()."');
+                ";
+        if ($grid->isEditable()) {
+            $code .= "me.form = this.getView('".static::getFormName()."');
+        ";
+        }
+        $code .= "me.filter = this.getView('".static::getFilterName()."');
+                me.store.addBaseParams(me.baseParams);
+                /*me.storeLocal.addListener('load', function(){
+                       me._onPingSuccess();
+                    }, me);
+                me.storeLocal.load();*/
+                me.store.load();
+                me.activeStore = me.store;
             },
-            _onPingSuccess: function(){
-                localCnt = this.storeLocal.getCount();
+
+            _onPingSuccess: function() {
+                var me = this;
+
+                localCnt = me.storeLocal.getCount();
 
                 if (localCnt > 0){
                     for (i = 0; i < localCnt; i++){
-                        var localRecord = this.storeLocal.getAt(i);
+                        var localRecord = me.storeLocal.getAt(i);
                         var deletedId   = localRecord.data.id;
                         delete localRecord.data.id;
                         store.add(localRecord.data);
                         localRecord.data.id = deletedId;
                     }
-                    this.store.sync();
+                    me.store.sync();
                     for (i = 0; i < localCnt; i++){
-                        this.localStore.removeAt(0);
+                        me.localStore.removeAt(0);
                     }
                 }
 
-                this.store.load();
-                this.activeStore = this.store;
+                me.store.load();
+                me.activeStore = this.store;
             },
 
-            _onPingFailure: function(){
-                this.activeStore = this.storeLocal;
+            _onPingFailure: function() {
+                var me = this;
+
+                me.activeStore = me.storeLocal;
             }
 
         });

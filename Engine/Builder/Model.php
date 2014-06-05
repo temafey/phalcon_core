@@ -6,10 +6,10 @@ use Phalcon\Db\Column,
     Engine\Builder\Component,
     Engine\Builder\BuilderException,
     Engine\Builder\Script\Color,
-    Phalcon\Text as Utils;
-use Engine\Builder\Traits\BasicTemplater as TBasicTemplater;
-use Engine\Builder\Traits\ModelTemplater as TModelTemplater;
-use Engine\Tools\Inflector;
+    Phalcon\Text as Utils,
+    Engine\Builder\Traits\BasicTemplater as TBasicTemplater,
+    Engine\Builder\Traits\ModelTemplater as TModelTemplater,
+    Engine\Tools\Inflector;
 
 /**
  * ModelBuilderComponent
@@ -19,6 +19,8 @@ use Engine\Tools\Inflector;
 class Model extends Component
 {
     use TBasicTemplater, TModelTemplater;
+
+    protected $type = self::TYPE_SIMPLE;
 
     public function __construct($options)
     {
@@ -64,9 +66,16 @@ class Model extends Component
             throw new BuilderException("You must specify the table name");
         }
 
-
         // Get config
-        $config = $this->_getConfig('');
+        $path = '';
+        if (isset($this->_options['config_path'])) {
+            $path = $this->_options['config_path'];
+        } elseif (isset($this->_options['app_path']))  {
+            $path = $this->_options['app_path'];
+        } elseif (isset($this->_options['module_path']))  {
+            $path = $this->_options['module_path'];
+        }
+        $config = $this->_getConfig($path);
 
 
         // build options
@@ -74,7 +83,9 @@ class Model extends Component
 
 
         // Prepare DB connection
-        $this->prepareDbConnection($config);
+        if (!$this->prepareDbConnection($config)) {
+            return false;
+        }
 
 
         // Check if table exist in database
@@ -85,9 +96,13 @@ class Model extends Component
             throw new BuilderException('Table "' . $table . '" does not exists');
         }
 
-
-        // Set extender class
-        $extends = '\\Engine\\Mvc\\Model';
+        // Set extender class template
+        switch($this->type) {
+            case self::TYPE_SIMPLE:
+            case self::TYPE_EXTJS:
+            default: $extends = $this->templateSimpleModelExtends;
+            break;
+        }
 
 
         $attributes = array();
@@ -101,18 +116,19 @@ class Model extends Component
             // Build belongsTo relations
             preg_match('/^(.*)\_i{1}d{1}$/', $field->getName(), $matches);
             if (!empty($matches)) {
-                $belongsTo[] = sprintf($this->templateModelRelation, 'belongsTo', 'id', ucfirst($this->_builderOptions['moduleName']).'\Model\\'.Inflector::modelize($matches[1]), $matches[0], $this->_buildRelationOptions([
+                $belongsTo[] = sprintf($this->templateModelRelation, 'belongsTo', $matches[0], ucfirst($this->_builderOptions['moduleName']).'\Model\\'.Inflector::modelize($matches[1]), 'id', $this->_buildRelationOptions([
                     'alias' => $this->getAlias($matches[1])
                 ]));
             }
 
-            if ($field->getName() == 'id') {
+            if ($field->getName() == 'id' || $field->isPrimary()) {
                 $this->_options['primary_column'] = $field->getName();
                 $this->_options['order_expr'] = $field->getName();
             }
 
             if ($field->getName() == 'title' || $field->getName() == 'name') {
                 $this->_options['name_expr'] = $field->getName();
+                $this->_options['order_expr'] = $field->getName();
             }
         }
 
@@ -177,11 +193,12 @@ class Model extends Component
             $content .= $this->_genColumnMapCode($fields);
         }
 
-
         $code = sprintf(
             $this->templateClassFullStack,
             '',
             $this->_builderOptions['namespace'],
+            $this->_builderOptions['use'],
+            $this->_builderOptions['head'],
             $this->_builderOptions['className'],
             $extends,
             $content
@@ -205,16 +222,13 @@ class Model extends Component
             return 'NULL';
         }
 
-        $values = array();
-        foreach ($options as $name => $val)
-        {
+        $values = [];
+        foreach ($options as $name => $val) {
             if (is_bool($val)) {
                 $val = $val ? 'true':'false';
-            }
-            else if (!is_numeric($val)) {
+            } elseif (!is_numeric($val)) {
                 $val = '\''.$val.'\'';
             }
-
             $values[] = sprintf('\'%s\' => %s', $name, $val);
         }
 
@@ -236,7 +250,7 @@ class Model extends Component
         );
     }
 ';
-        $contents = array();
+        $contents = [];
         foreach ($fields as $field) {
             $name = $field->getName();
             $contents[] = sprintf('\'%s\' => \'%s\'', $name, $name);

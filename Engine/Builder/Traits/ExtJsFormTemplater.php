@@ -11,14 +11,19 @@ namespace Engine\Builder\Traits;
 
 trait ExtJsFormTemplater {
 
-    public $templateExtJsFormExtends = '\\Engine\\Crud\\Form\\Extjs';
+    public $templateExtJsFormExtends = 'Form';
+
+    public $templateSimpleUseFormExtjs = array(
+        'Form' => 'Engine\Crud\Form\Extjs',
+        'Engine\Crud\Form\Field'
+    );
 
     public $templateExtJsFormModulePrefix = "
     /**
      * Content managment system module router prefix
      * @var string
      */
-    protected \$_modulePrefix = 'admin';
+    protected \$_modulePrefix = ADMIN_PREFIX;
 ";
 
     public $templateExtJsFormModuleName = "

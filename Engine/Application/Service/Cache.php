@@ -23,7 +23,7 @@ class Cache extends AbstractService
         $di = $this->getDi();
         $eventsManager = $this->getEventsManager();
 
-        if (!$this->_config->application->debug) {
+        if (!$this->_config->application->debug || $this->_config->application->useCachingInDebugMode) {
             $cacheAdapter = $this->_getBackendCacheAdapter($this->_config->application->cache->data->adapter);
             if (!$cacheAdapter) {
                 throw new \Engine\Exception("Cache adapter '{$this->_config->application->cache->data->adapter}' not exists!");
@@ -102,7 +102,7 @@ class Cache extends AbstractService
         }
 
         // clear files cache
-        $files = glob($this->_config->application->cache->cacheDir . '*'); // get all file names
+        $files = glob($this->_config->application->cache->cacheDir.'*'); // get all file names
         foreach ($files as $file) { // iterate files
             if (is_file($file)) {
                 @unlink($file); // delete file
@@ -110,7 +110,7 @@ class Cache extends AbstractService
         }
 
         // clear view cache
-        $files = glob($this->_config->application->view->compiledPath . '*'); // get all file names
+        $files = glob($this->_config->application->view->compiledPath.'*'); // get all file names
         foreach ($files as $file) { // iterate files
             if (is_file($file)) {
                 @unlink($file); // delete file
@@ -119,7 +119,7 @@ class Cache extends AbstractService
 
         // clear metadata cache
         if ($this->_config->metadata && $this->_config->metadata->metaDataDir) {
-            $files = glob($this->_config->metadata->metaDataDir . '*'); // get all file names
+            $files = glob($this->_config->metadata->metaDataDir.'*'); // get all file names
             foreach ($files as $file) { // iterate files
                 if (is_file($file)) {
                     @unlink($file); // delete file
@@ -129,7 +129,7 @@ class Cache extends AbstractService
 
         // clear annotations cache
         if ($config->annotations && $config->annotations->annotationsDir) {
-            $files = glob($config->annotations->annotationsDir . '*'); // get all file names
+            $files = glob($config->annotations->annotationsDir.'*'); // get all file names
             foreach ($files as $file) { // iterate files
                 if (is_file($file)) {
                     @unlink($file); // delete file

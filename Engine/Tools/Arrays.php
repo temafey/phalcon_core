@@ -175,7 +175,7 @@ class Arrays
      */
     static function filterAccessTree($tree, $access)
 	{
-		$res = array();
+		$res = [];
 		foreach ($tree as $k => &$v) {
 			if (!isset($v['access']) || !empty($access[$v['access']])) {
 				$p = $v;
@@ -204,7 +204,7 @@ class Arrays
      */
     static function filterInheritedAccessTree($tree)
 	{
-		$res = array();
+		$res = [];
 		foreach ($tree as $k => &$v) {
 			if (empty($v['inherit'])) {
 				$p = $v;
@@ -251,7 +251,7 @@ class Arrays
      * @param bool $new_value
      * @return array|bool
      */
-    static function arraySearchRecursive($needle, &$haystack, $strict = false, $path = array() , $key_search = false, $new_value = false)
+    static function arraySearchRecursive($needle, &$haystack, $strict = false, $path = [] , $key_search = false, $new_value = false)
 	{
 		if ( !is_array($haystack)) {
 			return false;
@@ -288,7 +288,7 @@ class Arrays
 	static function joinr($join, $value, $lvl=0)
     {
         if (!is_array($join)) return self::joinr(array($join), $value, $lvl);
-        $res = array();
+        $res = [];
         if (is_array($value) && sizeof($value) && is_array(current($value))) { // Is value are array of sub-arrays?
             foreach ($value as &$val) {
                 $res[] = self::joinr($join, $val, $lvl+1);
@@ -348,7 +348,7 @@ class Arrays
     	}
     	
     	foreach ($arrays as $x => $array1) {
-    		$d_array = array();
+    		$d_array = [];
 	    	foreach ($arrays as $y => $array2){
 	    		if ($inverted === false && $y < $x) {
 	    			continue;
@@ -412,7 +412,7 @@ class Arrays
      */
     static function getValuesVariantsFrom2Array(array $array1, $array2 = false)
     {
-    	$results = array();
+    	$results = [];
     	if (!is_array($array1)) {
     	    $array1 = array( $array1);
     	}
@@ -452,7 +452,7 @@ class Arrays
 	 * @static
 	 */
 	static public function shorten(array $inputArray, $path = null, $separator = "_"){
-	   $data = array();
+	   $data = [];
 	   if (!is_null($path)) {
 	      $path = $path . $separator;
 	   }
@@ -483,7 +483,7 @@ class Arrays
 	 * @static
 	 */
 	static public function unshorten($data, $separator = '_'){
-	   $result = array();
+	   $result = [];
 	
 	   foreach ($data as $key => $value){
 	      if (strpos($key, $separator) !== false){
@@ -542,7 +542,7 @@ class Arrays
 	 */
 	static function createTree($rows, $parent = 'parent_id', $id = 'id') 
 	{
-	    $rs = array();
+	    $rs = [];
         foreach ($rows as $row) {
             $rs[$row[$parent]][]=$row;
         }
@@ -559,7 +559,7 @@ class Arrays
 	 */
     static protected function recursiveTree(&$rs, $parent = 0, $id = 'id')
     {
-        $out = array();
+        $out = [];
         if (!isset($rs[$parent])) {
             return $out;
         }

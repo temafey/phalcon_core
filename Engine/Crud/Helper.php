@@ -14,6 +14,17 @@ namespace Engine\Crud;
 abstract class Helper extends \Phalcon\Tag
 {
     /**
+     * Helper initialize method
+     *
+     * @param mixed rendered object
+     * @return void
+     */
+    static public function init($element)
+    {
+
+    }
+
+    /**
      * Crud helper end tag
      *
      * @return string

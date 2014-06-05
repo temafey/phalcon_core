@@ -18,6 +18,12 @@ class Model extends \Phalcon\Mvc\Model
     CONST NAME = 'NAME';
 
     /**
+     * Additional model constant conditions
+     * @var null
+     */
+    protected static $_conditions = null;
+
+    /**
      * Primary model columns
      * @var array|string
      */
@@ -48,39 +54,129 @@ class Model extends \Phalcon\Mvc\Model
     protected $_orderAsc = false;
 
     /**
-     * Find records by array of ids
+     * Allows to query a set of records that match the specified conditions
      *
-     * @param array $ids
+     * @param 	array $parameters
      * @return  \Phalcon\Mvc\Model\ResultsetInterface
      */
-    public static function findByIds(array $ids)
+    public static function find($parameters=null)
+    {
+        if (!static::$_conditions) {
+            return parent::find($parameters);
+        }
+        $conditions = static::normalizeConditions(static::$_conditions);
+        if (!$parameters) {
+            return parent::find($conditions);
+        }
+        if (is_string($parameters)) {
+            $parameters .= " AND ".$conditions;
+        } else {
+            $parameters[0] .= " AND ".$conditions;
+        }
+
+        return parent::find($parameters);
+    }
+
+
+    /**
+     * Allows to query the first record that match the specified conditions
+     *
+     * @param array $parameters
+     * @return \Engine\Mvc\Model
+     */
+    public static function findFirst($parameters=null)
+    {
+        if (!static::$_conditions) {
+            return parent::findFirst($parameters);
+        }
+        $conditions = static::normalizeConditions(static::$_conditions);
+        if (!$parameters) {
+            return parent::findFirst($conditions);
+        }
+        if (is_string($parameters)) {
+            $parameters .= " AND ".$conditions;
+        } else {
+            $parameters[0] .= " AND ".$conditions;
+        }
+
+        return parent::findFirst($parameters);
+    }
+
+    /**
+     * Normalize query conditions
+     *
+     * @param array|string $conditions
+     * @return string
+     */
+    public static function normalizeConditions($conditions)
+    {
+        if (is_string($conditions)) {
+            return $conditions;
+        }
+        $normalizeConditions = [];
+        foreach ($conditions as $key => $condition) {
+            if (is_numeric($key)) {
+                $normalizeConditions[] = $condition;
+                continue;
+            }
+            if (is_array($condition)) {
+                foreach ($condition as $i => $val) {
+                    $condition[$i] = "'".$val."'";
+                }
+                $condition = $key." IN (".implode(",", $condition).")";
+            } else {
+                $condition = $key." = '".$condition."'";
+            }
+            $normalizeConditions[] = $condition;
+        }
+
+        return implode(" AND ", $normalizeConditions);
+    }
+
+    /**
+     * Find records by array of ids
+     *
+     * @param string|array $ids
+     * @return  \Phalcon\Mvc\Model\ResultsetInterface
+     */
+    public static function findByIds($ids)
     {
         $model = new static();
         $primary = $model->getPrimary();
         $db = $model->getWriteConnection();
-        for ($i = 0; $i < count($ids); ++$i) {
-            $ids[$i] = $db->escapeString($ids[$i]);
-        }
-        $credential = $primary." IN (".implode(",", $ids).")";
+        if (is_array($ids)) {
+            for ($i = 0; $i < count($ids); ++$i) {
+                $ids[$i] = $db->escapeString($ids[$i]);
+            }
+            $credential = $primary." IN (".implode(",", $ids).")";
 
-        return static::find($credential);
+            return static::find($credential);
+        } else {
+            $credential = $primary." = ".$db->escapeString($ids);
+
+            return static::findFirst($credential);
+        }
     }
 
     /**
      * Find records by array of ids
      *
      * @param string $column
-     * @param array $ids
+     * @param string|array $values
      * @return  \Phalcon\Mvc\Model\ResultsetInterface
      */
-    public static function findByColumn($column, array $ids)
+    public static function findByColumn($column, $values)
     {
         $model = new static();
         $db = $model->getWriteConnection();
-        for ($i = 0; $i < count($ids); ++$i) {
-            $ids[$i] = $db->escapeString($ids[$i]);
+        if (is_array($values)) {
+            for ($i = 0; $i < count($values); ++$i) {
+                $values[$i] = $db->escapeString($values[$i]);
+            }
+            $credential = $column." IN (".implode(",", $values).")";
+        } else {
+            $credential = $column." = ".$db->escapeString($values);
         }
-        $credential = $db->escapeIdentifier($column)." IN (".implode(",", $ids).")";
 
         return static::find($credential);
     }
@@ -117,7 +213,7 @@ class Model extends \Phalcon\Mvc\Model
             $columns[] = $column;
         }
         $nameExprResult = (array_key_exists('function', $nameExpr) && !empty($nameExpr['function']))
-            ? $nameExpr['function'] ."(" . implode(', ',$columns) . ")"
+            ? $nameExpr['function'] ."(" . implode(', ',$columns).")"
             : implode(', ',$columns);
 
         return $nameExprResult;
@@ -160,13 +256,17 @@ class Model extends \Phalcon\Mvc\Model
     /**
      * Create a criteria for a especific model
      *
-     * @param \Phalcon\DiInterface $dependencyInjection
+     * @param string $alias
      * @return \Engine\Mvc\Model\Query\Builder
      */
-    public function queryBuilder()
+    public function queryBuilder($alias = null)
     {
-        $builder = new Builder();
-        $builder->setModel($this);
+        $params = [];
+        $builder = new Builder($params);
+        $builder->setModel($this, $alias);
+        if (static::$_conditions !== null) {
+            $builder->where($this->normalizeConditions(static::$_conditions));
+        }
 
         return $builder;
     }
@@ -185,7 +285,7 @@ class Model extends \Phalcon\Mvc\Model
         } else {
             $refName = get_class($refModel);
         }
-        if (!$refModel instanceof \Engine\Mvc\Model) {
+        if (!$refModel instanceof \Engine\Mvc\Model) {die('sd');
             throw new \Engine\Exception("Model class '$refName' does not extend Engine\Mvc\Model");
         }
         $relations = $this->getModelsManager()->getBelongsTo($this);
@@ -194,7 +294,7 @@ class Model extends \Phalcon\Mvc\Model
                 return $relation;
             }
         }
-        $relations = $this->getModelsManager()->getHasMany($refModel);
+        $relations = $this->getModelsManager()->getHasMany($this);
         foreach ($relations as $relation) {
             if ($relation->getReferencedModel() == $refName) {
                 return $relation;

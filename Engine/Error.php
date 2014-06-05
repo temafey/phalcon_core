@@ -4,8 +4,8 @@
  */
 namespace Engine;
 
-use \Phalcon\DI\FactoryDefault as Di;
-use \Phalcon\Exception as PhException;
+use \Phalcon\DI\FactoryDefault as Di,
+    \Phalcon\Exception as PhException;
 
 /**
  * Class Exception

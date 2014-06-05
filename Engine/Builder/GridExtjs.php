@@ -8,9 +8,8 @@
 
 namespace Engine\Builder;
 
-
-class FormExtJs extends Form {
-
+class GridExtjs extends Grid
+{
     protected $type = self::TYPE_EXTJS;
 
 } 

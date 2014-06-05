@@ -43,4 +43,14 @@ class Primary extends Base
         $model = $this->_grid->getContainer()->getModel();
         $this->_name = $model->getPrimary();
 	}
+
+    /**
+     * Primary column can't be editable
+     *
+     * @return \Engine\Crud\Grid\Column
+     */
+    public function setEditable()
+    {
+        return $this;
+    }
 }

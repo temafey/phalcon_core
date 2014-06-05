@@ -134,7 +134,7 @@ trait Renderer
             throw new \Engine\Exception('Decorator not set');
         }
 
-		$config = array();
+		$config = [];
 		$config['decorator'] = $this->_decorator;
         $config['namespace'] = $this->_decoratorNamespace;
         $decorator = Decorator::factory($this, $config);

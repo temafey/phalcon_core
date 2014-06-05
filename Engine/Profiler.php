@@ -9,9 +9,9 @@ class Profiler
     protected $_dbProfiler = null;
     protected $_time = null;
     protected $_memory = null;
-    protected $_timeData = array();
-    protected $_memoryData = array();
-    protected $_errorData = array();
+    protected $_timeData = [];
+    protected $_memoryData = [];
+    protected $_errorData = [];
     public static $objectTypes = array(
         'controller',
         'widget',
@@ -38,7 +38,7 @@ class Profiler
     public function stop($class, $objectType)
     {
         if (!isset($this->_timeData[$objectType])) {
-            $this->_timeData[$objectType] = array();
+            $this->_timeData[$objectType] = [];
         }
         $this->_timeData[$objectType][$class] = microtime(true) - $this->_time;
 
@@ -47,7 +47,7 @@ class Profiler
             $memory = 0;
         }
         if (!isset($this->_memoryData[$objectType])) {
-            $this->_memoryData[$objectType] = array();
+            $this->_memoryData[$objectType] = [];
         }
         $this->_memoryData[$objectType][$class] = $memory;
     }
@@ -70,7 +70,7 @@ class Profiler
         }
 
         if (empty($data[$objectType])) {
-            return array();
+            return [];
         }
 
         return $data[$objectType];

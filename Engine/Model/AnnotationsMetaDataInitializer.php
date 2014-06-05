@@ -31,13 +31,13 @@ class AnnotationsMetaDataInitializer
         $reflection = $di['annotations']->get($model);
         $properties = $reflection->getPropertiesAnnotations();
 
-        $attributes = array();
-        $nullables = array();
-        $dataTypes = array();
-        $dataTypesBind = array();
-        $numericTypes = array();
-        $primaryKeys = array();
-        $nonPrimaryKeys = array();
+        $attributes = [];
+        $nullables = [];
+        $dataTypes = [];
+        $dataTypesBind = [];
+        $numericTypes = [];
+        $primaryKeys = [];
+        $nonPrimaryKeys = [];
         $identity = null;
 
         foreach ($properties as $name => $collection) {
@@ -153,10 +153,10 @@ class AnnotationsMetaDataInitializer
             MetaData::MODELS_DATA_TYPES_BIND => $dataTypesBind,
 
             //Fields that must be ignored from INSERT SQL statements
-            MetaData::MODELS_AUTOMATIC_DEFAULT_INSERT => array(),
+            MetaData::MODELS_AUTOMATIC_DEFAULT_INSERT => [],
 
             //Fields that must be ignored from UPDATE SQL statements
-            MetaData::MODELS_AUTOMATIC_DEFAULT_UPDATE => array()
+            MetaData::MODELS_AUTOMATIC_DEFAULT_UPDATE => []
 
         );
     }
@@ -173,8 +173,8 @@ class AnnotationsMetaDataInitializer
     {
         $reflection = $di['annotations']->get($model);
 
-        $columnMap = array();
-        $reverseColumnMap = array();
+        $columnMap = [];
+        $reverseColumnMap = [];
 
         $renamed = false;
         foreach ($reflection->getPropertiesAnnotations() as $name => $collection) {
@@ -222,15 +222,15 @@ class AnnotationsMetaDataInitializer
      */
     public function getAllModelsMetadata(DiInterface $di)
     {
-        $models = array();
+        $models = [];
         foreach ($di->get('modules') as $module => $enabled) {
             if (!$enabled) {
                 continue;
             }
-            $modelsDirectory = $di->get('config')->application->modulesDir . ucfirst($module) . '/Model';
-            foreach (glob($modelsDirectory . '/*.php') as $modelPath) {
-                $modelInfo = array();
-                $modelClass = '\\' . ucfirst($module) . '\Model\\' . basename(str_replace('.php', '', $modelPath));
+            $modelsDirectory = $di->get('config')->application->modulesDir . ucfirst($module).'/Model';
+            foreach (glob($modelsDirectory.'/*.php') as $modelPath) {
+                $modelInfo = [];
+                $modelClass = '\\' . ucfirst($module).'\Model\\' . basename(str_replace('.php', '', $modelPath));
                 $reflector = $di->get('annotations')->get($modelClass);
 
                 // Get table name.
@@ -245,7 +245,7 @@ class AnnotationsMetaDataInitializer
                 }
 
                 // Get table fields properties.
-                $modelInfo['columns'] = array();
+                $modelInfo['columns'] = [];
 
                 $properties = $reflector->getPropertiesAnnotations();
                 foreach ($properties as $name => $collection) {
@@ -259,7 +259,7 @@ class AnnotationsMetaDataInitializer
                         } else {
                             $columnName = $name;
                         }
-                        $modelInfo['columns'][$columnName] = array();
+                        $modelInfo['columns'][$columnName] = [];
 
                         /**
                          * Get type.

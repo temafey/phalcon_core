@@ -27,6 +27,7 @@ class Buttons extends BaseHelper
         $key = ($primary) ? $primary->getKey() : false;
 
         $code = "
+
             buttonsGet: function(){
                 return [
                     {

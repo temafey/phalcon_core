@@ -5,6 +5,12 @@ namespace Engine\Builder\Traits;
 
 trait ModelTemplater {
 
+    public $templateSimpleModelExtends = 'Model';
+
+    public $templateSimpleUseModel = array(
+        'Engine\Mvc\Model'
+    );
+
     public $templateModelRelation = "\t\t\$this->%s('%s', '%s', '%s', %s);\n";
 
     public $templateModelSetter = "
@@ -72,6 +78,11 @@ trait ModelTemplater {
 ";
 
     public $templateModelGetSource = "
+    /**
+     * Returns table name mapped in the model
+     *
+     * @return string
+     */
     public function getSource()
     {
         return '%s';

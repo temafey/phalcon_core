@@ -77,6 +77,7 @@ class Standart extends Decorator
 
         $sections = [];
         foreach ($helpers as $helper) {
+            call_user_func_array([$helper['helper'], 'init'], [$helper['element']]);
             $sections[] = call_user_func_array([$helper['helper'], '_'], [$helper['element']]);
         };
 

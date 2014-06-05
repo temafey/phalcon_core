@@ -26,7 +26,7 @@ class Base extends Column
      */
     public function updateContainer(\Engine\Crud\Container\Grid\Adapter $container)
     {
-        $container->setColumn($this->_key, $this->_name);
+        $container->setColumn($this->_key, $this->_name, $this->_useTableAlias, $this->_useCorrelationTableName);
         return $this;
     }
 
@@ -39,7 +39,7 @@ class Base extends Column
 	 */
 	public function render($row)
 	{
-		$value = $row[$this->_key];
+		$value = $row->{$this->_key};
 		$value = $this->filter($value);
 		
 		return $value;

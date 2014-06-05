@@ -52,18 +52,17 @@ class Dispatcher extends AbstractService
                 //Handle 404 exceptions
                 if ($exception instanceof DispatchException) {
                     $dispatcher->forward([
-                        'module' => \Engine\Application::$defaultModule,
-                        'namespace' => ucfirst(\Engine\Application::$defaultModule).'\Controller',
                         'controller' => 'error',
                         'action' => 'show404'
                     ]);
                     return false;
                 }
 
+                if ($di->get('request')->isAjax() == true) {
+                }
+
                 //Handle other exceptions
                 $dispatcher->forward([
-                    'module' => \Engine\Application::$defaultModule,
-                    'namespace' => ucfirst(\Engine\Application::$defaultModule).'\Controller',
                     'controller' => 'error',
                     'action' => 'show503'
                 ]);

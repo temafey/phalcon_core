@@ -50,7 +50,6 @@ class Service implements \Phalcon\DI\InjectionAwareInterface
                 $cacheData = $this->_di->get('cacheData');
                 $acl = $cacheData->get(self::ACL_CACHE_KEY);
             }
-            $acl = null;
             if ($acl === null) {
                 $acl = new AclMemory();
                 $acl->setDefaultAction(PhAcl::DENY);
@@ -186,6 +185,29 @@ class Service implements \Phalcon\DI\InjectionAwareInterface
     public function getResource($moduleName, $controllerName)
     {
         return strtolower(trim($moduleName, " /\\")."_".trim($controllerName, " /\\"));
+    }
+
+    /**
+     * Check access by role and mvc module, controller and action names
+     *
+     * @param string $role
+     * @param string $moduleName
+     * @param string $controllerName
+     * @param string $actionName
+     * @param bool $checkResource
+     * @return bool
+     */
+    public function isAllowed($role, $moduleName, $controllerName, $actionName, $checkResource = false)
+    {
+        $resource = $this->getResource($moduleName, $controllerName);
+        $access = $actionName;
+        $adapter = $this->getAdapter();
+
+        if ($checkResource && !$adapter->isResource($resource)) {
+            return true;
+        }
+
+        return ($adapter->isAllowed($role, $resource, $access) == \Phalcon\Acl::ALLOW) ? true : false;
     }
 
     /**

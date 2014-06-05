@@ -94,7 +94,7 @@ abstract class Base extends MetaData implements InjectionAwareInterface, MetaDat
     protected function getId($id)
     {
         return (!empty($this->options['prefix']) > 0)
-            ? $this->options['prefix'] . '_' . $id
+            ? $this->options['prefix'].'_'.$id
             : $id;
     }
 
