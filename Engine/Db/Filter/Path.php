@@ -60,19 +60,20 @@ class Path extends AbstractFilter
         $model = $dataSource->getModel();
         $joinPath = $model->getRelationPath($this->_path);
 
-        if ($joinPath) {
-            if ($this->_fullJoin) {
-                $dataSource->joinPath($joinPath);
-            } else {
-                $relation = array_shift($joinPath);
-                if (!$ids = $this->_processJoins($relation, $joinPath)) {
-                    return false;
-                }
-                $fields = $relation->getFields();
-                $alias = $dataSource->getCorrelationName($fields);
-
-                return "(".$alias.".".$fields." IN (".implode($ids, ",")."))";
+        if (!$joinPath) {
+            throw new \Engine\Exception("Relations to model '".get_class($model)."' by path '".implode(", ", $this->_path)."' not valid");
+        }
+        if ($this->_fullJoin) {
+            $dataSource->joinPath($joinPath);
+        } else {
+            $relation = array_shift($joinPath);
+            if (!$ids = $this->_processJoins($relation, $joinPath)) {
+                return false;
             }
+            $fields = $relation->getFields();
+            $alias = $dataSource->getCorrelationName($fields);
+
+            return "(".$alias.".".$fields." IN (".implode($ids, ",")."))";
         }
 
         return $this->_filter->filterWhere($dataSource);

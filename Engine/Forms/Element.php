@@ -20,7 +20,8 @@ class Element extends \Phalcon\Forms\Element implements ElementInterface
      *
      * @return bool
      */
-    public function useDefaultLayout(){
+    public function useDefaultLayout()
+    {
         return true;
     }
 

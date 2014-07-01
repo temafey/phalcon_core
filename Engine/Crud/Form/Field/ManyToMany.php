@@ -34,7 +34,7 @@ class ManyToMany extends Field
 	protected $_model;
 	
 	/**
-	 * Many2many table for saving joins with categories. 
+	 * many to many table for saving joins with categories. 
 	 * @var \Engine\Mvc\Model
 	 */
 	protected $_workingModel;
@@ -56,49 +56,49 @@ class ManyToMany extends Field
 	 * Options category model
 	 * @var \Engine\Mvc\Model
 	 */
-	public $category;
+    protected $_category;
 	
 	/**
 	 * Optiosn category row name
 	 * @var string
 	 */
-	public $categoryName = 'name';
+    protected $_categoryName = 'name';
 	
 	/**
 	 * Empty category value
 	 * @var string
 	 */
-	public $emptyCategory;
+    protected $_emptyCategory;
 	
 	/**
 	 * Empty item value
 	 * @var string
 	 */
-	public $emptyItem;
+    protected $_emptyItem;
 	
 	/**
 	 * Addition select fields
 	 * @var array
 	 */
-	public $fields = null;
+    protected $_fields = null;
 	
 	/**
-	 * Order of many2many model
+	 * Order of many to many model
 	 * @var string
 	 */
-	public $workingModelOrder;
+    protected $_workingModelOrder;
 	
 	/**
 	 * Options select where condition
 	 * @var string|array
 	 */
-	public $where;
+    protected $_where;
 	
 	/**
 	 * Category order
 	 * @var string
 	 */
-	public $categoryOrder = null;
+    protected $_categoryOrder = null;
 
 	/**
 	 * Is table reference
@@ -126,7 +126,7 @@ class ManyToMany extends Field
 	protected $_modelParentField;
 	
 	/**
-	 * Flag set true when many2many relationship was updated.
+	 * Flag set true when many to many relationship was updated.
 	 * @var bool
 	 */
 	private $_updateFlag = false;
@@ -155,7 +155,7 @@ class ManyToMany extends Field
 	 * @param string $workingModel
 	 * @param string $optionName
 	 * @param string $name
-	 * @param string $description
+	 * @param string $desc
 	 * @param bool $required
 	 * @param int $width
 	 * @param array $default
@@ -170,7 +170,7 @@ class ManyToMany extends Field
         $workingModel,
         $optionName = null,
         $name = false,
-        $description = null,
+        $desc = null,
         $required = false,
         $width = 280,
         $default = null,
@@ -179,8 +179,8 @@ class ManyToMany extends Field
         $additionalColumns = [],
         $loadOptions = true
     ) {
-		$this->_model = new $model;
-	    $this->_workingModel = new $workingModel;
+		$this->_model = $model;
+	    $this->_workingModel = $workingModel;
 	    $this->_optionName = $optionName;
 	    
 		$this->_saveAllParents = $saveAllParents;
@@ -188,7 +188,7 @@ class ManyToMany extends Field
 	    $this->_additionalColumns = $additionalColumns;
 	    $this->_loadOptions = $loadOptions;
 
-		parent::__construct($label, $name, $description, $required, $width, $default);
+        parent::__construct($label, $name, $desc, $required, $width, $default);
 	}
 
     /**
@@ -198,17 +198,31 @@ class ManyToMany extends Field
      */
 	protected function _init()
 	{
-		$this->_helper = 'MyFormMultiCheckbox';
-		
 		if (isset($this->_key)) {
-			throw new \Engine\Exception("Outdated Many2Many settings for ".get_class($this->_form)." - ".get_class($this->_model));
+			throw new \Engine\Exception("Outdated ManyToMany settings for ".get_class($this->_form)." - ".get_class($this->_model));
 		}
-		if (!$this->_noTableReference) {
-			$refModel = $this->_workingModel->getRelationPath($this->_model);
-			$refFormModel = $this->_workingModel->getRelationPath($this->_form->getContainer()->getModel());
 
-			$this->_key = $refModel->getFields();
-			$this->_keyParent = $refFormModel->getFields();
+        parent::_init();
+
+        if (is_string($this->_model)) {
+            $this->_model = new $this->_model;
+        }
+        if (is_string($this->_workingModel)) {
+            $this->_workingModel = new $this->_workingModel;
+        }
+		if (!$this->_noTableReference) {
+			$relationsRefModel = $this->_workingModel->getRelationPath($this->_model);
+            if (!$relationsRefModel) {
+                throw new \Engine\Exception("Did not find relations between '".get_class($this->_workingModel)."' and '".get_class($this->_model)."'");
+            }
+            $mainModel = $this->_form->getContainer()->getModel();
+			$relationsMainModel = $this->_workingModel->getRelationPath($mainModel);
+            if (!$relationsMainModel) {
+                throw new \Engine\Exception("Did not find relations between '".get_class($this->_workingModel)."' and '".get_class($mainModel)."'");
+            }
+
+			$this->_key = array_shift($relationsRefModel)->getFields();
+			$this->_keyParent = array_shift($relationsMainModel)->getFields();
 		}
 	}
 
@@ -219,34 +233,34 @@ class ManyToMany extends Field
      */
 	public function updateField()
 	{
-		$selected_options = [];
+		$selectedOptions = [];
 		if (null !== $this->_id && !$this->_noTableReference) {
 			$params = [$this->_keyParent." = :id:"];
             $params['bind'] = ['id' => $this->_id];
 			if ($this->workingModelOrder) {
-				$params['order'] = $this->workingModelOrder;
+				$params['order'] = $this->_workingModelOrder;
 			}
-			$selected_data = $this->_workingModel->find($params)->toArray();
-			$selected_options = $this->selectedArray($selected_data);
+			$selectedData = $this->_workingModel->find($params)->toArray();
+            $selectedOptions = $this->selectedArray($selectedData);
 		}
 
-		$options_function = (null !== $this->fields) ? 'prepareOptionsAll' : 'prepareOptions';
+		$optionsFunction = (null !== $this->fields) ? 'prepareOptionsAll' : 'prepareOptions';
 		if ($this->_loadOptions) {
 			$builder = $this->_model->queryBuilder();
-			$options = \Engine\Crud\Tools\Multiselect::$options_function($builder, $this->_optionName, $this->category, $this->categoryName, $this->where, $this->emptyCategory, $this->emptyItem, true, $this->fields, $this->categoryOrder);
+			$options = \Engine\Crud\Tools\Multiselect::$optionsFunction($builder, $this->_optionName, $this->_category, $this->_categoryName, $this->_where, $this->_emptyCategory, $this->_emptyItem, true, $this->_fields, $this->_categoryOrder);
 		} else {
 			$options = [];
 		}
 
-		$selected_options = array_merge($selected_options, $this->_default);
+        $selectedOptions = array_merge($selectedOptions, $this->_default);
 
 		$this->setAttrib('class', 'multiCheckboxContent');
 		$this->_element->setOptions($options);
 		
 		$this->_value = $this->getValue();
-		$this->_element->setDefault($selected_options);
+		$this->_element->setDefault($selectedOptions);
 		
-		if($this->_onChangeAction) {
+		if ($this->_onChangeAction) {
 			$this->setAttrib('onchange', $this->_onChangeAction);
 		}
 	}
@@ -273,7 +287,7 @@ class ManyToMany extends Field
 	}
 	
 	/**
-	 * Save data in many2many field. 
+	 * Save data in many to many field. 
 	 * 
 	 * @param array $data
 	 * @return void
@@ -319,43 +333,50 @@ class ManyToMany extends Field
 	    }
 
 		foreach ($insert as &$v) {
-		    $row = array_merge(array($this->_keyParent => $this->_id, $this->_key => $v), $additionalData);		    
+		    $row = array_merge([$this->_keyParent => $this->_id, $this->_key => $v], $additionalData);
 			$data['insert'][] = $row;
 		}
 		foreach ($delete as $v) {
-			$data['delete'][] = $this->_workingModel->q($this->_keyParent." = ?", $this->_id)." AND ".$this->_workingModel->q($this->_key." = ?", $v);
+			$data['delete'][] = $this->_keyParent." = ".$this->_id." AND ".$this->_key." = ".$v;
 		}		
 		if (!empty($this->_additionalColumns) && is_array($this->_additionalColumns)) {
     		foreach ($update as $v) {
-    		    $row = array_merge(array($this->_keyParent => $this->_id, $this->_key => $v), $additionalData);
-    		    $where = $this->_workingModel->q($this->_keyParent." = ?", $this->_id)." AND ".$this->_workingModel->q($this->_key." = ?", $v);
-    			$data['update'][] = array('where' => $where, 'data' =>  $row);
+    		    $row = array_merge([$this->_keyParent => $this->_id, $this->_key => $v], $additionalData);
+    		    $where = $this->_keyParent." = ".$this->_id." AND ".$this->_key." = ".$v;
+    			$data['update'][] = ['where' => $where, 'data' =>  $row];
     		}
 		}
-		
+
+        $manager = $this->_model->get('modelsManager');
 		$db = $this->_model->getWriteConnection();
 		$db->begin();
 		
-		if(count($data ['delete']) > 0 || count($data ['insert']) > 0) {
+		if (count($data['delete']) > 0 || count($data ['insert']) > 0) {
 		    $this->_updateFlag = true;
 		}
 		
 		try {
-			foreach ($data['delete'] as &$delete) {
-				$this->_workingModel->delete($delete);
+            $source = $this->_workingModel->getSource();
+
+			foreach ($data['delete'] as $delete) {
+                $manager->executeQuery("DELETE FROM ".$source." WHERE ".$delete);
 			}
-			foreach ($data['insert'] as &$insert) {
-				$this->_workingModel->insert($insert);
+			foreach ($data['insert'] as $insert) {
+                $manager->executeQuery("INSERT INTO ".$source." (".implode(",", array_keys($row).") VALUES (".implode(",", $row)));
 			}
-		    foreach ($data['update'] as &$update) {
-				$this->_workingModel->update($update['data'], $update['where']);
+		    foreach ($data['update'] as $update) {
+                $update = [];
+                foreach ($update['data'] as $key => $value) {
+                    $update[] = $key." = '".$value."'";
+                }
+                $manager->executeQuery("UPDATE ".$source." SET ".implode(",", $update)." WHERE ".$update['where']);
 			}
 			$db->commit();
 
 		} catch (\Engine\Exception $e) {
-			$db->rollback ();
-			echo $e->getMessage ();
-			die ();
+			$db->rollback();
+			echo $e->getMessage();
+			die();
 		}
 
 		return true;
@@ -379,11 +400,11 @@ class ManyToMany extends Field
     	    $row = $row->toArray();    	    
             $parent = (isset($row[$this->_modelParentField])) ? $row[$this->_modelParentField] : 0;
 
-            while($parent != 0){
+            while ($parent != 0){
         	    $row = $this->_model->findFirst($parent);
         	    $row = $row->toArray();
                 $parent = $row[$this->_modelParentField];
-                if(!in_array($row[$primary], $parents)) {
+                if (!in_array($row[$primary], $parents)) {
                 	$parents[] = $row[$primary];
                 }
             }
@@ -418,7 +439,7 @@ class ManyToMany extends Field
 	public function getOptionIds(array $data)
 	{
 		$ids = [];
-		foreach ($data as &$value) {
+		foreach ($data as $value) {
 		    $ids[] = $value[$this->_key];
 		}
 				
@@ -426,7 +447,7 @@ class ManyToMany extends Field
 	}
 	
 	/**
-	 * Return was many2many update or not.
+	 * Return was many to many update or not.
 	 * 
 	 * @return bool
 	 */
@@ -438,7 +459,7 @@ class ManyToMany extends Field
 	/**
 	 * Set param _loadOptions to false 
 	 * 
-	 * @return \Engine\Crud\Form\Field\Many2Many
+	 * @return \Engine\Crud\Form\Field\ManyToMany
 	 */
 	public function notLoadOptions()
 	{
@@ -450,7 +471,7 @@ class ManyToMany extends Field
 	 * Set onchange action
 	 * 
 	 * @param string $onchange
-	 * @return @return \Engine\Crud\Form\Field\Many2Many
+	 * @return @return \Engine\Crud\Form\Field\ManyToMany
 	 */
 	public function setOnchangeAction($onchange)
 	{
