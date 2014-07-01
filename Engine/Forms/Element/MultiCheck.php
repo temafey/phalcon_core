@@ -11,8 +11,13 @@ namespace Engine\Forms\Element;
  * @package     Forms
  * @subcategory Element
  */
-class Select extends \Engine\Forms\Element implements \Engine\Forms\ElementInterface
+class MultiCheck extends \Engine\Forms\Element\Select implements \Engine\Forms\ElementInterface
 {
+    /**
+     * Form element description
+     * @var string
+     */
+    protected $_desc;
 
     /**
      * @param string $name
@@ -34,35 +39,24 @@ class Select extends \Engine\Forms\Element implements \Engine\Forms\ElementInter
     }
 
     /**
+     * Render multi checkbox field
+     *
+     * @param array $attributes
+     * @return string
+     */
+    public function render($attributes=null)
+    {
+        $html = \Engine\Tag::multiCheckField($attributes);
+        return $html;
+    }
+
+    /**
      * If element is need to be rendered in default layout
      *
      * @return bool
      */
     public function useDefaultLayout()
     {
-        return true;
-    }
-
-    /**
-     * Sets the element description
-     *
-     * @param string $desc
-     * @return \Engine\Forms\Element\Select
-     */
-    public function setDesc($desc)
-    {
-        $this->_desc = $desc;
-        return $this;
-    }
-
-
-    /**
-     * Returns the element's description
-     *
-     * @return string
-     */
-    public function getDesc()
-    {
-        return $this->_desc;
+        return false;
     }
 }

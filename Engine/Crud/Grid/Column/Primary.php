@@ -47,9 +47,10 @@ class Primary extends Base
     /**
      * Primary column can't be editable
      *
+     * @param bool $editable
      * @return \Engine\Crud\Grid\Column
      */
-    public function setEditable()
+    public function setEditable($editable)
     {
         return $this;
     }
