@@ -10,7 +10,7 @@ namespace Engine\Forms;
  * @category    Engine
  * @package     Forms
  */
-class Element extends \Phalcon\Forms\Element implements ElementInterface
+abstract class Element extends \Phalcon\Forms\Element implements ElementInterface
 {
 
     protected $_desc;

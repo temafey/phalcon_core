@@ -146,6 +146,9 @@ class Model extends \Phalcon\Mvc\Model
         $db = $model->getWriteConnection();
         if (is_array($ids)) {
             for ($i = 0; $i < count($ids); ++$i) {
+                if (!is_string($ids[$i])) {
+                    throw new \Engine\Exception("Data type incorrect");
+                }
                 $ids[$i] = $db->escapeString($ids[$i]);
             }
             $credential = $primary." IN (".implode(",", $ids).")";
@@ -285,7 +288,7 @@ class Model extends \Phalcon\Mvc\Model
         } else {
             $refName = get_class($refModel);
         }
-        if (!$refModel instanceof \Engine\Mvc\Model) {die('sd');
+        if (!$refModel instanceof \Engine\Mvc\Model) {
             throw new \Engine\Exception("Model class '$refName' does not extend Engine\Mvc\Model");
         }
         $relations = $this->getModelsManager()->getBelongsTo($this);

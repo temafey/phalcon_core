@@ -151,12 +151,12 @@ class Join extends ArrayToSelect
 	 */
 	public function applyFilter($dataSource, Container $container)
 	{
+        $path = ($this->_path) ? $this->_path : $this->_model;
         if (!$this->_name) {
             $model = $dataSource->getModel();
-            $path = ($this->_path) ? $this->_path : $this->_model;
             $relations = $model->getRelationPath($path);
             if (!$relations) {
-                throw new \Engine\Exception("Relations to model '".get_class($model)."' by path '".implode(", ", $path)."' not valid");
+                throw new \Engine\Exception("Relations for model '".get_class($model)."' by path '".implode(", ", $path)."' not valid");
             }
             $relation = array_pop($relations);
             $this->_name = $relation->getFields();
@@ -164,8 +164,8 @@ class Join extends ArrayToSelect
 
 		if ($filters = $this->getFilter($container)) {
 			if ($this->_separatedQueries === false) {
-                $dataSource->columnsJoinOne($this->_path);
-                $filterPath = $container->getFilter('path', $this->_path, $filters);
+                $dataSource->columnsJoinOne($path);
+                $filterPath = $container->getFilter('path', $path, $filters);
                 $filterPath->applyFilter($dataSource);
 			} else {
 				$filters = $this->_getSeparateFilters($filters, $dataSource->getModel(), $container);
@@ -220,7 +220,7 @@ class Join extends ArrayToSelect
      */
     protected function _getSeparateFilters($filters, \Engine\Mvc\Model $model, Container $container)
 	{
-		$path = $this->_path;
+        $path = ($this->_path) ? $this->_path : $this->_model;
 		$rule = array_shift($path);
         $relations = $model->getRelationPath($rule);
         $relation = array_shift($relations);

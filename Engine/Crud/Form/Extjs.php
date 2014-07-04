@@ -249,6 +249,11 @@ abstract class Extjs extends Form
                     throw new \Engine\Exception('Primary key not found in params');
                 }
                 $id = $id[$primaryKey];
+            } elseif (is_object($id)) {
+                if (!isset($id->{$primaryKey})) {
+                    throw new \Engine\Exception('Primary key not found in params');
+                }
+                $id = $id->{$primaryKey};
             }
             $resultRow = $form->delete($id);
             if ($resultRow === false) {
