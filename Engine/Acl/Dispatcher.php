@@ -55,18 +55,28 @@ class Dispatcher
 
         // check admin area
         if ($module == $adminModuleName) {
-            if ($controller != 'admin' && !$acl->isAllowed($viewer->getRole(), self::ACL_ADMIN_MODULE, self::ACL_ADMIN_CONTROLLER, '*')) {
-                if ($this->_di->get('request')->isAjax() == true) {
-                    return $dispatcher->forward([
-                        "controller" => 'admin',
-                        "action" => 'denied'
-                    ]);
-                } else {
-                    return $dispatcher->forward([
-                        "controller" => 'admin',
-                        "action" => 'index'
-                    ]);
-                }
+            if ($controller == 'admin') {
+                return;
+            }
+            if (
+                $acl->isAllowed($viewer->getRole(), \Engine\Acl\Dispatcher::ACL_ADMIN_MODULE, \Engine\Acl\Dispatcher::ACL_ADMIN_CONTROLLER, '*') ||
+                $acl->isAllowed($viewer->getRole(), \Engine\Acl\Dispatcher::ACL_ADMIN_MODULE, \Engine\Acl\Dispatcher::ACL_ADMIN_CONTROLLER, 'read')
+            ) {
+                return;
+            }
+            if ($acl->isAllowed($viewer->getRole(), $module, $controller, $action, false)) {
+                return;
+            }
+            if ($this->_di->get('request')->isAjax() == true) {
+                return $dispatcher->forward([
+                    "controller" => 'admin',
+                    "action" => 'denied'
+                ]);
+            } else {
+                return $dispatcher->forward([
+                    "controller" => 'admin',
+                    "action" => 'index'
+                ]);
             }
         } else {
             if (!$acl->isAllowed($viewer->getRole(), $module, $controller, $action, true)) {

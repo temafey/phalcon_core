@@ -11,9 +11,8 @@ namespace Engine\Forms\Element;
  * @package     Forms
  * @subcategory Element
  */
-class Select extends \Engine\Forms\Element implements \Engine\Forms\ElementInterface
+class Select extends \Phalcon\Forms\Element\Select implements \Engine\Forms\ElementInterface
 {
-
     /**
      * @param string $name
      * @param array $options

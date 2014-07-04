@@ -61,38 +61,31 @@ class Service implements \Phalcon\DI\InjectionAwareInterface
                     throw new \Engine\Exception('Acl adapter not instance of Phalcon\Acl\Adapter');
                 }
                 // prepare Roles
+                $aclAdapter->addRole(self::ROLE_TYPE_ADMIN);
                 $roles = $aclAdapter->getRoles();
                 foreach ($roles as $role) {
                     $acl->addRole($role);
                 }
-                $acl->addRole(self::ROLE_TYPE_ADMIN);
 
                 // Defining admin area
                 $adminArea = new AclResource(self::ACL_ADMIN_AREA);
                 // Add "admin area" resource
+                $aclAdapter->addResource($adminArea, '*');
                 $acl->addResource($adminArea, '*');
-                $acl->allow(self::ROLE_TYPE_ADMIN, '*', '*');
                 $acl->allow(self::ROLE_TYPE_ADMIN, self::ACL_ADMIN_AREA, '*');
+                $acl->allow(self::ROLE_TYPE_ADMIN, '*', '*');
 
                 // Getting objects that is in acl
                 // Looking for all models in modelsDir and check @Acl annotation
-                $objects = [
-                    self::ACL_ADMIN_AREA => [
-                        'actions' => ['*']
-                    ]
-                ];
                 $config = $this->_di->get('config');
-
                 foreach ($this->_di->get('modules') as $module => $enabled) {
                     if (!$enabled) {
                         continue;
                     }
-
                     $moduleName = ucfirst($module);
                     $controllerPath = $config->application->modulesDir.$moduleName.'/Controller';
                     if (file_exists($controllerPath)) {
                         $files = scandir($controllerPath); // get all file names
-
                         foreach ($files as $file) { // iterate files
                             if ($file == "." || $file == "..") {
                                 continue;
@@ -105,29 +98,23 @@ class Service implements \Phalcon\DI\InjectionAwareInterface
                                 continue;
                             }
                             $resource = $this->getResource($moduleName, $controllerClassName);
-                            $objects[$resource]['actions'] = $object->actions;
-                            $objects[$resource]['options'] = $object->options;
-                        }
-
-                        // add objects to resources
-                        foreach ($objects as $resource => $object) {
-                            if (empty($object['actions'])) {
-                                $object['actions'] = [];
-                            }
-                            $aclAdapter->addResource($resource, $object['actions']);
-                            $acl->addResource($resource, $object['actions']);
+                            $aclAdapter->addResource($resource, $object->actions);
                         }
                     }
                 }
 
+                $resources = $aclAdapter->getResources();
                 foreach ($roles as $role) {
                     $roleName = $role->getName();
-                    foreach ($objects as $resource => $object) {
-                        foreach ($object['actions'] as $actions) {
-                            if ($aclAdapter->isAllowed($roleName, $resource, $actions)) {
-                                $acl->allow($roleName, $resource, $actions);
+                    foreach ($resources as $resource) {
+                        $actions = $aclAdapter->getResourceAccesses($resource);
+                        $resourceName = $resource->getName();
+                        $acl->addResource($resource, $actions);
+                        foreach ($actions as $action) {
+                            if ($aclAdapter->isAllowed($roleName, $resourceName, $action)) {
+                                $acl->allow($roleName, $resourceName, $action);
                             } else {
-                                $acl->deny($roleName, $resource, $actions);
+                                $acl->deny($roleName, $resourceName, $action);
                             }
                         }
                     }
@@ -217,5 +204,4 @@ class Service implements \Phalcon\DI\InjectionAwareInterface
     {
         $this->_di->get('cacheData')->delete(self::ACL_CACHE_KEY);
     }
-
 }

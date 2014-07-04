@@ -14,22 +14,22 @@ use Engine\Crud\Form\Extjs as Form,
  * @package    Crud
  * @subpackage Helper
  */
-class Combobox extends BaseHelper
+class ManyToMany extends BaseHelper
 {
     /**
      * Render extjs combobox form field
      *
-     * @param \Engine\Crud\Form\Field\ArrayToSelect $field
+     * @param \Engine\Crud\Form\Field\ManyToMany $field
      * @return string
      */
-    public static function _(Field\ArrayToSelect $field)
+    public static function _(Field\ManyToMany $field)
     {
         $fieldCode = [];
 
         if ($field->isHidden()) {
             $fieldCode[] = "xtype: 'hiddenfield'";
         } else {
-            $fieldCode[] = "xtype: 'combobox'";
+            $fieldCode[] = "xtype: 'comboboxselect'";
         }
         $fieldCode[] = "name: '".$field->getKey()."'";
         $fieldCode[] = "allowBlank: ".(($field->isRequire()) ? "false" : "true");
@@ -51,11 +51,26 @@ class Combobox extends BaseHelper
         $fieldCode[] = "triggerAction: 'all'";
         $fieldCode[] = "selectOnTab: true";
         $fieldCode[] = "lazyRender: true";
-        $fieldCode[] = "listClass: 'x-combo-list-small'";
         $fieldCode[] = "queryMode: 'local'";
         $fieldCode[] = "displayField: 'name'";
         $fieldCode[] = "valueField: 'id'";
         $fieldCode[] = "valueNotFoundText: 'Nothing found'";
+        $fieldCode[] = "labelWidth: 130";
+        $fieldCode[] = "rowMin: 20";
+        //$fieldCode[] = "growMax: 24";
+
+        $fieldCode[] = "pageSize: 10";
+        $fieldCode[] = "queryMode: 'remote'";
+        $fieldCode[] = "delimiter: ','";
+        $fieldCode[] = "forceSelection: true";
+        //$fieldCode[] = "triggerOnClick": false";
+        $fieldCode[] = "listConfig: {
+                            tpl: [
+                                '<ul><tpl for=\".\">',
+                                '<li role=\"option\" class=\"x-boundlist-item\">{name}</li>',
+                                ''</tpl></ul>''
+                            ]
+                        }'";
 
         $store = forward_static_call(['static', '_getStore'], $field);
         $fieldCode[] = "store: ".$store;
@@ -86,7 +101,7 @@ class Combobox extends BaseHelper
 
         $store = "new Ext.data.Store({
                         autoLoad: ".($autoLoad ? "true" : "false").","
-                        .($isLoaded ? "
+            .($isLoaded ? "
                         isLoaded: false," : "")."
                         fields: [{name: 'id'}, {name: 'name'}],
                         proxy: {
@@ -111,29 +126,6 @@ class Combobox extends BaseHelper
     protected static function _getListeners(Field\ArrayToSelect $field)
     {
         $listeners = "{";
-
-        if ($field->getAttrib('changeListener')) {
-            $listeners .= "
-                        change: function (field, newValue, oldValue) {
-                            var record = null;
-                            if (field.store.isLoaded !== false) {
-                                record = field.store.findRecord('id', newValue);
-                                if (record === null) {
-                                    record = field.store.findRecord('name', newValue);
-                                    if (record !== null) {
-                                        field.setValue(record);
-                                    }
-                                }
-                            } else {
-                                field.store.addListener('load', function() {
-                                    field.store.isLoaded = true;
-                                    record = field.store.findRecord('name', newValue);
-                                    field.setValue(record);
-                                }, field);
-                                field.store.load();
-                            }
-                        }";
-        }
 
         $listeners .= "
                     }";

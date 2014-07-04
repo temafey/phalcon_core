@@ -794,6 +794,9 @@ abstract class Form implements
             }
             $id = $this->_id;
         }
+        if (!is_string($id)) {
+            throw new \Engine\Exception("Data type incorrect");
+        }
 	    return $this->_container->delete($id);
 	}
 	

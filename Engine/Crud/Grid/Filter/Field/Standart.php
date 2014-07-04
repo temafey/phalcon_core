@@ -28,6 +28,12 @@ class Standart extends Field
 	 * @var integer
 	 */
 	protected $_length;
+
+    /**
+     * Filter value delimeter
+     * @var string
+     */
+    protected $_delimeter;
 	
 	/**
      * Constructor
@@ -91,11 +97,11 @@ class Standart extends Field
 		}
 		$filters = [];
 		if (!is_array($values)) {
-			$values = [$values];
+			$values = ($this->_delimeter) ? explode($this->_delimeter, $values) : [$values];
 		}
 
 		foreach ($values as $val) {
-			if(trim($val) == "" || array_search($val, $this->_exceptionsValues)) {
+			if (trim($val) == "" || array_search($val, $this->_exceptionsValues)) {
 				continue;
 			}
 			$filters[] = $container->getFilter('search', [$this->_name => $this->_criteria], $val);
@@ -104,4 +110,17 @@ class Standart extends Field
 		
 		return $filter;
 	}
+
+    /**
+     * Set filter value delimeter
+     *
+     * @param string  $delimeter
+     * @return \Engine\Crud\Grid\Filter\Field\Standart
+     */
+    public function setDelimeter($delimeter)
+    {
+        $this->_delimeter = (string) $delimeter;
+
+        return $this;
+    }
 }

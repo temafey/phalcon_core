@@ -219,6 +219,16 @@ class Database extends Adapter implements AdapterInterface
                 [$resource->getName(), $resource->getDescription()],
                 ['name', 'description']
             );
+            if (!$accessList) {
+                $accessList = '*';
+            } else {
+                if (is_array($accessList)) {
+                    $accessList[] = '*';
+                } else {
+                    $accessList = [$accessList];
+                    $accessList[] = '*';
+                }
+            }
 		}
 
 		if ($accessList) {
@@ -254,7 +264,7 @@ class Database extends Adapter implements AdapterInterface
 				}
 			}
 		} else {
-			$exists = $this->_db->fetchOne($sql, null, [$resourceName, $accessList]);
+			$exists = $this->_db->fetchOne($sql, null, [$resourceId, $accessList]);
 			if (!$exists[0]) {
                 $this->_db->insert(
                     $this->_options['resourcesAccesses'],
@@ -270,18 +280,45 @@ class Database extends Adapter implements AdapterInterface
 	/**
 	 * Returns all resources in the access list
 	 *
-	 * @return \Phalcon\Acl\Resource[]
+     * @param \Phalcon\Acl\Resource $resource
+	 * @return array
 	 */
 	public function getResources()
 	{
 		$resources = [];
 		$sql = 'SELECT * FROM '.$this->_options['resources'];
 		foreach ($this->_db->fetchAll($sql, \Phalcon\Db::FETCH_ASSOC) as $row) {
+            if ($row['name'] == '*') {
+                continue;
+            }
 			$resources[] = new Resource($row['name'], $row['description']);
 		}
 
 		return $resources;
 	}
+
+    /**
+     * Returns resource accesses
+     *
+     * @return \Phalcon\Acl\Resource[]
+     */
+    public function getResourceAccesses($resource)
+    {
+        if (!is_object($resource)) {
+            $resource = new Resource($resource);
+        }
+        $exists = $this->_db->fetchOne('SELECT id FROM '.$this->_options['resources']." WHERE name = ?", null, [$resource->getName()]);
+        if (!$exists[0]) {
+            return false;
+        }
+        $accesses = [];
+        $sql = 'SELECT id, name FROM '.$this->_options['resourcesAccesses']." WHERE resource_id = ?";
+        foreach ($this->_db->fetchAll($sql, \Phalcon\Db::FETCH_ASSOC, [$exists['id']]) as $row) {
+            $accesses[] = $row['name'];
+        }
+
+        return $accesses;
+    }
 
 	/**
 	 * Returns all resources in the access list
@@ -526,11 +563,11 @@ class Database extends Adapter implements AdapterInterface
 		/**
 		 * Check if there is an common rule for that resource
 		 */
-        $sql = 'SELECT COUNT(*) FROM '.$this->_options['accessList']." WHERE role_id = ? AND resource_id = ? AND access_id = ?";
+        /*$sql = 'SELECT COUNT(*) FROM '.$this->_options['accessList']." WHERE role_id = ? AND resource_id = ? AND access_id = ?";
 		$allowed = $this->_db->fetchOne($sql, \Phalcon\Db::FETCH_NUM, [$roleId, $resourceId, $accessIdZero]);
 		if (is_array($allowed)) {
 			return (int) $allowed[0];
-		}
+		}*/
 
 		$sql = 'SELECT inherit_role_id FROM '.$this->_options['rolesInherits'].' WHERE role_id = ?';
 		$inheritedRoles = $this->_db->fetchAll($sql, \Phalcon\Db::FETCH_NUM, [$roleId]);
@@ -541,17 +578,6 @@ class Database extends Adapter implements AdapterInterface
 		foreach ($inheritedRoles as $row) {
 			$sql = 'SELECT allowed FROM '.$this->_options['accessList']." WHERE role_id = ? AND resource_id = ? AND access_id = ?";
 			$allowed = $this->_db->fetchOne($sql, \Phalcon\Db::FETCH_NUM, [$row[0], $resourceId, $accessId]);
-			if (is_array($allowed)) {
-				return (int) $allowed[0];
-			}
-		}
-
-		/**
-		 * Check inherited roles for a specific rule
-		 */
-		foreach ($inheritedRoles as $row) {
-            $sql = 'SELECT allowed FROM '.$this->_options['accessList']." WHERE role_id = ? AND resource_id = ? AND access_id = ?";
-			$allowed = $this->_db->fetchOne($sql, \Phalcon\Db::FETCH_NUM, [$row[0], $resourceId, $accessIdZero]);
 			if (is_array($allowed)) {
 				return (int) $allowed[0];
 			}
