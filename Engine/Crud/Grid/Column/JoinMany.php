@@ -88,7 +88,7 @@ class JoinMany extends Column
         $orderBy = null,
         $separator = ',',
         $count = 5,
-        $width = 300,
+        $width = 450,
         $isEditable = true
     ) {
 		parent::__construct($title, null, false, false, $width, $isEditable, null);

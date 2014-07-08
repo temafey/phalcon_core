@@ -35,7 +35,7 @@ class Functions extends BaseHelper
             bbarGet: function() {
                 return [
                 ]
-            }
+            },
             ";
 
         return $code;

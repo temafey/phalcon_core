@@ -26,7 +26,7 @@ class Custom extends Base
 
     public function __construct($title, \Closure $closure, $params = [])
     {
-        $params = array_merge($params, $this->defaultParams);
+        $params = array_merge($this->defaultParams, $params);
         extract($params);
         /** @var $isSortable bool */
         /** @var $isHidden bool */
