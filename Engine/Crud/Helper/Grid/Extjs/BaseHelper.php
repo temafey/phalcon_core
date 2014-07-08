@@ -4,7 +4,8 @@
  */
 namespace Engine\Crud\Helper\Grid\Extjs;
 
-use Engine\Crud\Grid\Extjs as Grid;
+use Engine\Crud\Grid\Extjs as Grid,
+    Engine\Crud\Helper\Tools\Requires;
 
 /**
  * Class html grid helper
@@ -15,6 +16,8 @@ use Engine\Crud\Grid\Extjs as Grid;
  */
 class BaseHelper extends \Engine\Crud\Helper
 {
+    use Requires;
+
     /**
      * Is create js file prototype
      * @var boolean

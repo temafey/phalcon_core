@@ -47,6 +47,18 @@ class JoinMany extends Column
 	 * @var integer
 	 */
 	protected $_count;
+
+    /**
+     * Load values by separate queries
+     *
+     * @var bool
+     */
+    protected $_separateQueries = true;
+
+    /**
+     * @var \Engine\Mvc\Model\Query\Builder
+     */
+    protected $_queryBuilder;
 	
 	/**
 	 * No value
@@ -74,11 +86,12 @@ class JoinMany extends Column
         $path = null,
         $column = null,
         $orderBy = null,
-        $separator = null,
-        $count = null,
-        $width = 200
+        $separator = ',',
+        $count = 5,
+        $width = 300,
+        $isEditable = true
     ) {
-		parent::__construct($title, null, true, false, $width, false, null);
+		parent::__construct($title, null, false, false, $width, $isEditable, null);
 		
 		$this->_path = $path;
 		$this->_column = $column;
@@ -95,7 +108,10 @@ class JoinMany extends Column
 	 */
 	public function updateDataSource($dataSource)
 	{
-		$dataSource->columnsJoinMany($this->_path, $this->_key, $this->_column, $this->_orderBy, $this->_separator);
+        if (!$this->_separateQueries) {
+		    $dataSource->columnsJoinMany($this->_path, $this->_key, $this->_column, $this->_orderBy, $this->_separator);
+        }
+
 		return $this;
 	}
 
@@ -120,13 +136,18 @@ class JoinMany extends Column
      */
 	public function render($row)
 	{
-		$value = $row[$this->_key];
-		$values = explode("\n", $value);
-		$count = count($values);
-		if(($this->_count !== false) && ($this->_count !== null)) {
-			$values = array_slice($values, 0, $this->_count);
-		}
-		
+        if ($this->_separateQueries) {
+            $values = $this->_getManyValues($row['id']);
+            $count = count($values);
+        } else {
+            $value = $row[$this->_key];
+            $values = explode($this->_separator, $value);
+            $count = count($values);
+            if(($this->_count !== false) && ($this->_count !== null)) {
+                $values = array_slice($values, 0, $this->_count);
+            }
+        }
+
 		if (null !== $this->_tag) {
 		    foreach ($values as $i => $val) {
 		        if($this->_tag == '<b>' || $this->_tag == 'b') {
@@ -147,14 +168,52 @@ class JoinMany extends Column
 			 $value = $this->_na;
 		}
 		if(!empty($this->_left)) {
-		    $value = $this->_left . $value;
+		    $value = $this->_left.$value;
 		}
 	    if(!empty($this->_right)) {
 		    $value .= $this->_right;
 		}
-		
+
 		return $value;
 	}
+
+    /**
+     * Return values
+     *
+     * @param string $id
+     * @return array
+     */
+    protected function _getManyValues($id)
+    {
+        if (!$this->_queryBuilder) {
+            $path = $this->_path;
+            $workedModel = array_shift($path);
+            $model = new $workedModel;
+            $this->_queryBuilder = $model->queryBuilder();
+            $name = \Engine\Mvc\Model::NAME;
+            $this->_queryBuilder->columnsJoinOne($path, $name);
+
+            $mainModel = $this->_grid->getContainer()->getDataSource()->getModel();
+            $relations = $mainModel->getRelationPath($workedModel);
+            if (!$relations) {
+                throw new \Engine\Exception("Relations to model '".get_class($model)."' by path '".implode(", ", $path)."' not valid");
+            }
+            $relation = array_pop($relations);
+            $field = $relation->getReferencedFields();
+            $this->_queryBuilder->where($field." = :id:");
+            if ($this->_count) {
+                $this->_queryBuilder->limit($this->_count);
+            }
+            $this->_queryBuilder->orderBy($this->_orderBy);
+        }
+        $rows = $this->_queryBuilder->getQuery()->execute(['id' => $id]);
+        $values = [];
+        foreach ($rows as $row) {
+            $values[] = $row->{$name};
+        }
+
+        return $values;
+    }
 
     /**
      * Return column value by key
@@ -203,4 +262,14 @@ class JoinMany extends Column
 		$this->_na = $na;
 		return $this;
 	}
+
+    /**
+     * Return separator
+     *
+     * @return string
+     */
+    public function getSeparator()
+    {
+        return $this->_separator;
+    }
 }

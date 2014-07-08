@@ -24,6 +24,8 @@ class ManyToMany extends BaseHelper
      */
     public static function _(Field\ManyToMany $field)
     {
+        static::addRequires('Ext.ux.form.field.BoxSelect');
+
         $fieldCode = [];
 
         if ($field->isHidden()) {
@@ -46,35 +48,37 @@ class ManyToMany extends BaseHelper
         if ($width) {
             $fieldCode[] = "width: ".$width;
         }
-
+        $separator = $field->getSeparator();
+        if ($separator) {
+            $fieldCode[] = "delimiter: '".$separator."'";
+        } else {
+            $fieldCode[] = "delimiter: ' '";
+        }
         $fieldCode[] = "typeAhead: true";
         $fieldCode[] = "triggerAction: 'all'";
         $fieldCode[] = "selectOnTab: true";
         $fieldCode[] = "lazyRender: true";
-        $fieldCode[] = "queryMode: 'local'";
         $fieldCode[] = "displayField: 'name'";
-        $fieldCode[] = "valueField: 'id'";
+        $fieldCode[] = "valueField: 'name'";
         $fieldCode[] = "valueNotFoundText: 'Nothing found'";
-        $fieldCode[] = "labelWidth: 130";
         $fieldCode[] = "rowMin: 20";
         //$fieldCode[] = "growMax: 24";
-
-        $fieldCode[] = "pageSize: 10";
         $fieldCode[] = "queryMode: 'remote'";
-        $fieldCode[] = "delimiter: ','";
         $fieldCode[] = "forceSelection: true";
+        $fieldCode[] = "pageSize: 10";
         //$fieldCode[] = "triggerOnClick": false";
         $fieldCode[] = "listConfig: {
                             tpl: [
                                 '<ul><tpl for=\".\">',
                                 '<li role=\"option\" class=\"x-boundlist-item\">{name}</li>',
-                                ''</tpl></ul>''
+                                '</tpl></ul>'
                             ]
-                        }'";
+                        }";
 
         $store = forward_static_call(['static', '_getStore'], $field);
         $fieldCode[] = "store: ".$store;
 
+        $options = [];
         $listeners = forward_static_call(['static', '_getListeners'], $field);
         $fieldCode[] = "listeners: ".$listeners;
 
@@ -94,13 +98,14 @@ class ManyToMany extends BaseHelper
         $key = $field->getKey();
         $form = $field->getForm();
         $formKey = $form->getKey();
-        $url = $form->getAction()."/".$key."/options";
+        $url = $form->getAction()."/".$key."/multi-options";
 
         $autoLoad = ($field->getAttrib('autoLoad')) ? true : false;
         $isLoaded = ($field->getAttrib('isLoaded')) ? true : false;
 
         $store = "new Ext.data.Store({
-                        autoLoad: ".($autoLoad ? "true" : "false").","
+                        autoLoad: ".($autoLoad ? "true" : "false").",
+                        pageSize: 10,"
             .($isLoaded ? "
                         isLoaded: false," : "")."
                         fields: [{name: 'id'}, {name: 'name'}],
@@ -109,7 +114,8 @@ class ManyToMany extends BaseHelper
                             url: '".$url."',
                             reader: {
                                 root: '".$formKey."',
-                                type: 'json'
+                                type: 'json',
+                                totalProperty: 'results'
                             }
                         }
                     })";

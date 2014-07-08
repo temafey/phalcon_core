@@ -25,8 +25,6 @@ class Components extends BaseHelper
 	{
         $buildStore = $grid->isBuildStore();
 
-
-
         $code = "
             buildStore: ".($buildStore ? 'true' : 'false').",
 
@@ -54,7 +52,6 @@ class Components extends BaseHelper
         }
 
         $code .= "
-                me.plugins = me.cellEditing;
                 me.columns = me.columnsGet();
                 me.tbar    = me.getTopToolbarItems();
                 me.bbar    = me.getBottomToolbarItems();

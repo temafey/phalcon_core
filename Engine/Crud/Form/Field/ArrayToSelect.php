@@ -197,6 +197,7 @@ class ArrayToSelect extends Field
                 $options = $null + $options;
             }
         }
+
         return $options;
     }
 }

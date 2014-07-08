@@ -16,7 +16,6 @@ use Engine\Crud\Helper\Grid\Extjs\BaseHelper as Base,
  */
 class BaseHelper extends Base
 {
-
     /**
      * Render filter form field
      *

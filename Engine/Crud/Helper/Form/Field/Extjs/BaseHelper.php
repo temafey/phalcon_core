@@ -15,6 +15,7 @@ use Engine\Crud\Helper\Form\Extjs\BaseHelper as Base;
  */
 class BaseHelper extends Base
 {
+
     /**
      * Implode field components to formated string
      *
