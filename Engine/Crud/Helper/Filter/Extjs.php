@@ -67,15 +67,8 @@ class Extjs extends BaseHelper
             ";
         }*/
 
-        $code .= "requires: [";
-        $requires = [];
-
-        $requires[] = "'Ext.form.field.*'";
-        $requires[] = "'Ext.ux.crud.Filter'";
-        $code .= implode(",", $requires);
-
-        $code .= "],
-            ";
+        static::addRequires("'Ext.form.field.*'");
+        static::addRequires("'Ext.ux.crud.Filter'");
 
         $code .= "itemId: '".static::$_module.ucfirst(static::$_prefix)."Filter',
             ";
@@ -100,7 +93,11 @@ class Extjs extends BaseHelper
      */
     static public function endTag()
     {
-        return "
+        $code = "requires: [";
+        $code .= static::getRequires(true);
+        $code .= "]";
+
+        return $code."
         });";
     }
 } 

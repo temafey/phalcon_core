@@ -189,12 +189,6 @@ abstract class Grid implements
 	 */
 	protected $_isCountQuery = true;
 
-    /**
-     * is grid data can be edit
-     * @var bool
-     */
-    protected $_isEditable = true;
-
 	/**
      * Constructor
      *
@@ -743,25 +737,18 @@ abstract class Grid implements
 	}
 
     /**
-     * Set grid data can be edit
-     *
-     * @param bool $editable
-     * @return \Engine\Crud\Grid
-     */
-    public function setEditable($editable)
-    {
-        $this->_isEditable = (bool) $editable;
-        return $this;
-    }
-
-    /**
      * Is grid data can be edit
      *
-     * @return mixed
+     * @return boolean
      */
     public function isEditable()
     {
-        return $this->_isEditable;
+        foreach ($this->_columns as $column) {
+            if ($column->isEditable()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -58,7 +58,7 @@ class Multiselect
             }
         }
 
-        if(null !== $name) {
+        if (null !== $name) {
             $queryBuilder->columnsId()->setColumn($name, 'name');
         } else {
             $queryBuilder->columnsId()->columnsName();
@@ -87,13 +87,12 @@ class Multiselect
                 if ($item ['id'] === 0) {
                     continue;
                 }
-                $category = trim($item ['category']) ? $item['category'] : $emptyCategory;
+                $category = trim($item['category']) ? $item['category'] : $emptyCategory;
                 $options[$category][$item ['id']] = trim($item['name']) ? $item['name'] : $emptyItem;
             }
         } else {
-            $queryBuilder->orderNatural(true);
+            $queryBuilder->orderNatural();
             //$select->order('name');
-            $result = $queryBuilder->getPhql();
             $data = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result;
             $options = [];
             foreach ($data as $item) {
@@ -103,21 +102,24 @@ class Multiselect
                 $options [$item ['id']] = trim($item ['name']) ? $item ['name'] : $emptyItem;
             }
             if ($multiselect) {
-                $options = [0 => $options];
+                //$options = [0 => $options];
             }
         }
 
         return $options;
     }
 
-    static function prepareOptionsAll(\Engine\Mvc\Model\Query\Builder $queryBuilder, $name = null, $category = null, $categoryName = null, $where = null, $emptyCategory = "n/a", $emptyItem = "n/a", $multiselect = false, &$fields = null, $category_order = null) {
-        if ($emptyCategory === null)
+    static function prepareOptionsAll(\Engine\Mvc\Model\Query\Builder $queryBuilder, $name = null, $category = null, $categoryName = null, $where = null, $emptyCategory = "n/a", $emptyItem = "n/a", $multiselect = false, &$fields = null, $category_order = null)
+    {
+        if ($emptyCategory === null) {
             $emptyCategory = self::EMPTY_CATEGORY;
-        if ($emptyItem === null)
+        }
+        if ($emptyItem === null) {
             $emptyItem = self::EMPTY_ITEM;
-        $model = $queryBuilder->getTable();
+        }
+        $model = $queryBuilder->getModel();
         if ($where) {
-            if (! is_array($where)) {
+            if (!is_array($where)) {
                 $where = array ($where);
             }
             foreach ($where as $whereItem) {
@@ -125,14 +127,13 @@ class Multiselect
             }
         }
 
-        $$queryBuilder->columnsId ()->columnsAll ();
         if (null !== $fields) {
             if (is_array($fields)) {
                 foreach ($fields as $field => $value) {
                     if (is_array($value)) {
-                        if (isset($value ['case'])) {
-                            $case = self::selectCase($field, $value ['case'], $select->getAlias ());
-                            $select->from(null, array ($field."_case" => new Zend_Db_Expr($case)));
+                        if (isset($value['case'])) {
+                            $case = self::selectCase($field, $value ['case'], $queryBuilder->getAlias());
+                            $queryBuilder->from(null, [$field."_case" => $case]);
                             unset($fields [$field]);
                             $fields [$field."_case"] = $value ['title'];
                         }
@@ -142,14 +143,14 @@ class Multiselect
         }
 
         if ($category) {
-            $select->columnsJoinOne($category, 'category');
+            $queryBuilder->columnsJoinOne($category, 'category');
             if (null == $category_order) {
-                $select->order(array ('category', 'name'));
+                $queryBuilder->orderBy(['category', 'name']);
             } else {
-                $select->order($category_order);
+                $queryBuilder->orderBy($category_order);
             }
-            $data = (($result = $model->fetchAll($select)) === null) ? [] : $result->toArray();
-            $options = array ();
+            $data = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result;
+            $options = [];
             foreach ($data as $item) {
                 if ($item ['id'] === 0)
                     continue;
@@ -157,9 +158,9 @@ class Multiselect
                 $options [$category] [$item ['id']] = $item;
             }
         } else {
-            $select->orderNatural ();
-            $select->order('name');
-            $data = (($result = $model->fetchAll($select)) === null) ? [] : $result->toArray();
+            $queryBuilder->orderNatural();
+            $queryBuilder->orderBy('name');
+            $data = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result;
             $options = array ();
             foreach ($data as $item) {
                 if ($item ['id'] === 0)
@@ -167,9 +168,10 @@ class Multiselect
                 $options [$category] [$item ['id']] = $item;
             }
             if ($multiselect) {
-                $options = array (0 => $options);
+                //$options = [0 => $options];
             }
         }
+
         return $options;
     }
 

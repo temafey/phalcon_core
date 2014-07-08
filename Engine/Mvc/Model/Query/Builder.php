@@ -188,13 +188,9 @@ class Builder extends PhBuilder
             throw new \Engine\Exception("Model class not set");
         }
         $relationPath = $this->_model->getRelationPath($path);
-        if (!$relationPath) {
-            if (is_array($path)) {
-                $path = implode("->", $path);
-            }
-            throw new \Engine\Exception("Relation path '".$path."' for model '".get_class($this->_model)."' not found");
+        if (is_array($relationPath)) {
+            $this->joinPath($relationPath, $columns);
         }
-        $this->joinPath($relationPath, $columns);
 
         return $this;
     }
@@ -327,6 +323,7 @@ class Builder extends PhBuilder
         if ($joinColumns) {
             $this->joinColumns($columns, new $refModel, $alias);
         }
+
         return $this;
     }
 

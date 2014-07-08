@@ -23,7 +23,7 @@ class ManyToOne extends ArrayToSelect
      * Options row name
      * @var string
      */
-    protected $_optionName = 'name';
+    protected $_optionName;
 
     /**
      * Options category model
@@ -178,7 +178,6 @@ class ManyToOne extends ArrayToSelect
             $this->_model = new $this->_model;
         }
         $queryBuilder = $this->_model->queryBuilder();
-
         $this->_options = \Engine\Crud\Tools\Multiselect::prepareOptions($queryBuilder, $this->_optionName, $this->category, $this->categoryName, $this->where, $this->emptyCategory, $this->emptyItem, $this->fields);
     }
 }
