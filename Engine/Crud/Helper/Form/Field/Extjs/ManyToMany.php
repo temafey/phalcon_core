@@ -93,7 +93,7 @@ class ManyToMany extends BaseHelper
      * @param Field\ArrayToSelect $field
      * @return string
      */
-    protected static function _getStore(Field\ArrayToSelect $field)
+    protected static function _getStore(Field\ManyToMany $field)
     {
         $key = $field->getKey();
         $form = $field->getForm();
@@ -129,7 +129,7 @@ class ManyToMany extends BaseHelper
      * @param Field\ArrayToSelect $field
      * @return string
      */
-    protected static function _getListeners(Field\ArrayToSelect $field)
+    protected static function _getListeners(Field\ManyToMany $field)
     {
         $listeners = "{";
 

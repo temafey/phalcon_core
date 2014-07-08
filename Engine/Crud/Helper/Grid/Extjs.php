@@ -79,6 +79,7 @@ class Extjs extends BaseHelper
     static public function endTag()
     {
         $code = "
+
             requires: [";
         $code .= static::getRequires(true);
         $code .= "]";
