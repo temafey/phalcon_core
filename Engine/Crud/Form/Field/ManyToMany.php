@@ -523,13 +523,23 @@ class ManyToMany extends Field
         $optionsFunction = (null !== $this->_fields) ? 'prepareOptionsAll' : 'prepareOptions';
         $queryBuilder = $this->_model->queryBuilder();
         if ($params) {
-            if (isset($params['start'])) {
-                $offset = (int) $params['start'];
-                $queryBuilder->offset($offset);
-            }
-            if (isset($params['limit'])) {
-                $limit = (int) $params['limit'];
-                $queryBuilder->limit($limit);
+            if (isset($params['name'])) {
+                $name = $params['name'];
+                $names = explode($this->_separator, $name);
+                foreach ($names as $i => $name) {
+                    $names[$i] = "'".$name."'";
+                }
+                $queryBuilder->columnsName();
+                $queryBuilder->where("name IN (".implode(",", $names).")");
+            } else {
+                if (isset($params['start'])) {
+                    $offset = (int) $params['start'];
+                    $queryBuilder->offset($offset);
+                }
+                if (isset($params['limit'])) {
+                    $limit = (int) $params['limit'];
+                    $queryBuilder->limit($limit);
+                }
             }
         }
         $this->_options = \Engine\Crud\Tools\Multiselect::$optionsFunction($queryBuilder, $this->_optionName, $this->_category, $this->_categoryName, $this->_where, $this->_emptyCategory, $this->_emptyItem, true, $this->_fields, $this->_categoryOrder);
@@ -560,6 +570,15 @@ class ManyToMany extends Field
             $this->_model = new $this->_model;
         }
         $queryBuilder = $this->_model->queryBuilder();
+        if (isset($params['name'])) {
+            $name = $params['name'];
+            $names = explode($this->_separator, $name);
+            foreach ($names as $i => $name) {
+                $names[$i] = "'".$name."'";
+            }
+            $queryBuilder->columnsName();
+            $queryBuilder->where("name IN (".implode(",", $names).")");
+        }
         $queryBuilder->setColumn("COUNT(id)", "count", false);
         if ($params) {
         }

@@ -38,13 +38,13 @@ class Store extends BaseHelper
         Ext.define('".static::getStoreName()."', {
             extend: 'Ext.ux.crud.Store',
             alias: 'widget.".static::$_module.ucfirst(static::$_prefix)."Store',
-            requires: ['Ext.data.proxy.Ajax', 'Ext.ux.crud.Store'],
+            requires: ['Ext.ux.crud.Proxy', 'Ext.ux.crud.Store'],
             model: '".static::getModelName()."',
             pageSize: ".$limit.",
             autoLoad: false,
             remoteSort: true,
             proxy: {
-                type: 'ajax',
+                type: 'crudproxy',
                 api: {
                     read:    '".$action."/read',
                     update:  '".$action."/update',

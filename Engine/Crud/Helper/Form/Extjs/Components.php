@@ -29,10 +29,10 @@ class Components extends BaseHelper
             initComponent : function() {
                 var me = this;
 
-                me.items   = this.fieldsGet();
-                me.tbar    = this.tbarGet();
-                me.bbar    = this.bbarGet();
-                me.buttons = this.buttonsGet();
+                me.items   = me.fieldsGet();
+                me.tbar    = me.tbarGet();
+                me.bbar    = me.bbarGet();
+                me.buttons = me.buttonsGet();
                 me.callParent();
             },";
 

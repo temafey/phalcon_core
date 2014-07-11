@@ -29,18 +29,20 @@ class Buttons extends BaseHelper
         $code = "
 
             buttonsGet: function(){
+                var me = this;
+
                 return [
                     {
                         text: 'Save',
-                        scope: this,
+                        scope: me,
                         formBind: true, //only enabled once the form is valid
                         disabled: true,
-                        handler: this.onSubmit
+                        handler: me.onSubmit
                     },
                     {
                         text: 'Reset',
-                        scope: this,
-                        handler: this.onReset
+                        scope: me,
+                        handler: me.onReset
                     }
                 ]
             },
