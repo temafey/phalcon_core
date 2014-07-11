@@ -66,7 +66,7 @@ trait Requires
 
         $requires = [];
         foreach (static::$_requires as $require) {
-            $requires[] = '"'.str_replace('"', '\"', $require).'"';
+            $requires[] = "'".str_replace("'", "", $require)."'";
         }
 
         return implode(",", $requires);
