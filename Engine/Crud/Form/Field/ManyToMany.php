@@ -527,7 +527,7 @@ class ManyToMany extends Field
                 $name = $params['name'];
                 $names = explode($this->_separator, $name);
                 foreach ($names as $i => $name) {
-                    $names[$i] = "'".$name."'";
+                    $names[$i] = "'".($name)."'";
                 }
                 $queryBuilder->columnsName();
                 $queryBuilder->where("name IN (".implode(",", $names).")");
@@ -574,7 +574,7 @@ class ManyToMany extends Field
             $name = $params['name'];
             $names = explode($this->_separator, $name);
             foreach ($names as $i => $name) {
-                $names[$i] = "'".$name."'";
+                $names[$i] = "'".addslashes($name)."'";
             }
             $queryBuilder->columnsName();
             $queryBuilder->where("name IN (".implode(",", $names).")");
