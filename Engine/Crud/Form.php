@@ -1171,7 +1171,11 @@ abstract class Form implements
      */
     public function __get($key)
     {
-        if (!isset($this->_fields[$key])) {
+        if (is_null($key)) {
+            throw new \Engine\Exception("Key can not be null");
+        } elseif (!$key) {
+            throw new \Engine\Exception("Field key can not be empty");
+        } elseif (!isset($this->_fields[$key])) {
             throw new \Engine\Exception("Field \"$key\" is not in the form");
         }
         return $this->_fields[$key]->getValue();
@@ -1189,6 +1193,8 @@ abstract class Form implements
     {
         if (is_null($key)) {
             throw new \Engine\Exception("Key can not be null");
+        } elseif (!$key) {
+            throw new \Engine\Exception("Field key can not be empty");
         } elseif (!isset($this->_fields[$key])) {
             throw new \Engine\Exception("Field with key \"$key\" not exists");
         }
