@@ -81,7 +81,7 @@ class Controller extends BaseHelper
                 ";
         if ($grid->isEditable()) {
             $code .= "me.form = this.getView('".static::getFormName()."');
-        ";
+                ";
         }
         $code .= "me.filter = this.getView('".static::getFilterName()."');
                 me.store.addBaseParams(me.baseParams);

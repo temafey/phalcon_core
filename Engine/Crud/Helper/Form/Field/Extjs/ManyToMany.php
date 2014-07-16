@@ -33,6 +33,9 @@ class ManyToMany extends BaseHelper
         } else {
             $fieldCode[] = "xtype: 'comboboxselect'";
         }
+        if ($field->isNotEdit()) {
+            $fieldCode[] = "readOnly: true";
+        }
         $fieldCode[] = "name: '".$field->getKey()."'";
         $fieldCode[] = "allowBlank: ".(($field->isRequire()) ? "false" : "true");
 

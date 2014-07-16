@@ -57,8 +57,8 @@ class String
 	static function convToUtf8($str)
 	{
 	    $encoding = self::detect_encoding($str);
-		if ($encoding != "UTF-8" ) {
-			return  iconv($encoding, "UTF-8", $str);		
+		if ($encoding != "UTF-8") {
+			return iconv($encoding, "UTF-8", $str);		
 		} else {
 			return $str;
 		}
@@ -73,8 +73,8 @@ class String
 	static function convToWin($str)
 	{		
 	    $encoding = self::detect_encoding($str);
-		if ($encoding != "cp1251" ) {
-			return  iconv($encoding, "cp1251", $str);		
+		if ($encoding != "cp1251") {
+			return iconv($encoding, "cp1251", $str);
 		} else {
 			return $str;
 		}
@@ -148,47 +148,51 @@ class String
 	 */
 	static function quote($value, $type = null) 
 	{
-
-		if (is_array ($value )) {
-			foreach ($value as &$val ) {
-				$val = self::quote ($val, $type );
+		if (is_array($value)) {
+			foreach ($value as &$val) {
+				$val = self::quote($val, $type);
 			}
-			return implode (', ', $value );
+			return implode(', ', $value);
 		}
 
 		if ($type !== null) {
 			switch ($type) {
 				case 0 : // 32-bit integer
-					return (string ) intval ($value );
+					return (string) intval($value);
 					break;
 				case 1 : // 64-bit integer
-					// ANSI SQL-style hex literals (e.g. x'[\dA-F]+')
+					// ANSI SQL-style hex literals(e.g. x'[\dA-F]+')
 					// are not supported here, because these are string
 					// literals, not numeric literals.
-					if (preg_match ('/^(
+					if (preg_match('/^(
                           [+-]?                  # optional sign
-                          (?:
+                         (?:
                             0[Xx][\da-fA-F]+     # ODBC-style hexadecimal
                             |\d+                 # decimal or octal, or MySQL ZEROFILL decimal
-                            (?:[eE][+-]?\d+)?    # optional exponent on decimals or octals
-                          )
-                        )/x', (string ) $value, $matches )
-                    ) {
+                           (?:[eE][+-]?\d+)?    # optional exponent on decimals or octals
+                         )
+                       )/x',(string) $value, $matches)
+                    ) {var_dump($value);
 					    return $matches [1];
                     }
                     break;
 				case 2 : // float or decimal
-					return (string) floatval ($value);
+					return (string) floatval($value);
 					break;
 			}
 			return '0';
 		}
-
-		if (is_int($value) || is_float ($value)) {
+        if (is_object($value)) {
+            throw new \Engine\Exception('Value data type incorrect');
+        }
+        if (is_numeric($value)) {
+            $value = (int) $value;
+        }
+		if (is_int($value) || is_float($value)) {
 			return $value;
 		}
 
-		return "'" . addcslashes ($value, "\000\n\r\\'\"\032" )."'";
+		return "'" . addcslashes($value, "\000\n\r\\'\"\032")."'";
 	}
 
 	/**
@@ -299,12 +303,12 @@ class String
 
 		$new_str = "";
 		//$str = @mb_strtolower($str,"UTF8");
-		$str = @strtolower ($str );
+		$str = @strtolower($str);
 
-		foreach ($Letters as $key => $value ) {
-			$str = str_replace ($key, $value, $str );
+		foreach ($Letters as $key => $value) {
+			$str = str_replace($key, $value, $str);
 		}
-		$new_str = substr ($str, 0, $length );
+		$new_str = substr($str, 0, $length);
 		return $new_str;
 	}
 	
@@ -316,10 +320,10 @@ class String
 	 */
 	static function rus2translit($string) 
 	{
-		$converter = array ('а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'e', 'ж' => 'zh', 'з' => 'z', 'и' => 'i', 'й' => 'y', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p', 'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'c', 'ч' => 'ch', 'ш' => 'sh', 'щ' => 'sch', 'ь' => '\'', 'ы' => 'y', 'ъ' => '', 'э' => 'e', 'ю' => 'yu', 'я' => 'ya',
+		$converter = array('а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'e', 'ж' => 'zh', 'з' => 'z', 'и' => 'i', 'й' => 'y', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p', 'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'c', 'ч' => 'ch', 'ш' => 'sh', 'щ' => 'sch', 'ь' => '\'', 'ы' => 'y', 'ъ' => '', 'э' => 'e', 'ю' => 'yu', 'я' => 'ya',
 
-		'А' => 'A', 'Б' => 'B', 'В' => 'V', 'Г' => 'G', 'Д' => 'D', 'Е' => 'E', 'Ё' => 'E', 'Ж' => 'Zh', 'З' => 'Z', 'И' => 'I', 'Й' => 'Y', 'К' => 'K', 'Л' => 'L', 'М' => 'M', 'Н' => 'N', 'О' => 'O', 'П' => 'P', 'Р' => 'R', 'С' => 'S', 'Т' => 'T', 'У' => 'U', 'Ф' => 'F', 'Х' => 'H', 'Ц' => 'C', 'Ч' => 'Ch', 'Ш' => 'Sh', 'Щ' => 'Sch', 'Ь' => '\'', 'Ы' => 'Y', 'Ъ' => '', 'Э' => 'E', 'Ю' => 'Yu', 'Я' => 'Ya' );
-		return strtr ($string, $converter );
+		'А' => 'A', 'Б' => 'B', 'В' => 'V', 'Г' => 'G', 'Д' => 'D', 'Е' => 'E', 'Ё' => 'E', 'Ж' => 'Zh', 'З' => 'Z', 'И' => 'I', 'Й' => 'Y', 'К' => 'K', 'Л' => 'L', 'М' => 'M', 'Н' => 'N', 'О' => 'O', 'П' => 'P', 'Р' => 'R', 'С' => 'S', 'Т' => 'T', 'У' => 'U', 'Ф' => 'F', 'Х' => 'H', 'Ц' => 'C', 'Ч' => 'Ch', 'Ш' => 'Sh', 'Щ' => 'Sch', 'Ь' => '\'', 'Ы' => 'Y', 'Ъ' => '', 'Э' => 'E', 'Ю' => 'Yu', 'Я' => 'Ya');
+		return strtr($string, $converter);
 	}
 
 	/**
@@ -350,7 +354,7 @@ class String
         $total='';
         foreach ($data as $k => $v) {
             if (preg_match("/^[a-zA-Z]*/",$v)) {
-                foreach($alphas as $id=>$value) {
+                foreach ($alphas as $id=>$value) {
                     if ($type=='de') {
                         if (strcasecmp($v,$id) AND !eregi("->",$v)) {
                             $v=str_replace($id,$value,$v);
@@ -384,11 +388,11 @@ class String
 	public static function generateStringTemplate($template , $values, $startDelimeter = '{{', $endDelimeter = '}}')
 	{
 	    $start = 0;
-		while (($start = strpos($template, $startDelimeter, $start)) !== false && ($end = strpos($template, $endDelimeter, $start)) !== false) {
+		while(($start = strpos($template, $startDelimeter, $start)) !== false &&($end = strpos($template, $endDelimeter, $start)) !== false) {
 			$key = substr($template, $start + strlen($startDelimeter) , $end - $start - strlen($endDelimeter));
 			if (isset($values[$key])) {
 				$value = $values[$key];
-				$template = str_replace ($startDelimeter . $key . $endDelimeter , $value, $template );
+				$template = str_replace($startDelimeter . $key . $endDelimeter , $value, $template);
 			} else {
 				$start++;
 			}
@@ -427,7 +431,7 @@ class String
         $templateHrefTitle = null,
         $target = null,
         $attribs = null
-    ) {
+   ) {
 	    $link = '<a href="';
 	    $p = strlen($host)-1;
 	    if ($host[$p] == '/') {
@@ -489,7 +493,7 @@ class String
 	}
 	
 	/*****************************************************************
-    This approach uses detection of NUL (chr(00)) and end line (chr(13))
+    This approach uses detection of NUL(chr(00)) and end line(chr(13))
     to decide where the text is:
     - divide the file contents up by chr(13)
     - reject any slices containing a NUL
@@ -536,10 +540,11 @@ class String
             }
         } else {
             $out = $var;
-            while (preg_match($pattern,$out) > 0) {
-                $out = htmlspecialchars_decode($out,ENT_QUOTES);      
+            $out = urldecode($out);
+            while (preg_match($pattern, $out) > 0) {
+                $out = htmlspecialchars_decode($out, ENT_COMPAT);
             }                            
-            $out = htmlspecialchars(stripslashes(trim($out)), ENT_QUOTES,'UTF-8',true);     // Trim the variable, strip all slashes, and encode it
+            $out = htmlspecialchars(stripslashes(trim($out)), ENT_COMPAT,'UTF-8', true);     // Trim the variable, strip all slashes, and encode it
            
         }
        

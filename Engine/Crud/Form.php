@@ -155,6 +155,12 @@ abstract class Form implements
     protected $_linkTemplate = false;
 
     /**
+     * Can be remove data from container
+     * @var bool
+     */
+    protected $_notRemove = false;
+
+    /**
      * Constructor
      *
      * @param integer|string $id
@@ -663,7 +669,7 @@ abstract class Form implements
 		    $this->_isInsertData = true;
 		    $this->loadData($result);
 	    }
-	    
+
 		$this->_postSave();
 
 		return $this->_id;
@@ -788,6 +794,9 @@ abstract class Form implements
 	 */
 	public function delete($id = null)
 	{
+        if (!$this->isRemovable()) {
+            return false;
+        }
         if (null === $id) {
             if (null === $this->_id) {
                 return false;
@@ -797,6 +806,7 @@ abstract class Form implements
         if (!is_string($id)) {
             throw new \Engine\Exception("Data type incorrect");
         }
+
 	    return $this->_container->delete($id);
 	}
 	
@@ -848,24 +858,50 @@ abstract class Form implements
 	{	
 	}
 
-	/**
-	 * Return if exists Field by form field key
-	 * 
-	 * @param string $name
-	 * @return \Engine\Crud\Form\Field
-	 */
-	public function getFieldByKey($key) 
-	{
-		if (isset($this->_fields[$key])) {
-			return $this->_fields[$key];
-		}
-		
-		return false;
-	}
-    
+    /**
+     * Return primary form value
+     *
+     * @return string
+     */
     public function getId()
     {
         return $this->_id;
+    }
+
+    /**
+     * Is data can be remove(delete) from container
+     *
+     * @return bool
+     */
+    public function isRemovable()
+    {
+        return !$this->_notRemove;
+    }
+
+    /**
+     * Data can not be remove(delete) from container
+     *
+     * @return \Engine\Crud\Form
+     */
+    public function notRemovable()
+    {
+        $this->_notRemove = true;
+        return $this;
+    }
+
+    /**
+     * Return if exists Field by form field key
+     *
+     * @param string $name
+     * @return \Engine\Crud\Form\Field
+     */
+    public function getFieldByKey($key)
+    {
+        if (isset($this->_fields[$key])) {
+            return $this->_fields[$key];
+        }
+
+        return false;
     }
 
 	/**
