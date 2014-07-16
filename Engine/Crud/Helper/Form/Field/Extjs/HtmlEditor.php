@@ -31,6 +31,9 @@ class HtmlEditor extends BaseHelper
         } else {
             $fieldCode[] = "xtype: 'htmleditor'";
         }
+        if ($field->isNotEdit()) {
+            $fieldCode[] = "readOnly: true";
+        }
         $fieldCode[] = "name: '".$field->getKey()."'";
         $fieldCode[] = "allowBlank: ".(($field->isRequire()) ? "false" : "true");
 

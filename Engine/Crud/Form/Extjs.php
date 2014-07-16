@@ -85,7 +85,7 @@ abstract class Extjs extends Form
     /**
      * Update form rows
      *
-     * @param string|array|stdClass $params
+     * @param string|array|\stdClass $params
      * @param string $key
      * @param \Phalcon\DiInterface $di
      * @param \Phalcon\Events\ManagerInterface $eventsManager
@@ -143,7 +143,7 @@ abstract class Extjs extends Form
     /**
      * Update from row
      *
-     * @param string|array|stdClass $row
+     * @param string|array|\stdClass $row
      * @param \Phalcon\DiInterface $di
      * @param \Phalcon\Events\ManagerInterface $eventsManager
      * @return array
@@ -180,6 +180,9 @@ abstract class Extjs extends Form
         }
         $form->initForm();
         foreach ($row as $key => $value) {
+            if (!isset($form->$key)) {
+                continue;
+            }
             $form->$key = $value;
         }
 
@@ -238,6 +241,9 @@ abstract class Extjs extends Form
 
         $false = false;
         $form = new static(null, [], $di, $eventsManager);
+        if (!$form->isRemovable()) {
+            $result['error'][] = 'Data can\'t be remove from this form';
+        }
         $primary = $form->getPrimaryField();
         if (!$primary) {
             throw new \Engine\Exception('Primary field not found');

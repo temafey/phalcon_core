@@ -31,6 +31,9 @@ class Numeric extends BaseHelper
         } else {
             $fieldCode[] = "xtype: 'numberfield'";
         }
+        if ($field->isNotEdit()) {
+            $fieldCode[] = "readOnly: true";
+        }
         $fieldCode[] = "name: '".$field->getKey()."'";
         $fieldCode[] = "allowBlank: ".(($field->isRequire()) ? "false" : "true");
 

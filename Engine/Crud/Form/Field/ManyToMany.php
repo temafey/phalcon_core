@@ -226,19 +226,14 @@ class ManyToMany extends Field
         if ($this->_name) {
             throw new \Engine\Exception("Outdated ManyToMany settings for ".get_class($this->_form)." - ".get_class($this->_model));
         }
-        if (is_string($this->_model)) {
-            $this->_model = new $this->_model;
-        }
-        if (is_string($this->_workingModel)) {
-            $this->_workingModel = new $this->_workingModel;
-        }
         if (!$this->_noTableReference) {
-            $relationsRefModel = $this->_workingModel->getRelationPath($this->_model);
+            $workingModel = $this->_getWorkModel();
+            $relationsRefModel = $workingModel->getRelationPath($this->_model);
             if (!$relationsRefModel) {
                 throw new \Engine\Exception("Did not find relations between '".get_class($this->_workingModel)."' and '".get_class($this->_model)."'");
             }
             $mainModel = $this->_form->getContainer()->getModel();
-            $relationsMainModel = $this->_workingModel->getRelationPath($mainModel);
+            $relationsMainModel = $workingModel->getRelationPath($mainModel);
             if (!$relationsMainModel) {
                 throw new \Engine\Exception("Did not find relations between '".get_class($this->_workingModel)."' and '".get_class($mainModel)."'");
             }
@@ -262,7 +257,7 @@ class ManyToMany extends Field
             if ($this->_workingModelOrder) {
                 $params['order'] = $this->_workingModelOrder;
             }
-            $selectedData = $this->_workingModel->find($params)->toArray();
+            $selectedData = $this->_getWorkModel()->find($params)->toArray();
             $selectedOptions = $this->selectedArray($selectedData);
         }
 
@@ -311,7 +306,7 @@ class ManyToMany extends Field
      */
     public function postSaveAction(array $data)
     {
-        if (!$this->_notSave) {
+        if ($this->_notSave) {
             return false;
         }
         if (null === $this->_id) {
@@ -319,9 +314,15 @@ class ManyToMany extends Field
         }
 
         $data = [];
-        $formValues = $this->getValue();
-        if (is_string($formValues)) {
-            $formValues = [$formValues];
+        $value = $this->getValue();
+        $formValues = [];
+        if (is_string($value)) {
+            $value = explode($this->_separator, $value);
+            if (!is_numeric($value[0])) {
+                $formValues = $this->getOptionIdsByNames($value);
+            } else {
+                $formValues = $value;
+            }
         }
 
         if ($this->_saveAllParents && count($formValues) > 0) {
@@ -349,7 +350,7 @@ class ManyToMany extends Field
             }
         }
 
-        foreach ($insert as &$v) {
+        foreach ($insert as $v) {
             $row = array_merge([$this->_keyParent => $this->_id, $this->_key => $v], $additionalData);
             $data['insert'][] = $row;
         }
@@ -364,8 +365,8 @@ class ManyToMany extends Field
             }
         }
 
-        $manager = $this->_model->get('modelsManager');
-        $db = $this->_model->getWriteConnection();
+        $manager = $this->_getModel()->getDi()->get('modelsManager');
+        $db = $this->_getModel()->getWriteConnection();
         $db->begin();
 
         if (count($data['delete']) > 0 || count($data ['insert']) > 0) {
@@ -373,8 +374,7 @@ class ManyToMany extends Field
         }
 
         try {
-            $source = $this->_workingModel->getSource();
-
+            $source = $this->_workingModel;
             foreach ($data['delete'] as $delete) {
                 $manager->executeQuery("DELETE FROM ".$source." WHERE ".$delete);
             }
@@ -408,9 +408,10 @@ class ManyToMany extends Field
     protected function _findAllParents(array $ids)
     {
         $parents = [];
-        $primary = $this->_model->getPrimary();
-        foreach ($ids as &$id) {
-            $row = $this->_model->findFirst($id);
+        $model = $this->_getModel();
+        $primary = $model->getPrimary();
+        foreach ($ids as $id) {
+            $row = $model->findFirst($id);
             if (null === $row) {
                 continue;
             }
@@ -418,7 +419,7 @@ class ManyToMany extends Field
             $parent = (isset($row[$this->_modelParentField])) ? $row[$this->_modelParentField] : 0;
 
             while ($parent != 0) {
-                $row = $this->_model->findFirst($parent);
+                $row = $model->findFirst($parent);
                 $row = $row->toArray();
                 $parent = $row[$this->_modelParentField];
                 if (!in_array($row[$primary], $parents)) {
@@ -444,7 +445,7 @@ class ManyToMany extends Field
             throw new \Engine\Exception("Not set id for fetch saved data!");
         }
 
-        return $this->_workingModel->find([$this->_keyParent." = :id:", 'bind' => ['id' => $id]])->toArray();
+        return $this->_getWorkModel()->find([$this->_keyParent." = :id:", 'bind' => ['id' => $id]])->toArray();
     }
 
     /**
@@ -458,6 +459,27 @@ class ManyToMany extends Field
         $ids = [];
         foreach ($data as $value) {
             $ids[] = $value[$this->_name];
+        }
+
+        return $ids;
+    }
+
+    /**
+     * @param array $names
+     * @return array
+     */
+    public function getOptionIdsByNames(array $names)
+    {
+        $ids = [];
+        $names = \Engine\Tools\String::quote($names);
+        $queryBuilder = $this->_getModel()->queryBuilder();
+        $queryBuilder->columnsId();
+        $queryBuilder->where("name IN (".$names.")");
+        $result = $queryBuilder->getQuery()->execute();
+        if ($result) {
+            foreach ($result->toArray() as $row) {
+                $ids[] = $row['id'];
+            }
         }
 
         return $ids;
@@ -517,20 +539,14 @@ class ManyToMany extends Field
      */
     protected function _setOptions($params = null)
     {
-        if (is_string($this->_model)) {
-            $this->_model = new $this->_model;
-        }
-        $optionsFunction = (null !== $this->_fields) ? 'prepareOptionsAll' : 'prepareOptions';
-        $queryBuilder = $this->_model->queryBuilder();
+        $queryBuilder = $this->_getModel()->queryBuilder();
         if ($params) {
             if (isset($params['name'])) {
                 $name = $params['name'];
                 $names = explode($this->_separator, $name);
-                foreach ($names as $i => $name) {
-                    $names[$i] = "'".($name)."'";
-                }
+                $names = \Engine\Tools\String::quote($names);
                 $queryBuilder->columnsName();
-                $queryBuilder->where("name IN (".implode(",", $names).")");
+                $queryBuilder->where("name IN (". $names.")");
             } else {
                 if (isset($params['start'])) {
                     $offset = (int) $params['start'];
@@ -542,7 +558,20 @@ class ManyToMany extends Field
                 }
             }
         }
-        $this->_options = \Engine\Crud\Tools\Multiselect::$optionsFunction($queryBuilder, $this->_optionName, $this->_category, $this->_categoryName, $this->_where, $this->_emptyCategory, $this->_emptyItem, true, $this->_fields, $this->_categoryOrder);
+
+        $optionsFunction = (null !== $this->_fields) ? 'prepareOptionsAll' : 'prepareOptions';
+        $this->_options = \Engine\Crud\Tools\Multiselect::$optionsFunction(
+            $queryBuilder,
+            $this->_optionName,
+            $this->_category,
+            $this->_categoryName,
+            $this->_where,
+            $this->_emptyCategory,
+            $this->_emptyItem,
+            true,
+            $this->_fields,
+            $this->_categoryOrder
+        );
     }
 
     /**
@@ -565,24 +594,35 @@ class ManyToMany extends Field
      * @return void
      */
     protected function _setCount($params = null)
-    {
-        if (is_string($this->_model)) {
-            $this->_model = new $this->_model;
-        }
-        $queryBuilder = $this->_model->queryBuilder();
+    {        
+        $queryBuilder = $this->_getModel()->queryBuilder();
         if (isset($params['name'])) {
             $name = $params['name'];
             $names = explode($this->_separator, $name);
-            foreach ($names as $i => $name) {
-                $names[$i] = "'".addslashes($name)."'";
-            }
+            $names = \Engine\Tools\String::quote($names);
             $queryBuilder->columnsName();
-            $queryBuilder->where("name IN (".implode(",", $names).")");
+            $queryBuilder->where("name IN (".$names.")");
         }
         $queryBuilder->setColumn("COUNT(id)", "count", false);
         if ($params) {
         }
         $result = $queryBuilder->getQuery()->execute();
         $this->_count = $result[0]['count'];
+    }
+
+    /**
+     * @return \Engine\Mvc\Model
+     */
+    protected function _getModel()
+    {
+        return new $this->_model;
+    }
+
+    /**
+     * @return \Engine\Mvc\Model
+     */
+    protected function _getWorkModel()
+    {
+        return new $this->_workingModel;
     }
 }

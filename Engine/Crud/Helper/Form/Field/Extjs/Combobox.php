@@ -31,6 +31,9 @@ class Combobox extends BaseHelper
         } else {
             $fieldCode[] = "xtype: 'combobox'";
         }
+        if ($field->isNotEdit()) {
+            $fieldCode[] = "readOnly: true";
+        }
         $fieldCode[] = "name: '".$field->getKey()."'";
         $fieldCode[] = "allowBlank: ".(($field->isRequire()) ? "false" : "true");
 

@@ -31,6 +31,9 @@ class Text extends BaseHelper
         } else {
             $fieldCode[] = "xtype: 'textfield'";
         }
+        if ($field->isNotEdit()) {
+            $fieldCode[] = "readOnly: true";
+        }
         $fieldCode[] = "name: '".$field->getKey()."'";
         $fieldCode[] = "allowBlank: ".(($field->isRequire()) ? "false" : "true");
 

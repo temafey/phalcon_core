@@ -248,7 +248,7 @@ abstract class Field implements FieldInterface
      * @param  bool $flag Default value is true
      * @return \Engine\Crud\Form\Field
      */
-    public function setNotEdit($flag = true)
+    public function notEdit($flag = true)
     {
         $this->_notEdit = (bool) $flag;
         return $this;
@@ -282,6 +282,9 @@ abstract class Field implements FieldInterface
 	{
 		if ($this->_notSave) {
 		    return false;
+        }
+        if ($this->_notEdit && $this->_form->getId()) {
+            return false;
         }
 
 		return ['key' => $this->getName(), 'value' => $this->getValue()];

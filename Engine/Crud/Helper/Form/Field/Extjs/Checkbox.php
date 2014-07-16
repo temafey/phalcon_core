@@ -31,6 +31,9 @@ class Checkbox extends BaseHelper
         } else {
             $fieldCode[] = "xtype: 'checkboxfield'";
         }
+        if ($field->isNotEdit()) {
+            $fieldCode[] = "readOnly: true";
+        }
         $fieldCode[] = "name: '".$field->getKey()."'";
         $fieldCode[] = "allowBlank: ".(($field->isRequire()) ? "false" : "true");
 

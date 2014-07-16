@@ -120,12 +120,11 @@ class Model extends \Phalcon\Mvc\Model
                 continue;
             }
             if (is_array($condition)) {
-                foreach ($condition as $i => $val) {
-                    $condition[$i] = "'".$val."'";
-                }
-                $condition = $key." IN (".implode(",", $condition).")";
+                $condition = \Engine\Tools\String::quote($condition);
+                $condition = $key." IN (".$condition.")";
             } else {
-                $condition = $key." = '".$condition."'";
+                $condition = \Engine\Tools\String::quote($condition);
+                $condition = $key." = ".$condition;
             }
             $normalizeConditions[] = $condition;
         }
@@ -145,13 +144,8 @@ class Model extends \Phalcon\Mvc\Model
         $primary = $model->getPrimary();
         $db = $model->getWriteConnection();
         if (is_array($ids)) {
-            for ($i = 0; $i < count($ids); ++$i) {
-                if (!is_string($ids[$i])) {
-                    throw new \Engine\Exception("Data type incorrect");
-                }
-                $ids[$i] = $db->escapeString($ids[$i]);
-            }
-            $credential = $primary." IN (".implode(",", $ids).")";
+            $ids = \Engine\Tools\String::quote($ids);
+            $credential = $primary." IN (".$ids.")";
 
             return static::find($credential);
         } else {
@@ -173,10 +167,8 @@ class Model extends \Phalcon\Mvc\Model
         $model = new static();
         $db = $model->getWriteConnection();
         if (is_array($values)) {
-            for ($i = 0; $i < count($values); ++$i) {
-                $values[$i] = $db->escapeString($values[$i]);
-            }
-            $credential = $column." IN (".implode(",", $values).")";
+            $values = \Engine\Tools\String::quote($values);
+            $credential = $column." IN (".$values.")";
         } else {
             $credential = $column." = ".$db->escapeString($values);
         }

@@ -31,6 +31,9 @@ class File extends BaseHelper
         } else {
             $fieldCode[] = "xtype: 'filefield'";
         }
+        if ($field->isNotEdit()) {
+            $fieldCode[] = "readOnly: true";
+        }
         $fieldCode[] = "name: '".$field->getKey()."'";
         $fieldCode[] = "allowBlank: ".(($field->isRequire()) ? "false" : "true");
 

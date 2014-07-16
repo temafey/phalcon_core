@@ -170,8 +170,20 @@ trait FormElements
                 $value = $this->_element->getDefault();
             }
         }
+        $value = $this->normalizeValue($value);
 
         return $this->filter($value);
+    }
+
+    /**
+     * Normalize form field value
+     *
+     * @param string|array $value
+     * @return mixed
+     */
+    public function normalizeValue($value)
+    {
+        return \Engine\Tools\String::formSpecialChars($value);
     }
 
     /**
