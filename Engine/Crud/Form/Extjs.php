@@ -286,10 +286,10 @@ abstract class Extjs extends Form
         if (!$this->_linkTemplate) {
             $this->_linkTemplate = "/".$this->getModuleName()."/".$this->getKey();
             if ($primary = $this->getPrimaryField()) {
-                //$this->_linkTemplate .= "/{".$primary->getKey()."}";
+                $this->_linkTemplate .= "/{".$primary->getKey()."}";
             }
         }
 
-        return \Engine\Tools\String::generateStringTemplate($this->_linkTemplate, $this->getData(), "{", "}");
+        return $this->_linkTemplate;
     }
 }
