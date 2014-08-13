@@ -149,7 +149,7 @@ class Mysql extends Container implements FormContainer
      *
      * @param string $key
      * @param string $name
-     * @return \Egnine\Crud\Container\Grid\Mysql
+     * @return \Egnine\Crud\Container\Form\Mysql
      */
     public function setColumn($key, $name)
     {
@@ -300,7 +300,11 @@ class Mysql extends Container implements FormContainer
             }
             if ($isUpdate && !$record->update()) {
                 $db->rollBack();
-                return ['error' => $record->getMessage()];
+                $messages = [];
+                foreach ($record->getMessages() as $message)  {
+                    $messages[] = $message->getMessage();
+                }
+                return ['error' => implode(", ", $messages)];
             }
             $results = $this->_updateJoins($id, $data);
             if (isset($results['error'])) {
@@ -342,7 +346,11 @@ class Mysql extends Container implements FormContainer
                         }
                     }
                     if ($isUpdate && !$record->update()) {
-                        return ['error' => $record->getMessage()];
+                        $messages = [];
+                        foreach ($record->getMessages() as $message)  {
+                            $messages[] = $message->getMessage();
+                        }
+                        return ['error' => implode(", ", $messages)];
                     }
                 }
             }
@@ -371,7 +379,11 @@ class Mysql extends Container implements FormContainer
             foreach ($records as $record) {
                 if (!$record->delete()) {
                     $db->rollBack();
-                    return ['error' => $record->getMessage()];
+                    $messages = [];
+                    foreach ($record->getMessages() as $message)  {
+                        $messages[] = $message->getMessage();
+                    }
+                    return ['error' => implode(", ", $messages)];
                 }
             }
         } catch (\Engine\Exception $e) {
