@@ -588,7 +588,7 @@ class Arrays
         $arr = array();
 
         # split on outer delimiter
-        $pairs = explode('&', $str);
+        $pairs = explode('&', urldecode($str));
 
         # loop through each pair
         foreach ($pairs as $i) {
