@@ -356,12 +356,15 @@ class Model extends \Phalcon\Mvc\Model
 
     /**
      * Fix field value for tinyint(1) types, from integer to string
+     * Executes internal hooks before save a record
      *
-     * @return void
+     * @param \Phalcon\Mvc\Model\MetadataInterface $metaData
+     * @param boolean $exists
+     * @param string $identityField
+     * @return boolean
      */
-    protected function  _preSave()
+    protected function  _preSave($metaData, $exists, $identityField)
     {
-        $metaData = $this->getModelsMetaData();
         $dataTypes = $metaData->getDataTypes($this);
         foreach ($dataTypes as $key => $type) {
             if ($type === \Phalcon\Db\Column::TYPE_BOOLEAN) {
@@ -371,5 +374,7 @@ class Model extends \Phalcon\Mvc\Model
                 }
             }
         }
+
+        return parent::_preSave($metaData, $exists, $identityField);
     }
 }

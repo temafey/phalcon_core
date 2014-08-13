@@ -328,7 +328,11 @@ class Mysql extends Container implements GridContainer
             foreach ($records as $record) {
                 if (!$record->update($data)) {
                     $db->rollBack();
-                    return ['error' => $record->getMessage()];
+                    $messages = [];
+                    foreach ($record->getMessages() as $message)  {
+                        $messages[] = $message->getMessage();
+                    }
+                    return ['error' => implode(", ", $messages)];
                 }
             }
 			$results = $this->_updateJoins($ids, $data);
@@ -363,7 +367,11 @@ class Mysql extends Container implements GridContainer
                 $records = $model->findByColumn($referenceColumn, $ids);
                 foreach ($records as $record) {
                     if (!$record->update($data)) {
-                        return ['error' => $record->getMessage()];
+                        $messages = [];
+                        foreach ($record->getMessages() as $message)  {
+                            $messages[] = $message->getMessage();
+                        }
+                        return ['error' => implode(", ", $messages)];
                     }
                 }
             }
@@ -389,7 +397,11 @@ class Mysql extends Container implements GridContainer
             foreach ($records as $record) {
                 if (!$record->delete()) {
                     $db->rollBack();
-                    return ['error' => $record->getMessage()];
+                    $messages = [];
+                    foreach ($record->getMessages() as $message)  {
+                        $messages[] = $message->getMessage();
+                    }
+                    return ['error' => implode(", ", $messages)];
                 }
             }
         } catch (\Engine\Exception $e) {
