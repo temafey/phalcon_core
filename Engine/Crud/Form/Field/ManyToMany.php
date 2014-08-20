@@ -548,6 +548,12 @@ class ManyToMany extends Field
                 $queryBuilder->columnsName();
                 $queryBuilder->where("name IN (". $names.")");
             } else {
+                // This "if" is important to filter Tags on "Article tags" grid
+                if (isset($params['query']) && $params['query'] != '') {
+                    $queryBuilder->columnsName();
+                    $name = trim($params['query']);
+                    $queryBuilder->where("name LIKE '" . $name . "%'");
+                }
                 if (isset($params['start'])) {
                     $offset = (int) $params['start'];
                     $queryBuilder->offset($offset);
@@ -602,6 +608,13 @@ class ManyToMany extends Field
             $names = \Engine\Tools\String::quote($names);
             $queryBuilder->columnsName();
             $queryBuilder->where("name IN (".$names.")");
+        }
+        // This "elseif" is important to filter Tags on "Article tags" grid
+        elseif (isset($params['query'])) {
+            $name = $params['name'];
+            $name = trim($params['query']);
+            $queryBuilder->columnsName();
+            $queryBuilder->where("name LIKE '" . $name . "%'");
         }
         $queryBuilder->setColumn("COUNT(id)", "count", false);
         if ($params) {
