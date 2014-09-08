@@ -53,9 +53,12 @@ class Date extends Standart
     public function getFilter(Container $container)
     {
 		$value = $this->getValue();
+        if (!$value) {
+            return false;
+        }
         $value = str_replace("-", "/", $value);
         $value = date('Y-m-d H:i:s', strtotime($value));
 
-        return $container->getFilter('standart', $this->_criteria, $value);
+        return $container->getFilter('standart', $this->_name, $value, $this->_criteria);
 	}
 }

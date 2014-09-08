@@ -59,7 +59,7 @@ class Cache extends Search
     public function filterWhere(Builder $dataSource)
     {
 		if (!$this->_cache) {
-			return parent::filterWhere ($dataSource);
+			return parent::filterWhere($dataSource);
 		}
 		if(count($this->_value) == 0) { 
 			return false;

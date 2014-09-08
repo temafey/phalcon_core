@@ -49,6 +49,7 @@ class Query extends PhQuery
     {
         $key = $this->_createKey($bindParams);
         $this->cache(["key" => $key, "lifetime" => 300]);
+
         return parent::execute($bindParams, $bindTypes);
     }
 

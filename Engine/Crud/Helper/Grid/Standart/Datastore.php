@@ -25,13 +25,14 @@ class Datastore extends \Engine\Crud\Helper
 	{
         $code = '
             <tbody>';
+        $columns = array_keys($grid->getColumns());
         $data = $grid->getDataWithRenderValues();
         foreach ($data['data'] as $row) {
             $rowCode = '
                 <tr>';
-            foreach($row as $value) {
+            foreach($columns as $key) {
                 $rowCode .= '
-                    <td>'.$value.'</td>';
+                    <td>'.$row[$key].'</td>';
             }
             $rowCode .= '
                 </tr>';

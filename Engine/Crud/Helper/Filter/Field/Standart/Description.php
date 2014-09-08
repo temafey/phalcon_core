@@ -23,7 +23,11 @@ class Description extends \Engine\Crud\Helper
 	 */
 	static public function _(Field $field)
 	{
-        $code = '<span>'.$field->getDesc().'</span>';
+        $code = '';
+        $desc = $field->getDesc();
+        if (!$desc) {
+            $code = '<td><span>'.$field->getDesc().'</span></td>';
+        }
 		return $code;
 	}
 }

@@ -23,7 +23,7 @@ class Standart extends \Engine\Crud\Helper
 	 */
 	static public function _(Field $field)
 	{
-        $code = '';
+        $code = '<tr>';
 
 		return $code;
 	}
@@ -35,6 +35,6 @@ class Standart extends \Engine\Crud\Helper
      */
     static public function endTag()
     {
-        return false;
+        return '</tr>';
     }
 }

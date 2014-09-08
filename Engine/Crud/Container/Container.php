@@ -20,7 +20,7 @@ class Container
      *
      * @param  .
      * @param  mixed $config  OPTIONAL; an array or \Zend\Config\Config object with adapter parameters.
-     * @return \Engine\Crud\Container\Interface
+     * @return \Engine\Crud\Container\Grid\Adapter || \Engine\Crud\Container\Form\Adapter
      */
     public static function factory($object, $config = [])
     {

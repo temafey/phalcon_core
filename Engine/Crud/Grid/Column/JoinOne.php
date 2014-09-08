@@ -99,7 +99,7 @@ class JoinOne extends Collection
 	 */
 	public function updateDataSource($dataSource)
 	{
-		$columns =  [$this->_key => $this->_column];
+		$columns =  [$this->_key => $this->_column, $this->_key.'_id' => \Engine\Mvc\Model::ID];
 		if (!empty($this->_columns)) {
 		    $columns = (is_array($this->_columns)) ? array_merge($columns, $this->_columns) : array_merge($columns, [$this->_columns => $this->_columns]);
 		}

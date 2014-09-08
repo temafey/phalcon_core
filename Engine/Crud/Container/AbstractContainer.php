@@ -11,8 +11,13 @@ namespace Engine\Crud\Container;
  * @package    Crud
  * @subpackage Container
  */
-abstract class AbstractContainer
+abstract class AbstractContainer implements
+    \Phalcon\Events\EventsAwareInterface,
+    \Phalcon\DI\InjectionAwareInterface
 {
+    use \Engine\Tools\Traits\DIaware,
+        \Engine\Tools\Traits\EventsAware;
+
 	const MODEL          = 'model';
 	const JOINS          = 'joins';
 	const CONDITIONS	 = 'conditions';

@@ -220,6 +220,8 @@ abstract class Form implements
             $config['joins'] = $this->_containerJoins;
 			$this->_container = Container::factory($this, $config);
 		}
+        $this->_container->setDi($this->getDi());
+        $this->_container->setEventsManager($this->getEventsManager());
 	}
 
     /**

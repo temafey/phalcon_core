@@ -5,6 +5,7 @@
 namespace Engine\Db\Filter;
 
 use Engine\Mvc\Model\Query\Builder,
+    Engine\Crud\Grid\Filter\Field\Join,
     Phalcon\Mvc\Model\Relation;
 
 /**
@@ -17,16 +18,22 @@ use Engine\Mvc\Model\Query\Builder,
 class Path extends AbstractFilter
 {
     /**
-     * Join path
-     * @var string|array
+     * Filter
+     * @var \Engine\Crud\Grid\Filter\Field\Join
      */
-    protected $_path;
+    protected $_filterField;
 
     /**
      * Filter
      * @var \Engine\Db\Filter\AbstractFilter
      */
     protected $_filter;
+
+    /**
+     * Filter category model
+     * @var bool|string
+     */
+    protected $_category;
 
     /**
      * Build query with all joins
@@ -37,13 +44,32 @@ class Path extends AbstractFilter
     /**
      * Constructor
      *
-     * @param array $path
+     * @param \Engine\Crud\Grid\Filter\Field\Join $filterField
      * @param \Engine\Db\Filter\AbstractFilter $filter
+     * @param string $pathCategory
      */
-    public function __construct($path, AbstractFilter $filter)
+    public function __construct(Join $filterField, AbstractFilter $filter, $pathCategory = false)
     {
-        $this->_path = $path;
+        $this->_filterField = $filterField;
         $this->_filter = $filter;
+        $this->_category = $pathCategory;
+    }
+
+    /**
+     * Apply filter to table select object
+     *
+     * @param \Engine\Mvc\Model\Query\Builder $dataSource
+     * @param mixed $value
+     */
+    public function applyFilter($dataSource)
+    {
+        if (!$this->_filterField->getPath()) {
+            return $this->_filter->filterWhere($dataSource);
+        }
+        $where = $this->filterWhere($dataSource);
+        if ($where) {
+            $dataSource->andWhere($where);
+        }
     }
 
     /**
@@ -54,29 +80,28 @@ class Path extends AbstractFilter
      */
     public function filterWhere(Builder $dataSource)
     {
-        if (!$this->_path) {
-            return $this->_filter->filterWhere($dataSource);
-        }
+        $path = $this->_filterField->getPath();
+        $dataSource->columnsJoinOne($path);
         $model = $dataSource->getModel();
-        $joinPath = $model->getRelationPath($this->_path);
+        $joinPath = $model->getRelationPath($path);
 
         if (!$joinPath) {
-            throw new \Engine\Exception("Relations to model '".get_class($model)."' by path '".implode(", ", $this->_path)."' not valid");
+            throw new \Engine\Exception("Relations to model '".get_class($model)."' by path '".implode(", ", $path)."' not valid");
         }
         if ($this->_fullJoin) {
             $dataSource->joinPath($joinPath);
-        } else {
-            $relation = array_shift($joinPath);
-            if (!$ids = $this->_processJoins($relation, $joinPath)) {
-                return false;
-            }
-            $fields = $relation->getFields();
-            $alias = $dataSource->getCorrelationName($fields);
 
-            return "(".$alias.".".$fields." IN (".implode($ids, ",")."))";
+            return $this->_filter->filterWhere($dataSource);
         }
 
-        return $this->_filter->filterWhere($dataSource);
+        $relation = array_shift($joinPath);
+        if (!$ids = $this->_processJoins($relation, $joinPath)) {
+            return false;
+        }
+        $fields = $relation->getFields();
+        $alias = $dataSource->getCorrelationName($fields);
+
+        return "(".$alias.".".$fields." IN (".implode($ids, ",")."))";
     }
 
     /**

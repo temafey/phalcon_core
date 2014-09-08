@@ -55,10 +55,15 @@ abstract class Grid implements
 
 	/**
 	 * Array of grid columns
-	 * 
 	 * @var array
 	 */
 	protected $_columns = [];
+
+    /**
+     * Primary column object
+     * @var \Engine\Crud\Grid\Column\Primary
+     */
+    protected $_primaryColumn;
 	
 	/**
 	 * Data container object
@@ -243,6 +248,8 @@ abstract class Grid implements
 			$config['joins'] = $this->_containerJoins;
 			$this->_container = Container::factory($this, $config);
 		}
+        $this->_container->setDi($this->getDi());
+        $this->_container->setEventsManager($this->getEventsManager());
 	}
 
     /**
@@ -299,6 +306,9 @@ abstract class Grid implements
 			if (!$column instanceof Column) {
 			    throw new \Engine\Exception("Column '".$key."' not instance of Column interface");
 			}
+            if ($column instanceof Column\Primary) {
+                $this->_primaryColumn = $column;
+            }
 			$column->init($this, $key);
 			$key = $column->getKey();
 			$name = $column->getName();
@@ -322,6 +332,9 @@ abstract class Grid implements
 	 */
 	protected function _setupFilter()
 	{
+        if ($this->_filter instanceof Filter) {
+            $this->_filter->setContainer($this->_container);
+        }
         $this->_filter->init($this);
 	}
 	
@@ -376,7 +389,6 @@ abstract class Grid implements
 		
 		if ($this->_filter instanceof Filter) {
 			$this->_filter->setParams($this->getFilterParams());
-			$this->_filter->setContainer($this->_container);
 			$this->_filter->applyFilters($dataSource);
 		}
 		$data = $this->_container->getData($dataSource);
@@ -391,6 +403,36 @@ abstract class Grid implements
     public function getContainer()
     {
         return $this->_container;
+    }
+
+    /**
+     * Return grid container model
+     *
+     * @return \Engine\Mvc\Model
+     */
+    public function getModel()
+    {
+        return $this->_containerModel;
+    }
+
+    /**
+     * Return grid container joins rules
+     *
+     * @return array|string
+     */
+    public function getJoins()
+    {
+        return $this->_containerJoins;
+    }
+
+    /**
+     * Return grid container conditions
+     *
+     * @return array|string
+     */
+    public function getConditions()
+    {
+        return $this->_containerConditions;
     }
 	
 	/**
@@ -416,6 +458,16 @@ abstract class Grid implements
 	{
 		return $this->_columns;
 	}
+
+    /**
+     * Return if exist primary grid column
+     *
+     * @return array
+     */
+    public function getPrimaryColumn()
+    {
+        return $this->_primaryColumn;
+    }
 
     /**
      * Return filter
@@ -459,14 +511,15 @@ abstract class Grid implements
 			$this->_setData();
 		}
 		$data = $this->_data;
-		foreach ($data['data'] as $i => $row) {
+        $data['data'] = [];
+		foreach ($this->_data['data'] as $row) {
             $values = [];
 			foreach ($this->_columns as $key => $column) {
                 $values[$key] = $column->render($row);
 			}
-            $data['data'][$i] = $values;
+            $data['data'][] = $values;
 		}
-		
+
 		return $data;
 	}
 	

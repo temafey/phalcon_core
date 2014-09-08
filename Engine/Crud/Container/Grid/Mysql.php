@@ -277,7 +277,7 @@ class Mysql extends Container implements GridContainer
 		$className = $this->getFilterClass($type);
 		$rc = new \ReflectionClass($className);
 		$filter = $rc->newInstanceArgs($args);
-        $filter->setDi($this->_model->getDi());
+        $filter->setDi($this->getDi());
 
 		return $filter;
 	}
@@ -299,7 +299,7 @@ class Mysql extends Container implements GridContainer
 	 * @param \Engine\Mvc\Model\Query\Builder $queryBuilder
 	 * @return \ArrayObject
 	 */
-	protected function _getPaginator(\Engine\Mvc\Model\Query\Builder $queryBuilder, $limit, $page)
+	protected function _getPaginator($queryBuilder, $limit, $page)
     {
         $paginator = new \Phalcon\Paginator\Adapter\QueryBuilder([
             'builder' => $queryBuilder,

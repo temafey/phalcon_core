@@ -283,15 +283,16 @@ class Model extends \Phalcon\Mvc\Model
         if (!$refModel instanceof \Engine\Mvc\Model) {
             throw new \Engine\Exception("Model class '$refName' does not extend Engine\Mvc\Model");
         }
+        $refName = trim($refName, "\\");
         $relations = $this->getModelsManager()->getBelongsTo($this);
         foreach ($relations as $relation) {
-            if ($relation->getReferencedModel() == $refName) {
+            if (trim($relation->getReferencedModel(), "\\") == $refName) {
                 return $relation;
             }
         }
         $relations = $this->getModelsManager()->getHasMany($this);
         foreach ($relations as $relation) {
-            if ($relation->getReferencedModel() == $refName) {
+            if (trim($relation->getReferencedModel(), "\\") == $refName) {
                 return $relation;
             }
         }
