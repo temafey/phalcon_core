@@ -94,6 +94,23 @@ class Mysql extends Container implements GridContainer
 
         return $this;
 	}
+
+    /**
+     * Set model adapter
+     *
+     * @param string $adapter
+     * @return \Engine\Crud\Container\Grid\Mysql
+     */
+    public function setAdapter($adapter = null)
+    {
+        if (!$adapter) {
+            return $this;
+        }
+        $this->_model->setWriteConnectionService($adapter);
+        $this->_model->setReadConnectionService($adapter);
+
+        return $this;
+    }
 	
 	/**
 	 * Set join models
@@ -106,6 +123,10 @@ class Mysql extends Container implements GridContainer
 	    foreach ($models as $model) {
             if (!is_object($model)) {
                 $model = new $model;
+                $adapter = $this->_model->getReadConnectionService();
+                $model->setReadConnectionService($adapter);
+                $adapter = $this->_model->getWriteConnectionService();
+                $model->setWriteConnectionService($adapter);
             }
 		    if (!($model instanceof Model)) {
 	            throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
@@ -128,6 +149,10 @@ class Mysql extends Container implements GridContainer
 	{
         if (!is_object($model)) {
             $model = new $model;
+            $adapter = $this->_model->getReadConnectionService();
+            $model->setReadConnectionService($adapter);
+            $adapter = $this->_model->getWriteConnectionService();
+            $model->setWriteConnectionService($adapter);
         }
 		if (!($model instanceof Model)) {
             throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");

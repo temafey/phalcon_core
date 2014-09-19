@@ -19,6 +19,7 @@ abstract class AbstractContainer implements
         \Engine\Tools\Traits\EventsAware;
 
 	const MODEL          = 'model';
+    const ADAPTER	     = 'adapter';
 	const JOINS          = 'joins';
 	const CONDITIONS	 = 'conditions';
 	
@@ -59,6 +60,9 @@ abstract class AbstractContainer implements
                 case self::CONDITIONS:
                 	$this->setConditions($value);
                 	break;
+                case self::ADAPTER:
+                    $this->setAdapter($value);
+                    break;
                 default:
                     // ignore unrecognized configuration directive
                     break;
@@ -109,6 +113,14 @@ abstract class AbstractContainer implements
 	 * @return void
 	 */
 	abstract public function setModel($model = null);
+
+    /**
+     * Set model adapter
+     *
+     * @param string|object $model
+     * @return void
+     */
+    abstract public function setAdapter($adapder = null);
 	
 	/**
 	 * Set join models

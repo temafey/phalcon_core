@@ -33,9 +33,14 @@ abstract class Grid implements
         \Engine\Crud\Tools\Attributes;
 		
 	/**
-	 * Default container name
+	 * Default container adapter
 	 */
 	const DEFAULT_CONTAINER = 'Mysql';
+
+    /**
+     * Default container model adapter
+     */
+    const DEFAULT_MODEL_ADAPTER = 'db';
 
     /**
      * Default decorator
@@ -76,6 +81,12 @@ abstract class Grid implements
      * @var string
      */
     protected $_containerAdapter = null;
+
+    /**
+     * Container container model adapter
+     * @var string
+     */
+    protected $_containerModelAdapter = null;
 	
 	/**
 	 * Container model
@@ -203,7 +214,8 @@ abstract class Grid implements
 	final public function __construct(
         array $params = [],
         \Phalcon\DiInterface $di = null,
-        \Phalcon\Events\ManagerInterface $eventsManager = null
+        \Phalcon\Events\ManagerInterface $eventsManager = null,
+        array $options = []
     ) {
         if ($di) {
             $this->setDi($di);
@@ -211,12 +223,40 @@ abstract class Grid implements
         if ($eventsManager) {
             $this->setEventsManager($eventsManager);
         }
+        if ($options) {
+            $this->_setOptions($options);
+        }
 		$this->_initResource();
 		$this->init();
 		$this->setParams($params);
 		$this->_autoloadInitMethods();
 		$this->_autoloadSetupMethods();
 	}
+
+    /**
+     * Set extra grid options before inititialize
+     *
+     * @param array $options
+     * @return void
+     */
+    protected function _setOptions(array $options)
+    {
+        if (isset($options['container'])) {
+            $this->_container = $options['container'];
+        }
+        if (isset($options['model'])) {
+            $this->_containerModel = $options['model'];
+        }
+        if (isset($options['conditions'])) {
+            $this->_containerConditions = $options['conditions'];
+        }
+        if (isset($options['joins'])) {
+            $this->_containerJoins = $options['joins'];
+        }
+        if (isset($options['adapter'])) {
+            $this->_containerModelAdapter = $options['adapter'];
+        }
+    }
 	
 	/**
      * Initialize grid (used by extending classes)
@@ -227,30 +267,35 @@ abstract class Grid implements
 	{
 	}
 
-	/**
-	 * Initialize grid container object
-	 * 
-	 * @return void
-	 */
-	protected function _initContainer()
-	{
-		if (null !== $this->_container) {
-			$config = [];
-			$config['container'] = $this->_container;
-			$config['conditions'] = $this->_containerConditions;
-			$config['joins'] = $this->_containerJoins;  
-			$this->_container = Container::factory($this, $config);
-		} else {
-			$config = [];
-			$config['adapter'] = (null === $this->_containerAdapter) ? static::DEFAULT_CONTAINER : $this->_containerAdapter;
-			$config['model'] = $this->_containerModel;
-			$config['conditions'] = $this->_containerConditions;
-			$config['joins'] = $this->_containerJoins;
-			$this->_container = Container::factory($this, $config);
-		}
+    /**
+     * Initialize container
+     *
+     * @return void
+     */
+    protected function _initContainer()
+    {
+        if (null !== $this->_container) {
+            $config = [];
+            $config['container'] = $this->_container;
+            $config['conditions'] = $this->_containerConditions;
+            $config['joins'] = $this->_containerJoins;
+            $this->_container = Container::factory($this, $config);
+        } else {
+            $config = [];
+            $config['adapter'] = (null === $this->_containerAdapter) ? static::DEFAULT_CONTAINER : $this->_containerAdapter;
+            $config['model'] = $this->_containerModel;
+            $config['modelAdapter'] = (null === $this->_containerModelAdapter) ? static::DEFAULT_MODEL_ADAPTER : $this->_containerModelAdapter;
+            $config['conditions'] = $this->_containerConditions;
+            $config['joins'] = $this->_containerJoins;
+            $this->_container = Container::factory($this, $config);
+        }
         $this->_container->setDi($this->getDi());
         $this->_container->setEventsManager($this->getEventsManager());
-	}
+        if ($this->_filter instanceof Filter) {
+            $this->_filter->setContainer($this->_container);
+        }
+    }
+
 
     /**
      * Initialize decorator
@@ -282,14 +327,14 @@ abstract class Grid implements
     }
 	
 	/**
-	 * Initialize grid columns
+	 * Initialize columns
 	 * 
 	 * @return void
 	 */
 	abstract protected function _initColumns();
 	
 	/**
-	 * Initialize grid filters
+	 * Initialize filters
 	 * 
 	 * @return void
 	 */
@@ -333,9 +378,8 @@ abstract class Grid implements
 	protected function _setupFilter()
 	{
         if ($this->_filter instanceof Filter) {
-            $this->_filter->setContainer($this->_container);
+            $this->_filter->init($this);
         }
-        $this->_filter->init($this);
 	}
 	
 	/**
@@ -396,7 +440,7 @@ abstract class Grid implements
 	}
 
     /**
-     * Return grid container adapter
+     * Return container adapter
      *
      * @return \Engine\Crud\Container\Grid\Adapter
      */
@@ -406,13 +450,23 @@ abstract class Grid implements
     }
 
     /**
-     * Return grid container model
+     * Return container model
      *
      * @return \Engine\Mvc\Model
      */
     public function getModel()
     {
         return $this->_containerModel;
+    }
+
+    /**
+     * Return container model adapter
+     *
+     * @return \Engine\Mvc\Model
+     */
+    public function getModelAdapter()
+    {
+        return $this->_containerModelAdapter;
     }
 
     /**

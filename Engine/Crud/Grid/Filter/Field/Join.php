@@ -259,6 +259,8 @@ class Join extends ArrayToSelect
         $relation = array_shift($relations);
         $fields = $relation->getFields();
         $refModel = new $relation->getReferencedModel();
+        $adapter = $model->getReadConnectionService();
+        $refModel->setConnectionService($adapter);
         $refFields = $relation->getReferencedFields();
         $options = $relation->getOptions();
 
@@ -303,6 +305,10 @@ class Join extends ArrayToSelect
 	{
 		if (is_string($this->_model)) {
 			$this->_model = new $this->_model;
+            $modelAdapter = $this->_gridFilter->getGrid()->getModelAdapter();
+            if ($modelAdapter) {
+                $this->_model->setConnectionService($modelAdapter);
+            }
 		}
 		$queryBuilder = $this->_model->queryBuilder();
 			

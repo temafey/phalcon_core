@@ -103,7 +103,7 @@ class JoinOne extends Collection
 		if (!empty($this->_columns)) {
 		    $columns = (is_array($this->_columns)) ? array_merge($columns, $this->_columns) : array_merge($columns, [$this->_columns => $this->_columns]);
 		}
-		$dataSource->columnsJoinOne($this->_path, $columns);
+        $dataSource->columnsJoinOne($this->_path, $columns);
 
 		return $this;
 	}

@@ -95,6 +95,23 @@ class Mysql extends Container implements FormContainer
     }
 
     /**
+     * Set model adapter
+     *
+     * @param string $adapter
+     * @return \Engine\Crud\Container\Grid\Mysql
+     */
+    public function setAdapter($adapter = null)
+    {
+        if (!$adapter) {
+            return $this;
+        }
+        $this->_model->setWriteConnectionService($adapter);
+        $this->_model->setReadConnectionService($adapter);
+
+        return $this;
+    }
+
+    /**
      * Set join models
      *
      * @param array $models
@@ -105,6 +122,10 @@ class Mysql extends Container implements FormContainer
         foreach ($models as $model) {
             if (!is_object($model)) {
                 $model = new $model;
+                $adapter = $this->_model->getReadConnectionService();
+                $model->setReadConnectionService($adapter);
+                $adapter = $this->_model->getWriteConnectionService();
+                $model->setWriteConnectionService($adapter);
             }
             if (!($model instanceof Model)) {
                 throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
@@ -130,6 +151,10 @@ class Mysql extends Container implements FormContainer
         }
         if (!is_object($model)) {
             $model = new $model;
+            $adapter = $this->_model->getReadConnectionService();
+            $model->setReadConnectionService($adapter);
+            $adapter = $this->_model->getWriteConnectionService();
+            $model->setWriteConnectionService($adapter);
         }
         $key = $model->getSource();
         if (isset($this->_joins[$key])) {

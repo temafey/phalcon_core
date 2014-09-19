@@ -100,7 +100,7 @@ class Indexer
      */
     public function getClient()
     {
-        return $this->getDi()->get($this->_adapter);
+        return ($this->_adapter instanceof Client ? $this->_adapter : $this->getDi()->get($this->_adapter));
     }
 
     /**
@@ -122,6 +122,7 @@ class Indexer
     {
         $type = new Type($this->_name);
         $type->setDi($this->getDi());
+        $type->setAdapter($this->_adapter);
 
         return $type;
     }
@@ -139,9 +140,8 @@ class Indexer
         $mapping->setParam('search_analyzer', 'searchAnalyzer');
 
         // Set mapping
-
         $properties = [];
-        $grid = new $this->_grid([], $this->getDi());
+        $grid = ($this->_grid instanceof \Engine\Crud\Grid) ? $this->_grid : new $this->_grid([], $this->getDi());
         $filterFields = $grid->getFilter()->getFields();
         $gridColums = $grid->getColumns();
         foreach ($filterFields as $key => $field) {
@@ -210,27 +210,32 @@ class Indexer
             }
         } else if ($field instanceof Field\Join) {
             $path = $field->getPath();
-            if ($field->category) {
-                $property = [];
-                $model = $field->category;
-                //$name = str_replace(["\\model", "\\"], ["", "_"], strtolower(trim($model, "\\")));
-                $name = $key;
-                $temp = explode("\\", $model);
-                $subKey = array_pop($temp);
-                $name .= "_".strtolower($subKey);
-                $model = new $model;
-                $filters = $model->find()->toArray();
-                $primary = $model->getPrimary();
-                foreach ($filters as $filter) {
-                    $property[$name.'_'.$filter[$primary]] = [
-                        //"index_name" => $filter['filter_key'],
-                        'type' => 'integer',
-                        'store' => false,
-                        //'index' => 'analyzed',
-                        //'index' => 'no',
-                        'include_in_all' => FALSE
-                    ];
-                    $property[$name.'_'.$filter[$primary]] = $this->getFieldProperty($name.'_'.$filter[$primary], 'integer', false, false, false, false);
+            if (count($path) > 1) {
+                if ($field->category) {
+                    $property = [];
+                    $model = $field->category;
+                    //$name = str_replace(["\\model", "\\"], ["", "_"], strtolower(trim($model, "\\")));
+                    $name = $key;
+                    $temp = explode("\\", $model);
+                    $subKey = array_pop($temp);
+                    $name .= "_".strtolower($subKey);
+                    $model = new $model;
+                    $filters = $model->find()->toArray();
+                    $primary = $model->getPrimary();
+                    foreach ($filters as $filter) {
+                        $property[$name.'_'.$filter[$primary]] = [
+                            //"index_name" => $filter['filter_key'],
+                            'type' => 'integer',
+                            'store' => false,
+                            //'index' => 'analyzed',
+                            //'index' => 'no',
+                            'include_in_all' => FALSE
+                        ];
+                        $property[$name.'_'.$filter[$primary]] = $this->getFieldProperty($name.'_'.$filter[$primary], 'integer', false, false, false, false);
+                    }
+                } else {
+                    $property[$key] = $this->getFieldProperty($key, 'string', $sortable, 'analyzed', $store, true, 2.0);
+                    $property[$key."_id"] = $this->getFieldProperty($key."_id", 'integer', $sortable, 'analyzed', $store, true, 2.0);
                 }
             } else {
                 $property = [];
@@ -325,12 +330,16 @@ class Indexer
             $type->delete();
         }
         $this->setMapping();
-        $grid = new $this->_grid([], $this->getDi());
+        $grid = ($this->_grid instanceof \Engine\Crud\Grid) ? $this->_grid : new $this->_grid([], $this->getDi());
 
         $config = [];
         $config['model'] = $grid->getModel();
         $config['conditions'] = $grid->getConditions();
         $config['joins'] = $grid->getJoins();
+        $modelAdapter = $grid->getModelAdapter();
+        if ($modelAdapter) {
+            $config['modelAdapter'] = $modelAdapter;
+        }
         $container = new \Engine\Crud\Container\Grid\Mysql($grid, $config);
 
         $columns = $grid->getColumns();
@@ -351,7 +360,7 @@ class Indexer
             ++$i;
             $grid->clearData();
             $grid->setParams(['page' => $i+1]);
-            $data = $container->getData($dataSource);;
+            $data = $container->getData($dataSource);
         } while ($i < $pages);
     }
 
@@ -368,7 +377,9 @@ class Indexer
             $grid = new $this->_grid([], $this->getDi());
         }
         $itemDocument = $this->_processItemData($data, $grid);
-
+        if (!$itemDocument) {
+            return;
+        }
         return $this->getType()->addDocument($itemDocument);
     }
 
@@ -421,6 +432,7 @@ class Indexer
         $gridColums = $grid->getColumns();
 
         $item = [];
+
         foreach ($filterFields as $key => $field) {
             if (
                 $field instanceof Field\Search ||
@@ -436,9 +448,10 @@ class Indexer
                 $path = $field->getPath();
                 // if count of path models more than one, means that is many to many relations
                 if (count($path) > 1) {
-                    $workingModel = array_shift($path);
-                    $workingModel = new $workingModel;
-                    $refModel = array_shift($path);
+                    $workingModelClass = array_shift($path);
+                    $workingModel = new $workingModelClass;
+                    $refModelClass = array_shift($path);
+                    $refModel = new $refModelClass;
                     $relationsRefModel = $workingModel->getRelationPath($refModel);
                     if (!$relationsRefModel) {
                         throw new \Engine\Exception("Did not find relations between '".get_class($workingModel)."' and '".$refModel."' for filter field '".$key."'");
@@ -451,6 +464,7 @@ class Indexer
                     $refKey = array_shift($relationsRefModel)->getFields();
                     $keyParent = array_shift($relationsMainModel)->getFields();
                     $queryBuilder = $workingModel->queryBuilder();
+                    $db = $workingModel->getReadConnection();
                     $queryBuilder->columns([$keyParent,$refKey]);
                     // if field have category model, we add each type of category like separate item values
                     if ($field->category) {
@@ -462,14 +476,20 @@ class Indexer
 
                         $model = new $category;
                         $primary = $model->getPrimary();
-                        $model = new $refModel;
-                        $relationsCategoryModel = $model->getRelationPath($category);
+                        $relationsCategoryModel = $refModel->getRelationPath($category);
                         $categoryKey = array_shift($relationsCategoryModel)->getFields();
 
-                        $queryBuilder->columnsJoinOne($refModel, [$categoryKey => $categoryKey]);
+                        $queryBuilder->columnsJoinOne($refModelClass, [$categoryKey => $categoryKey]);
                         $queryBuilder->orderBy($categoryKey.', name');
                         $queryBuilder->where($keyParent." = '".$data[$primaryKey]."'");
-                        $filterData = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result->toArray();
+                        $sql = $queryBuilder->getPhql();
+                        $sql = str_replace(
+                            [trim($workingModelClass, "\\"), trim($refModelClass, "\\"), "[", "]"],
+                            [$workingModel->getSource(), $refModel->getSource(), "", ""],
+                            $sql
+                        );
+                        $filterData = $db->fetchAll($sql);
+                        //$filterData = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result->toArray();
 
                         foreach ($filterData as $filter) {
                             $newName = $name."_".$filter[$categoryKey];
@@ -480,8 +500,19 @@ class Indexer
                         }
                     } else {
                         $queryBuilder->where($keyParent." = '".$data[$primaryKey]."'");
-                        $savedData = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result->toArray();
-                        $item[$key] = \Engine\Tools\Arrays::assocToLinearArray($savedData, $refKey);
+                        $queryBuilder->columnsJoinOne($refModel, ['name' => 'name', 'id' => 'id']);
+                        $queryBuilder->orderBy('name');
+                        $sql = $queryBuilder->getPhql();
+                        $sql = str_replace(
+                            [trim($workingModelClass, "\\"), trim($refModelClass, "\\"), "[", "]"],
+                            [$workingModel->getSource(), $refModel->getSource(), "", ""],
+                            $sql
+                        );
+                        $savedData = $db->fetchAll($sql);
+                        //$savedData = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result->toArray();
+                        $item[$key] = \Engine\Tools\Arrays::assocToLinearArray($savedData, 'name');
+                        $item[$key."_id"] = \Engine\Tools\Arrays::assocToLinearArray($savedData, 'id');
+                        //$item[$key] = \Engine\Tools\Arrays::resultArrayToJsonType($savedData);
                     }
                 } else {
                     if (
@@ -491,9 +522,12 @@ class Indexer
                         ) &&
                         ($column instanceof \Engine\Crud\Grid\Column\JoinOne)
                     ) {
+                        $item[$key] = [];
+                        $item[$key] = $data[$key];
                         $item[$key."_id"] = $data[$key.'_id'];
+                    } else {
+                        $item[$key] = $data[$key];
                     }
-                    $item[$key] = $data[$key];
                 }
             } elseif ($field instanceof Field\Date) {
                 $dataKey = $grid->getColumnByName($name)->getKey();
@@ -507,7 +541,12 @@ class Indexer
             }
         }
 
-        return $itemDocument = new \Elastica\Document($item[$primaryKey], $item);
+        if (!(isset($item[$primaryKey]))) {
+            $item[$primaryKey] = $data[$primaryKey];
+        }
+        $id = $item[$primaryKey];
+
+        return $itemDocument = new \Elastica\Document($id, $item);
     }
 
     /**

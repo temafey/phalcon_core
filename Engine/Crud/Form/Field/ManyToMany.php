@@ -395,8 +395,6 @@ class ManyToMany extends Field
             echo $e->getMessage();
             die();
         }
-
-        return true;
     }
 
     /**

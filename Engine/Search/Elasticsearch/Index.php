@@ -28,6 +28,9 @@ class Index extends ElIndex implements
      */
     public function getType($type)
     {
-        return new Type($type);
+        $type = new Type($type);
+        $type->setAdapter($this->_client);
+
+        return $type;
     }
 }

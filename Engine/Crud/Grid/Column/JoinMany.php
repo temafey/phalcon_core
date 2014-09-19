@@ -185,12 +185,16 @@ class JoinMany extends Column
      */
     protected function _getManyValues($id)
     {
+        $name = \Engine\Mvc\Model::NAME;
         if (!$this->_queryBuilder) {
             $path = $this->_path;
             $workedModel = array_shift($path);
             $model = new $workedModel;
+            $modelAdapter = $this->_grid->getModelAdapter();
+            if ($modelAdapter) {
+                $model->setConnectionService($modelAdapter);
+            }
             $this->_queryBuilder = $model->queryBuilder();
-            $name = \Engine\Mvc\Model::NAME;
             $this->_queryBuilder->columnsJoinOne($path, $name);
 
             $mainModel = $this->_grid->getContainer()->getDataSource()->getModel();

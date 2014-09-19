@@ -328,6 +328,8 @@ class Model extends \Phalcon\Mvc\Model
         }
         $refModel = $relation->getReferencedModel();
         $refModel = new $refModel;
+        $adapter = $this->getReadConnectionService();
+        $refModel->setConnectionService($adapter);
         $tail = $refModel->getRelationPath($path);
 
         return array_merge($relationPath, $tail);

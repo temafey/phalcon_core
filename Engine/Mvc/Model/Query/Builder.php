@@ -219,13 +219,15 @@ class Builder extends PhBuilder
         $this->groupBy($this->getAlias().".".$this->_model->getPrimary());
 
         $prevRef = array_pop($relationPath);
-        $refModel = $prevRef->getReferencedModel();
+        $refModel = trim($prevRef->getReferencedModel(). "\\");
         $refOptions = $prevRef->getOptions();
         $refAlias = (isset($refOptions['alias'])) ? $refOptions['alias'] : $refModel;
         if ($fieldAlias == null) {
             $fieldAlias = $refAlias;
         }
         $refModel = new $refModel;
+        $adapter = $this->_model->getReadConnectionService();
+        $refModel->setConnectionService($adapter);
         $field = ($tableField !== null) ? $tableField : $refModel->getNameExpr();
 
         if ($separator === null) {
@@ -256,6 +258,8 @@ class Builder extends PhBuilder
         $prevRef = array_shift($relationPath);
         $refModel = $prevRef->getReferencedModel();
         $refModel = new $refModel;
+        $adapter = $this->_model->getReadConnectionService();
+        $refModel->setConnectionService($adapter);
         $query = $refModel->queryBuilder("m");
         $field = ($tableField !== null) ? $tableField : $refModel->getNameExpr();
 
@@ -303,10 +307,12 @@ class Builder extends PhBuilder
     {
         $model = $this->getAlias();
         $joinColumns = false;
+        $alias = false;
+        $adapter = $this->_model->getReadConnectionService();
         foreach ($joinPath as $rule => $relation) {
             $joinColumns = true;
             $fields = $relation->getFields();
-            $refModel = $relation->getReferencedModel();
+            $refModel = trim($relation->getReferencedModel(), "\\");
             $refFields = $relation->getReferencedFields();
             $options = $relation->getOptions();
             $alias = (isset($options['alias'])) ? $options['alias'] : $refModel;
@@ -321,7 +327,9 @@ class Builder extends PhBuilder
             $model = $alias;
         }
         if ($joinColumns) {
-            $this->joinColumns($columns, new $refModel, $alias);
+            $refModel = new $refModel;
+            $refModel->setConnectionService($adapter);
+            $this->joinColumns($columns, $refModel, $alias);
         }
 
         return $this;
@@ -370,8 +378,10 @@ class Builder extends PhBuilder
         if ($col == '*') {
             return $this->getAlias();
         }
+        $adapter = $this->_model->getReadConnectionService();
         foreach ($correlationNameKeys as $key => $modelName) {
             $model = new $modelName;
+            $model->setConnectionService($adapter);
             $cols = $model->getAttributes();
             if (in_array($col, $cols)) {
                 return (is_numeric($key) ? $modelName : $key);
@@ -385,6 +395,7 @@ class Builder extends PhBuilder
         $modelName = $this->getFrom();
         foreach ($correlationNameKeys as $modelName) {
             $model = new $modelName[0];
+            $model->setConnectionService($adapter);
             $cols = $model->getAttributes();
             if (in_array($col, $cols)) {
                 return $modelName[2];
@@ -446,7 +457,7 @@ class Builder extends PhBuilder
     /**
      * Returns the query built
      *
-     * @return \Phalcon\Mvc\Model\Query
+     * @return \Engine\Mvc\Model\Query
      */
     public function getQuery()
     {

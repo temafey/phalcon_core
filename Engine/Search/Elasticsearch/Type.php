@@ -49,8 +49,13 @@ class Type extends ElType implements
     public function getIndex()
     {
         if (null === $this->_index) {
-            $this->_index = $this->getDi()->get($this->_adapter)->getIndex();
+            if ($this->_adapter instanceof Client) {
+                $this->_index = $this->_adapter->getIndex();
+            } else {
+                $this->_index = $this->getDi()->get($this->_adapter)->getIndex();
+            }
         }
+
         return  $this->_index;
     }
 
