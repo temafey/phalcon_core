@@ -118,7 +118,7 @@ class Mysql extends Container implements GridContainer
 	 * @param array $models
      * @return \Engine\Crud\Container\Grid\Mysql
 	 */
-    public function setJoinModels(array $models)
+    public function setJoinModels($models)
 	{
 	    foreach ($models as $model) {
             if (!is_object($model)) {

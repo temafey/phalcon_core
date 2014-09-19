@@ -141,8 +141,8 @@ abstract class AbstractContainer implements
 	/**
 	 * Set join models
 	 * 
-	 * @param array $models
+	 * @param array|string $models
 	 * @return void
 	 */
-	abstract public function setJoinModels(array $models);
+	abstract public function setJoinModels($models);
 }
