@@ -43,7 +43,13 @@ class Elasticsearch extends Container implements GridContainer
         $extraPage = (int) ceil(($limit*$page)/$extraLimit);
         $extraOffset = ($extraPage - 1)*$extraLimit;
         $paginator = $this->_getPaginator($this->getElasticDataSource(), $extraLimit, $extraOffset);
-
+        /*$paginator->setHighlight([
+            'pre_tags' => ['<b>'],
+            'post_tags' => ['</b>'],
+            'fields' => [
+                '_all' => []
+            ]
+        ]);*/
         $items = [];
         $position = $limit*($page-1)-($extraLimit*($extraPage-1));
         $results = $this->_elasticType->search($paginator);
@@ -143,17 +149,16 @@ class Elasticsearch extends Container implements GridContainer
         if (null === $sort) {
             $sort = $this->_model->getOrderExpr();
         }
-        if (!$filterField = $this->_grid->getFilter()->getFieldByKey($sort)) {
-            if (!$filterField = $this->_grid->getFilter()->getFieldByName($sort)) {
-                throw new \Engine\Exception("Can't sort by '".$sort."' column, didn't find this field in search index");
-            }
-        }
-        $sort = $filterField->getName();
-        $direction = $this->_grid->getSortDirection();
-        if (null === $direction) {
-            $direction = ($this->_model->getOrderAsc()) ? "asc" : "desc";
-        }
         if ($sort) {
+            if (!$filterField = $this->_grid->getFilter()->getFieldByKey($sort)) {
+                if (!$filterField = $this->_grid->getFilter()->getFieldByName($sort)) {
+                    throw new \Engine\Exception("Can't sort by '".$sort."' column, didn't find this field in search index");
+                }
+            }
+            $direction = $this->_grid->getSortDirection();
+            if (null === $direction) {
+                $direction = ($this->_model->getOrderAsc()) ? "asc" : "desc";
+            }
             if ($direction) {
                 $query->setSort([$sort.".sort" => ['order' => $direction]]);
             } else {
@@ -182,6 +187,6 @@ class Elasticsearch extends Container implements GridContainer
         $source = $datasource->getModel()->getSource();
         $primayField = $datasource->getModel()->getPrimary();
 
-        return $datasource->andWhere($source.".".$primayField." IN (".implode(", ", $ids).")")->getQuery()->execute();
+        return $datasource->andWhere($source.".".$primayField." IN (".implode(", ", $ids).")")->orderBy("FIELD (".$source.".".$primayField." ,".implode(", ", $ids).")")->getQuery()->execute();
     }
 }

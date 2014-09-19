@@ -74,8 +74,11 @@ class Standart extends AbstractFilter
             $filter->setDefaultField($expr);
             $filterBool->addMust($filter);
         } elseif ($this->_criteria === self::CRITERIA_BEGINS) {
-            $filter = new \Elastica\Query\Prefix();
-            $filter->setPrefix($expr, $this->_value);
+            //$filter = new \Elastica\Query\Prefix();
+            //$filter->setPrefix($expr, $this->_value);
+            //$filterBool->addMust($filter);
+            $filter = new \Elastica\Query\QueryString($this->_value);
+            $filter->setDefaultField($expr);
             $filterBool->addMust($filter);
         } elseif ($this->_criteria === self::CRITERIA_MORE) {
             $filter = new \Elastica\Query\Range($expr, ['from' => $this->_value]);

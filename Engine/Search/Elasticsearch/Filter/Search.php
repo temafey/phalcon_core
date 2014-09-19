@@ -68,8 +68,12 @@ class Search extends AbstractFilter
                 $filter->setField($field, $this->_value);
                 $filters[] = $filter;
             } elseif ($criteria === self::CRITERIA_BEGINS) {
-                $filter = new \Elastica\Query\Prefix();
-                $filter->setPrefix($field, $this->_value);
+                //$filter = new \Elastica\Query\Prefix();
+                //$filter->setPrefix($field, $this->_value);
+                //$filters[] = $filter;
+                $filter = new \Elastica\Query\QueryString();
+                $filter->setQuery($this->_value);
+                $filter->setDefaultField($field);
                 $filters[] = $filter;
             } elseif ($criteria === self::CRITERIA_MORE) {
                 $filter = new \Elastica\Query\Range($field, ['from' => $this->_value]);
