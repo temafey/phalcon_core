@@ -172,7 +172,7 @@ class String
                            (?:[eE][+-]?\d+)?    # optional exponent on decimals or octals
                          )
                        )/x',(string) $value, $matches)
-                    ) {var_dump($value);
+                    ) {
 					    return $matches [1];
                     }
                     break;
@@ -388,7 +388,7 @@ class String
 	public static function generateStringTemplate($template , $values, $startDelimeter = '{{', $endDelimeter = '}}')
 	{
 	    $start = 0;
-		while(($start = strpos($template, $startDelimeter, $start)) !== false &&($end = strpos($template, $endDelimeter, $start)) !== false) {
+		while (($start = strpos($template, $startDelimeter, $start)) !== false &&($end = strpos($template, $endDelimeter, $start)) !== false) {
 			$key = substr($template, $start + strlen($startDelimeter) , $end - $start - strlen($endDelimeter));
 			if (isset($values[$key])) {
 				$value = $values[$key];

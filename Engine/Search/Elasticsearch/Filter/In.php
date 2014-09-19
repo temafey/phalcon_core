@@ -27,7 +27,7 @@ class In extends Standart
     public function filter(Builder $dataSource)
     {
         $values = $this->_value;
-        if(!is_array($values)) {
+        if (!is_array($values)) {
             $values = [$values];
         }
 

@@ -34,7 +34,7 @@ class Columns extends \Engine\Crud\Helper
                 <th width="'.$column->getWidth().'">';
                 if ($column->isSortable()) {
                     $columnCode .= self::sortLink($column);
-                } elseif($column->isHidden()) {
+                } elseif ($column->isHidden()) {
                     $columnCode .= '';
                 } else {
                     $columnCode .= $column->getTitle();

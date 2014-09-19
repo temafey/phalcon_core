@@ -28,6 +28,12 @@ abstract class AbstractContainer implements
 	 * @var \Engine\Mvc\Model
 	 */
 	protected $_model;
+
+    /**
+     * Database model adpter
+     * @var string
+     */
+    protected $_adapter;
 	
 	/**
 	 * Joins to database
@@ -73,7 +79,7 @@ abstract class AbstractContainer implements
 	}
 	
 	/**
-	 * Return database modle
+	 * Return database model
 	 * 
 	 * @return \Engine\Mvc\Model
 	 */
@@ -81,6 +87,16 @@ abstract class AbstractContainer implements
 	{
 		return $this->_model;
 	}
+
+    /**
+     * Return database model adapter
+     *
+     * @return \Engine\Mvc\Model
+     */
+    public function getAdapter()
+    {
+        return $this->_adapter;
+    }
 	
 	/**
 	 * Set container conditions
@@ -90,14 +106,14 @@ abstract class AbstractContainer implements
 	 */
 	public function setConditions($conditions)
 	{
-		if(null === $conditions || $conditions === false) {
+		if (null === $conditions || $conditions === false) {
 			return false;
 		}
-		if(!is_array($conditions)) {
+		if (!is_array($conditions)) {
 			$conditions = array($conditions);
 		}
 		foreach ($conditions as $cond) {
-			if($cond == "") {
+			if ($cond == "") {
 				continue;
 			}
 			$this->_conditions[] = $cond;

@@ -58,10 +58,10 @@ class Compound extends AbstractFilter
 			}
 		}
 		
-		if(count($wheres) == 0) {
+		if (count($wheres) == 0) {
 			return false;
 		}
-		if(count($wheres) == 1) {
+		if (count($wheres) == 1) {
 			return $wheres[0];
 		}
 		$where = "(".implode(" $this->_glue ", $wheres).")";

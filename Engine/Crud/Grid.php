@@ -277,6 +277,7 @@ abstract class Grid implements
         if (null !== $this->_container) {
             $config = [];
             $config['container'] = $this->_container;
+            $config['modelAdapter'] = (null === $this->_containerModelAdapter) ? static::DEFAULT_MODEL_ADAPTER : $this->_containerModelAdapter;
             $config['conditions'] = $this->_containerConditions;
             $config['joins'] = $this->_containerJoins;
             $this->_container = Container::factory($this, $config);

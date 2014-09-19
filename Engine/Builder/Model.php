@@ -173,7 +173,7 @@ class Model extends Component
         // Join engine orderAsc
         if (isset($this->_options['order_asc']) && is_bool($this->_options['order_asc'])) {
             $content .= sprintf($this->templateModelOrder, $this->_options['order_asc']);
-        }else {
+        } else {
             $content .= sprintf($this->templateModelOrder, 'true');
         }
 

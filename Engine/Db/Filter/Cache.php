@@ -61,10 +61,10 @@ class Cache extends Search
 		if (!$this->_cache) {
 			return parent::filterWhere($dataSource);
 		}
-		if(count($this->_value) == 0) { 
+		if (count($this->_value) == 0) {
 			return false;
 		}
-		if(count($this->_value) == 1) {
+		if (count($this->_value) == 1) {
 			$this->_value = $this->_value[0];
 			return parent::filterWhere($dataSource);
 		}
@@ -117,12 +117,12 @@ class Cache extends Search
 	{
 		$keys = [];
 		$needle = strtolower($needle);
-		foreach($haystack as $key => $value) {
+		foreach ($haystack as $key => $value) {
 			$value = strtolower($value);
-			if(strlen($needle) > strlen($value)) { 
+			if (strlen($needle) > strlen($value)) {
 				continue;
 			} elseif (strlen($needle) == strlen($value)) {
-				if($needle == $value) {
+				if ($needle == $value) {
 					$keys[] = $key;
 				}
 			} elseif ($type === true) {

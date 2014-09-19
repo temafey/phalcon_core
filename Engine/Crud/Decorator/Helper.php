@@ -90,7 +90,7 @@ class Helper
      */
     static function getHelperNamespace($object)
     {
-        if($object instanceof Grid) {
+        if ($object instanceof Grid) {
             return '\Engine\Crud\Helper\Grid';
         } elseif ($object instanceof Filter) {
             return '\Engine\Crud\Helper\Filter';

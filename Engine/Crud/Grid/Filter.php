@@ -434,7 +434,7 @@ class Filter
 		
 		$this->_form = new Form();
 		
-		if ($this->_multi){
+		if ($this->_multi) {
 			$prefix = ($this->_prefix) ? $this->_prefix."[1]" : $prefix = "[1]";
 		} else {
 			$prefix = $this->_prefix;

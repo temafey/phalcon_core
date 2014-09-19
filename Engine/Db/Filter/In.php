@@ -29,7 +29,7 @@ class In extends Standart
         $compare = $this->getCompareCriteria();
         
         $values = $this->_value;
-        if(!is_array($values)) {
+        if (!is_array($values)) {
             $values = [$values];
         }
         $adapter =  $dataSource->getModel()->getReadConnection();

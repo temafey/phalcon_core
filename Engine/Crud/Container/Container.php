@@ -101,9 +101,9 @@ class Container
      */
     static function getContainerNamespace($object)
     {
-    	if($object instanceof Grid) {
+    	if ($object instanceof Grid) {
     		return '\Engine\Crud\Container\Grid';
-    	} elseif($object instanceof Form) {
+    	} elseif ($object instanceof Form) {
     		return '\Engine\Crud\Container\Form';
     	} else {
     		throw new \Engine\Exception("Container object '".get_class($object)."' not instance");

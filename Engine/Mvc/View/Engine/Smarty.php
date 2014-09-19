@@ -48,7 +48,7 @@ class Smarty extends Engine implements EngineInterface
         if (!isset($params['content'])) {
             $params['content'] = $this->_view->getContent();
         }
-        foreach($params as $key => $value){
+        foreach ($params as $key => $value) {
             $this->_smarty->assign($key, $value);
         }
         $this->_view->setContent($this->_smarty->fetch($path));

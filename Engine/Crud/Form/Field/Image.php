@@ -80,7 +80,7 @@ class Image extends File
 			
 		$values = $this->_form->getData();
 		$source = \Engine\Tools\String::generateStringTemplate($this->_renderTemplate, $values, '{', '}');
-		if($source === false) {
+		if ($source === false) {
 			return $value;
 		}
 		$values = $this->_form->getRenderData();

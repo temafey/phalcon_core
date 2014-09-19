@@ -62,7 +62,7 @@ class Mysql extends Container implements GridContainer
     public function setModel($model = null)
 	{
 		if (null === $model) {
-			if(null === $this->_model) {
+			if (null === $this->_model) {
 				throw new \Engine\Exception("Container model class not set");
 			}
 			$model = $this->_model;
@@ -80,7 +80,7 @@ class Mysql extends Container implements GridContainer
 		} else {
 			if (!empty($this->_joins)) {
 				$joins = $this->_joins;
-				if(!is_array($joins)) {
+				if (!is_array($joins)) {
 					$joins = [$joins];
 				}
 				$this->_setJoinModels($joins);
@@ -123,10 +123,8 @@ class Mysql extends Container implements GridContainer
 	    foreach ($models as $model) {
             if (!is_object($model)) {
                 $model = new $model;
-                $adapter = $this->_model->getReadConnectionService();
-                $model->setReadConnectionService($adapter);
-                $adapter = $this->_model->getWriteConnectionService();
-                $model->setWriteConnectionService($adapter);
+                $model->setReadConnectionService($this->_adapter);
+                $model->setWriteConnectionService($this->_adapter);
             }
 		    if (!($model instanceof Model)) {
 	            throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
@@ -149,10 +147,8 @@ class Mysql extends Container implements GridContainer
 	{
         if (!is_object($model)) {
             $model = new $model;
-            $adapter = $this->_model->getReadConnectionService();
-            $model->setReadConnectionService($adapter);
-            $adapter = $this->_model->getWriteConnectionService();
-            $model->setWriteConnectionService($adapter);
+            $model->setReadConnectionService($this->_adapter);
+            $model->setWriteConnectionService($this->_adapter);
         }
 		if (!($model instanceof Model)) {
             throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
@@ -367,7 +363,7 @@ class Mysql extends Container implements GridContainer
 			}
 		} catch (\Engine\Exception $e) {
             $db->rollBack();
-			return ['error' => $e->getMessage()];
+			return ['error' => [$e->getMessage()]];
 		}
 		$db->commit();
 		
@@ -401,7 +397,7 @@ class Mysql extends Container implements GridContainer
                 }
             }
         } catch (\Engine\Exception $e) {
-            return ['error' => $e->getMessage()];
+            return ['error' => [$e->getMessage()]];
         }
 	    
 	    return true; 
@@ -431,7 +427,7 @@ class Mysql extends Container implements GridContainer
             }
         } catch (\Engine\Exception $e) {
             $db->rollBack();
-            return ['error' => $e->getMessage()];
+            return ['error' => [$e->getMessage()]];
         }
         $db->commit();
 

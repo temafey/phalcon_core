@@ -52,6 +52,12 @@ abstract class Form implements
 	protected $_fields = [];
 
     /**
+     * Array of form field names as keys and model field names as values
+     * @var array
+     */
+    protected $_fieldNames = [];
+
+    /**
      * Form title
      * @var string
      */
@@ -256,17 +262,19 @@ abstract class Form implements
 	 *
 	 * @return void
 	 */
-	protected function _setupForm()
-	{
+    protected function _setupForm()
+    {
+        $this->_fieldNames = [];
         foreach ($this->_fields as $key => $field) {
-			$field->init($this, $key);
-		}
-		if (null !== $this->_id) {
-			$this->loadData($this->_id);
-		} else {
-			$this->setData($this->_params);
-		}
-	}
+            $field->init($this, $key);
+            $this->_fieldNames[$key] = $field->getName();
+        }
+        if (null !== $this->_id) {
+            $this->loadData($this->_id);
+        } else {
+            $this->setData($this->_params);
+        }
+    }
 	
 	/**
 	 * Setup form fields
@@ -289,7 +297,6 @@ abstract class Form implements
         }
 
 		$this->_form = new EngineForm();
-		$fieldNames = [];
     	foreach ($this->_fields as $key => $field) {
             if ($this->_id === null) {
             }
@@ -302,7 +309,6 @@ abstract class Form implements
     			if (!($element instanceof \Phalcon\Forms\Element)) { 
     				throw new \Engine\Exception('Element not instance if \Phalcon\Forms\Element');
     			}
-    			$fieldNames[$key] = $field->getName();
     			$this->_form->add($element);
     		}
     	}
@@ -406,14 +412,17 @@ abstract class Form implements
 	 * @return \Engine\Crud\Form
 	 */
 	public function loadData($id)
-	{
-		$this->clearData();
-		$this->_id = $id;
-		$this->_loadData = $this->_container->loadData($id);
-		$this->setData($this->_loadData, true);
-		
-		return $this;
-	}
+    {
+        $this->clearData();
+        $this->_id = $id;
+        foreach ($this->_fieldNames as $key => $name) {
+            $this->_container->setColumn($key, $name, true, true);
+        }
+        $this->_loadData = $this->_container->loadData($id);
+        $this->setData($this->_loadData);
+
+        return $this;
+    }
 	
 	/**
 	 * Return merged form data

@@ -25,7 +25,7 @@ class Buttons extends BaseHelper
 	{
         $code = "
 
-            buttonsGet: function(){
+            buttonsGet: function() {
                 var me = this;
 
                 return [

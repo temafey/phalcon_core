@@ -30,7 +30,7 @@ class Datastore extends \Engine\Crud\Helper
         foreach ($data['data'] as $row) {
             $rowCode = '
                 <tr>';
-            foreach($columns as $key) {
+            foreach ($columns as $key) {
                 $rowCode .= '
                     <td>'.$row[$key].'</td>';
             }

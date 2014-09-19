@@ -51,7 +51,7 @@ class Compound extends Standart
     public function _init()
 	{
 		foreach ( $this->_fields as $key => $field) {
-			if(!$field instanceof Field) {
+			if (!$field instanceof Field) {
                 throw new \Engine\Exception('Compound filter field not instance of Field');
             }
             $field->init($this->_filter, $key);

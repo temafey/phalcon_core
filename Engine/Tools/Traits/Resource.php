@@ -117,7 +117,7 @@ trait Resource
      */
     public function addAutoloadMethodPrefixException($prefix)
     {
-    	if(!in_array($prefix, $this->_autoloadMethodPrefixException)) {
+    	if (!in_array($prefix, $this->_autoloadMethodPrefixException)) {
     		$this->_autoloadMethodPrefixException[] = $prefix;
     	}
     	
@@ -210,7 +210,7 @@ trait Resource
     	
     	foreach ($methodExceptions as &$exception) {
     		$exceptionLen = strlen($exception);
-    		if($exception === substr($method, 0, $exceptionLen)) {
+    		if ($exception === substr($method, 0, $exceptionLen)) {
     			return true;
     		}
     	}

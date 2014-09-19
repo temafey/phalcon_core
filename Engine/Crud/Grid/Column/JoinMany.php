@@ -143,34 +143,34 @@ class JoinMany extends Column
             $value = $row[$this->_key];
             $values = explode($this->_separator, $value);
             $count = count($values);
-            if(($this->_count !== false) && ($this->_count !== null)) {
+            if (($this->_count !== false) && ($this->_count !== null)) {
                 $values = array_slice($values, 0, $this->_count);
             }
         }
 
 		if (null !== $this->_tag) {
 		    foreach ($values as $i => $val) {
-		        if($this->_tag == '<b>' || $this->_tag == 'b') {
+		        if ($this->_tag == '<b>' || $this->_tag == 'b') {
 		            $values = "<b>".$val ."</b>";
-		        } elseif($this->_tag == '<strong>' || $this->_tag == 'strong') {
+		        } elseif ($this->_tag == '<strong>' || $this->_tag == 'strong') {
 		            $values[$i] = "<strong>".$val ."</strong>";
-		        } elseif($this->_tag == '<li>' || $this->_tag == 'li') {
+		        } elseif ($this->_tag == '<li>' || $this->_tag == 'li') {
 		            $values[$i] = "<li>".$val ."</li>";
 		        }
 		    }
 		}
 		
 		$value = implode($this->_separator, $values);
-		if(($this->_count !== false) && ($this->_count !== null) && $count > $this->_count) {
+		if (($this->_count !== false) && ($this->_count !== null) && $count > $this->_count) {
 			$value .= $this->_separator."...";
 		}
-		if($count == 0) {
+		if ($count == 0) {
 			 $value = $this->_na;
 		}
-		if(!empty($this->_left)) {
+		if (!empty($this->_left)) {
 		    $value = $this->_left.$value;
 		}
-	    if(!empty($this->_right)) {
+	    if (!empty($this->_right)) {
 		    $value .= $this->_right;
 		}
 

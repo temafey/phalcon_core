@@ -422,7 +422,7 @@ class Builder extends PhBuilder
                 $direction = [$direction];
             }
             $orderPre = [];
-            foreach ($order as $i => $key){
+            foreach ($order as $i => $key) {
                 $direction[$i] = ($direction[$i] ^ $reverse) ? "ASC" : "DESC";
                 $alias = $this->getCorrelationName($key);
                 $orderPre[] = $alias.".".$key." ".$direction[$i];

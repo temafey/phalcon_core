@@ -61,7 +61,7 @@ class Mysql extends Container implements FormContainer
     public function setModel($model = null)
     {
         if (null === $model) {
-            if(null === $this->_model) {
+            if (null === $this->_model) {
                 throw new \Engine\Exception("Container model class not set");
             }
             $model = $this->_model;
@@ -79,9 +79,6 @@ class Mysql extends Container implements FormContainer
         } else {
             if (!empty($this->_joins)) {
                 $joins = $this->_joins;
-                if(!is_array($joins)) {
-                    $joins = array($joins);
-                }
                 $this->_setJoinModels($joins);
             }
         }
@@ -105,8 +102,11 @@ class Mysql extends Container implements FormContainer
         if (!$adapter) {
             return $this;
         }
-        $this->_model->setWriteConnectionService($adapter);
-        $this->_model->setReadConnectionService($adapter);
+        $this->_adapter = $adapter;
+        if ($this->_model instanceof Model) {
+            $this->_model->setWriteConnectionService($this->_adapter);
+            $this->_model->setReadConnectionService($this->_adapter);
+        }
 
         return $this;
     }
@@ -114,18 +114,19 @@ class Mysql extends Container implements FormContainer
     /**
      * Set join models
      *
-     * @param array $models
+     * @param array|string $models
      * @return \Engine\Crud\Container\Grid\Mysql
      */
-    public function setJoinModels(array $models)
+    public function setJoinModels($models)
     {
+        if (!is_array($models)) {
+            $models = [$models];
+        }
         foreach ($models as $model) {
             if (!is_object($model)) {
                 $model = new $model;
-                $adapter = $this->_model->getReadConnectionService();
-                $model->setReadConnectionService($adapter);
-                $adapter = $this->_model->getWriteConnectionService();
-                $model->setWriteConnectionService($adapter);
+                $model->setReadConnectionService($this->_adapter);
+                $model->setWriteConnectionService($this->_adapter);
             }
             if (!($model instanceof Model)) {
                 throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
@@ -151,10 +152,8 @@ class Mysql extends Container implements FormContainer
         }
         if (!is_object($model)) {
             $model = new $model;
-            $adapter = $this->_model->getReadConnectionService();
-            $model->setReadConnectionService($adapter);
-            $adapter = $this->_model->getWriteConnectionService();
-            $model->setWriteConnectionService($adapter);
+            $model->setReadConnectionService($this->_adapter);
+            $model->setWriteConnectionService($this->_adapter);
         }
         $key = $model->getSource();
         if (isset($this->_joins[$key])) {
@@ -174,16 +173,22 @@ class Mysql extends Container implements FormContainer
      *
      * @param string $key
      * @param string $name
-     * @return \Egnine\Crud\Container\Form\Mysql
+     * @param boolean $useTableAlias
+     * @param boolean $useCorrelationTableName
+     * @return \Engine\Crud\Container\Form\Mysql
      */
-    public function setColumn($key, $name)
+    public function setColumn($key, $name, $useTableAlias = true, $useCorrelationTableName = false)
     {
         if (isset($this->_columns[$key])) {
             return $this;
         }
-        $this->_columns[$key] = $name;
+        $this->_columns[$key] = [
+            $name,
+            'useTableAlias' => $useTableAlias,
+            'useCorrelationName' => $useCorrelationTableName
+        ];
         if (null !== $this->_dataSource) {
-            $this->_dataSource->setColumn($name, $key);
+            $this->_dataSource->setColumn($name, $key, $useTableAlias, $useCorrelationTableName);
         }
 
         return $this;
@@ -240,10 +245,16 @@ class Mysql extends Container implements FormContainer
 	 * @param int $id
 	 * @return array
 	 */
-	public function loadData($id)
-	{
-		return $this->_model->findFirst($id)->toArray();
-	}
+    public function loadData($id)
+    {
+        $dataSource = $this->getDataSource();
+        $primary = $this->_model->getPrimary();
+        $alias = $dataSource->getCorrelationName($primary);
+        $dataSource->andWhere($alias.".".$primary." = '".$id."'");
+        $result = $dataSource->getQuery()->execute()->toArray();
+
+        return ($result ? $result[0] : false);
+    }
 	
 	/**
 	 * Insert new item
@@ -268,7 +279,7 @@ class Mysql extends Container implements FormContainer
 			    return $results;
 			}
 		} catch (\Engine\Exception $e) {
-			return ['error' => $e->getMessage()];
+			return ['error' => [$e->getMessage()]];
 		}
 		$db->commit();
 		
@@ -293,7 +304,7 @@ class Mysql extends Container implements FormContainer
                 $primary = $model->getPrimary();
 	            $results[] = $model->{$primary};
 	        } catch (\Engine\Exception $e) {
-			    return ['error' => $e->getMessage()];
+			    return ['error' => [$e->getMessage()]];
 		    }
 	    }
 	    
@@ -338,7 +349,7 @@ class Mysql extends Container implements FormContainer
             }
         } catch (\Engine\Exception $e) {
             $db->rollBack();
-            return ['error' => $e->getMessage()];
+            return ['error' => [$e->getMessage()]];
         }
         $db->commit();
 
@@ -380,7 +391,7 @@ class Mysql extends Container implements FormContainer
                 }
             }
         } catch (\Engine\Exception $e) {
-            return ['error' => $e->getMessage()];
+            return ['error' => [$e->getMessage()]];
         }
 
         return true;
@@ -413,7 +424,7 @@ class Mysql extends Container implements FormContainer
             }
         } catch (\Engine\Exception $e) {
             $db->rollBack();
-            return ['error' => $e->getMessage()];
+            return ['error' => [$e->getMessage()]];
         }
         $db->commit();
 

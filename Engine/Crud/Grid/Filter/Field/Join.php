@@ -290,7 +290,7 @@ class Join extends ArrayToSelect
   	*/	
 	public function getOptions()
 	{
-		if(empty($this->_options)) {
+		if (empty($this->_options)) {
 			$this->_setOptions();
 		}
 		return $this->_options;
