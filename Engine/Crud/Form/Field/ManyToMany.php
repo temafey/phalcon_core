@@ -623,7 +623,6 @@ class ManyToMany extends Field
         $this->_count = $result[0]['count'];
     }
 
-
     /**
      * @return \Engine\Mvc\Model
      */
