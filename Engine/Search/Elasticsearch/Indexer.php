@@ -481,7 +481,7 @@ class Indexer
 
                         $queryBuilder->columnsJoinOne($refModelClass, [$categoryKey => $categoryKey]);
                         $queryBuilder->orderBy($categoryKey.', name');
-                        $queryBuilder->where($keyParent." = '".$data[$primaryKey]."'");
+                        $queryBuilder->andWhere($keyParent." = '".$data[$primaryKey]."'");
                         $sql = $queryBuilder->getPhql();
                         $sql = str_replace(
                             [trim($workingModelClass, "\\"), trim($refModelClass, "\\"), "[", "]"],
@@ -499,7 +499,7 @@ class Indexer
                             $item[$newName][] = $filter[$refKey];
                         }
                     } else {
-                        $queryBuilder->where($keyParent." = '".$data[$primaryKey]."'");
+                        $queryBuilder->andWhere($keyParent." = '".$data[$primaryKey]."'");
                         $queryBuilder->columnsJoinOne($refModel, ['name' => 'name', 'id' => 'id']);
                         $queryBuilder->orderBy('name');
                         $sql = $queryBuilder->getPhql();

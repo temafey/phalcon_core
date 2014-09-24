@@ -286,7 +286,7 @@ class Builder extends PhBuilder
             $prevRef = array_pop($joinPathRev);
             $alias = $prevRef->getReferencedModel();
         }
-        $query->where($alias.".".$prevRef->getReferencedFields()." = ".$this->getAlias().".".$prevRef->getFields());
+        $query->andWhere($alias.".".$prevRef->getReferencedFields()." = ".$this->getAlias().".".$prevRef->getFields());
 
         if ($fieldAlias == null) {
             $fieldAlias = get_class($refModel);
@@ -378,10 +378,8 @@ class Builder extends PhBuilder
         if ($col == '*') {
             return $this->getAlias();
         }
-        $adapter = $this->_model->getReadConnectionService();
         foreach ($correlationNameKeys as $key => $modelName) {
             $model = new $modelName;
-            $model->setConnectionService($adapter);
             $cols = $model->getAttributes();
             if (in_array($col, $cols)) {
                 return (is_numeric($key) ? $modelName : $key);
@@ -392,10 +390,8 @@ class Builder extends PhBuilder
         if (!$correlationNameKeys) {
             return $this->getAlias();
         }
-        $modelName = $this->getFrom();
         foreach ($correlationNameKeys as $modelName) {
             $model = new $modelName[0];
-            $model->setConnectionService($adapter);
             $cols = $model->getAttributes();
             if (in_array($col, $cols)) {
                 return $modelName[2];

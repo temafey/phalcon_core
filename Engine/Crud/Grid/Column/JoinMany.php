@@ -204,7 +204,7 @@ class JoinMany extends Column
             }
             $relation = array_pop($relations);
             $field = $relation->getReferencedFields();
-            $this->_queryBuilder->where($field." = :id:");
+            $this->_queryBuilder->andWhere($field." = :id:");
             if ($this->_count) {
                 $this->_queryBuilder->limit($this->_count);
             }

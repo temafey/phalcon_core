@@ -55,24 +55,17 @@ abstract class AbstractContainer implements
 	 */
 	public function setOptions(array $options)
 	{
-		foreach ($options as $key => $value) {
-            switch ($key) {
-                case self::MODEL:
-                    $this->setModel($value);
-                    break;
-                case self::JOINS:
-                    $this->setJoinModels($value);
-                    break;
-                case self::CONDITIONS:
-                	$this->setConditions($value);
-                	break;
-                case self::ADAPTER:
-                    $this->setAdapter($value);
-                    break;
-                default:
-                    // ignore unrecognized configuration directive
-                    break;
-            }
+        if (isset($options[self::ADAPTER])) {
+            $this->setAdapter($options[self::ADAPTER]);
+        }
+        if (isset($options[self::CONDITIONS])) {
+            $this->setConditions($options[self::CONDITIONS]);
+        }
+        if (isset($options[self::MODEL])) {
+            $this->setModel($options[self::MODEL]);
+        }
+        if (isset($options[self::JOINS])) {
+            $this->setJoinModels($options[self::JOINS]);
         }
         
         return $this;

@@ -395,6 +395,8 @@ class ManyToMany extends Field
             echo $e->getMessage();
             die();
         }
+
+        return true;
     }
 
     /**
@@ -472,7 +474,7 @@ class ManyToMany extends Field
         $names = \Engine\Tools\String::quote($names);
         $queryBuilder = $this->_getModel()->queryBuilder();
         $queryBuilder->columnsId();
-        $queryBuilder->where("name IN (".$names.")");
+        $queryBuilder->andWhere("name IN (".$names.")");
         $result = $queryBuilder->getQuery()->execute();
         if ($result) {
             foreach ($result->toArray() as $row) {
@@ -544,8 +546,14 @@ class ManyToMany extends Field
                 $names = explode($this->_separator, $name);
                 $names = \Engine\Tools\String::quote($names);
                 $queryBuilder->columnsName();
-                $queryBuilder->where("name IN (". $names.")");
+                $queryBuilder->andWhere("name IN (". $names.")");
             } else {
+                // This "if" is important to filter Tags on "Article tags" grid
+                if (isset($params['query']) && $params['query'] != '') {
+                    $queryBuilder->columnsName();
+                    $name = trim($params['query']);
+                    $queryBuilder->andWhere("name LIKE '" . $name . "%'");
+                }
                 if (isset($params['start'])) {
                     $offset = (int) $params['start'];
                     $queryBuilder->offset($offset);
@@ -592,14 +600,21 @@ class ManyToMany extends Field
      * @return void
      */
     protected function _setCount($params = null)
-    {        
+    {
         $queryBuilder = $this->_getModel()->queryBuilder();
         if (isset($params['name'])) {
             $name = $params['name'];
             $names = explode($this->_separator, $name);
             $names = \Engine\Tools\String::quote($names);
             $queryBuilder->columnsName();
-            $queryBuilder->where("name IN (".$names.")");
+            $queryBuilder->andWhere("name IN (".$names.")");
+        }
+        // This "elseif" is important to filter Tags on "Article tags" grid
+        elseif (isset($params['query'])) {
+            $name = $params['name'];
+            $name = trim($params['query']);
+            $queryBuilder->columnsName();
+            $queryBuilder->andWhere("name LIKE '" . $name . "%'");
         }
         $queryBuilder->setColumn("COUNT(id)", "count", false);
         if ($params) {
@@ -607,6 +622,7 @@ class ManyToMany extends Field
         $result = $queryBuilder->getQuery()->execute();
         $this->_count = $result[0]['count'];
     }
+
 
     /**
      * @return \Engine\Mvc\Model

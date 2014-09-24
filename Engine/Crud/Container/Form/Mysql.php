@@ -7,6 +7,7 @@ namespace Engine\Crud\Container\Form;
 use Engine\Crud\Container\AbstractContainer as Container,
     Engine\Crud\Container\Form\Adapter as FormContainer,
     Engine\Crud\Form,
+    Engine\Crud\Form\Field,
     Engine\Mvc\Model;
 
 /**
@@ -35,6 +36,11 @@ class Mysql extends Container implements FormContainer
      * @var array
      */
     protected $_columns = [];
+
+    /**
+     * @var array
+     */
+    protected $_fields = [];
 	
 	/**
      * Constructor
@@ -56,7 +62,7 @@ class Mysql extends Container implements FormContainer
      *
      * @param string $model
      * @throws \Engine\Exception
-     * @return \Engine\Crud\Container\Grid\Mysql
+     * @return \Engine\Crud\Container\Form\Mysql
      */
     public function setModel($model = null)
     {
@@ -74,19 +80,25 @@ class Mysql extends Container implements FormContainer
         }
         if (is_array($model)) {
             $primaryModel = array_shift($model);
-            $this->_setJoinModels($model);
+            $this->setJoinModels($model);
             $model = $primaryModel;
         } else {
             if (!empty($this->_joins)) {
                 $joins = $this->_joins;
-                $this->_setJoinModels($joins);
+                $this->setJoinModels($joins);
             }
         }
         if (!class_exists($model)) {
             throw new \Engine\Exception("Container model class '$model' does not exists");
         }
-
+        if ($this->_adapter) {
+            $model->setWriteConnectionService($this->_adapter);
+            $model->setReadConnectionService($this->_adapter);
+        }
         $this->_model = new $model;
+
+        $source = $this->_model->getSource();
+        $this->_fields[$source] = $this->_model->getAttributes();
 
         return $this;
     }
@@ -95,7 +107,7 @@ class Mysql extends Container implements FormContainer
      * Set model adapter
      *
      * @param string $adapter
-     * @return \Engine\Crud\Container\Grid\Mysql
+     * @return \Engine\Crud\Container\Form\Mysql
      */
     public function setAdapter($adapter = null)
     {
@@ -107,6 +119,10 @@ class Mysql extends Container implements FormContainer
             $this->_model->setWriteConnectionService($this->_adapter);
             $this->_model->setReadConnectionService($this->_adapter);
         }
+        foreach ($this->_joins as $model) {
+            $model->setWriteConnectionService($this->_adapter);
+            $model->setReadConnectionService($this->_adapter);
+        }
 
         return $this;
     }
@@ -115,7 +131,7 @@ class Mysql extends Container implements FormContainer
      * Set join models
      *
      * @param array|string $models
-     * @return \Engine\Crud\Container\Grid\Mysql
+     * @return \Engine\Crud\Container\Form\Mysql
      */
     public function setJoinModels($models)
     {
@@ -125,14 +141,18 @@ class Mysql extends Container implements FormContainer
         foreach ($models as $model) {
             if (!is_object($model)) {
                 $model = new $model;
-                $model->setReadConnectionService($this->_adapter);
-                $model->setWriteConnectionService($this->_adapter);
+                if ($this->_adapter) {
+                    $model->setReadConnectionService($this->_adapter);
+                    $model->setWriteConnectionService($this->_adapter);
+                }
             }
             if (!($model instanceof Model)) {
                 throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
             }
             $key = $model->getSource();
             $this->_joins[$key] = $model;
+
+            $this->_fields[$key] = $model->getAttributes();
         }
 
         return $this;
@@ -143,7 +163,7 @@ class Mysql extends Container implements FormContainer
      *
      * @param string $model
      * @throws \Exception
-     * @return \Crud\Container\Grid\Mysql
+     * @return \Engine\Crud\Container\Form\Mysql
      */
     public function addJoin($model)
     {
@@ -152,8 +172,10 @@ class Mysql extends Container implements FormContainer
         }
         if (!is_object($model)) {
             $model = new $model;
-            $model->setReadConnectionService($this->_adapter);
-            $model->setWriteConnectionService($this->_adapter);
+            if ($this->_adapter) {
+                $model->setReadConnectionService($this->_adapter);
+                $model->setWriteConnectionService($this->_adapter);
+            }
         }
         $key = $model->getSource();
         if (isset($this->_joins[$key])) {
@@ -161,11 +183,38 @@ class Mysql extends Container implements FormContainer
         }
         $this->_joins[$key] = $model;
 
+        $this->_fields[$key] = $model->getAttributes();
+
         if (null !== $this->_dataSource) {
             $this->_dataSource->columnsJoinOne($model);
         }
 
         return $this;
+    }
+
+    /**
+     * @param $model
+     */
+    public function initialaizeModels()
+    {
+        $fields = $this->_form->getFields();
+        $notRequeired = [];
+        foreach ($fields as $field) {
+            if ($field instanceof Field\ManyToMany || $field instanceof Field\Primary) {
+                continue;
+            }
+            if ($field instanceof Field) {
+                $fieldName = $field->getName();
+                if (!$field->isRequire()) {
+                    $notRequeired[] = $fieldName;
+                }
+            }
+        }
+        $source = $this->_model->getSource();
+        $this->_model->skipAttributes(array_intersect($this->_fields[$source], $notRequeired));
+        foreach ($this->_joins as $key => $model) {
+            $model->skipAttributes(array_intersect($this->_fields[$key], $notRequeired));
+        }
     }
 
     /**
@@ -226,15 +275,6 @@ class Mysql extends Container implements FormContainer
                 $this->_dataSource->addWhere($cond['cond'], $cond['params']);
             } else {
                 $this->_dataSource->addWhere($cond);
-            }
-        }
-        $sort = $this->_grid->getSortKey();
-        $direction = $this->_grid->getSortDirection();
-        if (!empty($sort)) {
-            if (!empty($direction)) {
-                $this->_dataSource->orderBy($this->_grid->getSortKey().' '.$this->_grid->getSortDirection());
-            } else {
-                $this->_dataSource->orderBy($this->_grid->getSortKey());
             }
         }
     }
@@ -340,7 +380,7 @@ class Mysql extends Container implements FormContainer
                 foreach ($record->getMessages() as $message)  {
                     $messages[] = $message->getMessage();
                 }
-                return ['error' => implode(", ", $messages)];
+                return ['error' => $messages];
             }
             $results = $this->_updateJoins($id, $data);
             if (isset($results['error'])) {
@@ -386,7 +426,7 @@ class Mysql extends Container implements FormContainer
                         foreach ($record->getMessages() as $message)  {
                             $messages[] = $message->getMessage();
                         }
-                        return ['error' => implode(", ", $messages)];
+                        return ['error' => $messages];
                     }
                 }
             }
@@ -419,7 +459,7 @@ class Mysql extends Container implements FormContainer
                     foreach ($record->getMessages() as $message)  {
                         $messages[] = $message->getMessage();
                     }
-                    return ['error' => implode(", ", $messages)];
+                    return ['error' => $messages];
                 }
             }
         } catch (\Engine\Exception $e) {

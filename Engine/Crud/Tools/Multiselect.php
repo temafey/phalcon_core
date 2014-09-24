@@ -54,7 +54,7 @@ class Multiselect
                 $where = [$where];
             }
             foreach ($where as $whereItem) {
-                $queryBuilder->where($whereItem);
+                $queryBuilder->andWhere($whereItem);
             }
         }
 
@@ -123,7 +123,7 @@ class Multiselect
                 $where = array ($where);
             }
             foreach ($where as $whereItem) {
-                $queryBuilder->where($whereItem);
+                $queryBuilder->andWhere($whereItem);
             }
         }
 

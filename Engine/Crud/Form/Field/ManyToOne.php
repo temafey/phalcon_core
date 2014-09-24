@@ -102,7 +102,7 @@ class ManyToOne extends ArrayToSelect
         $name = false,
         $optionName =  null,
         $desc = null,
-        $required = false,
+        $required = true,
         $width = 280,
         $default = null
     ) {

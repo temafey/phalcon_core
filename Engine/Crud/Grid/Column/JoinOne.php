@@ -68,7 +68,8 @@ class JoinOne extends Collection
         $width = 200,
         $extraOptions = [],
         $isEditable = true,
-        $fieldKey = null
+        $fieldKey = null,
+        $na = "---"
     ) {
 		parent::__construct($title, $column, [], $isSortable, $isHidden, $width, $isEditable, $fieldKey);
 		
@@ -76,6 +77,7 @@ class JoinOne extends Collection
 		$this->_column = $column;
 		$this->_columns = $columns;
         $this->_extraOptions = $extraOptions;
+        $this->_na = $na;
 	}
 
     /**
@@ -99,7 +101,7 @@ class JoinOne extends Collection
 	 */
 	public function updateDataSource($dataSource)
 	{
-		$columns =  [$this->_key => $this->_column, $this->_key.'_id' => \Engine\Mvc\Model::ID];
+		$columns =  [$this->_key => $this->_column];
 		if (!empty($this->_columns)) {
 		    $columns = (is_array($this->_columns)) ? array_merge($columns, $this->_columns) : array_merge($columns, [$this->_columns => $this->_columns]);
 		}
@@ -127,4 +129,16 @@ class JoinOne extends Collection
 
 		return $value ? $value : $this->_na;
 	}
+
+    /**
+     * Set null value
+     *
+     * @param string $na
+     * @return \Engine\Crud\Grid\Column\JoinOne
+     */
+    public function setNullValue($na)
+    {
+        $this->_na = $na;
+        return $this;
+    }
 }

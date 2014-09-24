@@ -627,6 +627,8 @@ abstract class Form implements
             $data = $this->getData();
         }
 
+        $this->_container->initialaizeModels();
+
         if ($validate) {
             if (!$this->isValid($data)) {
                 $messages = [];
@@ -756,6 +758,7 @@ abstract class Form implements
 	{
 		$valid = true;
 		$errors = [];
+        $this->_container->initialaizeModels();
 		foreach ($data as $name => $value) {
 			$element = $this->getElement($name);
 			if (! $element) {
@@ -805,6 +808,7 @@ abstract class Form implements
 	 */
 	public function delete($id = null)
 	{
+        $this->_container->initialaizeModels();
         if (!$this->isRemovable()) {
             return false;
         }
@@ -829,6 +833,7 @@ abstract class Form implements
 	 */
 	public function duplicate($ids) 
 	{
+        $this->_container->initialaizeModels();
 		if (!is_array($ids)) {
 			$ids = [$ids];
 		}

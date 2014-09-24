@@ -102,7 +102,7 @@ class Path extends AbstractFilter
 
                 $queryBuilder->columnsJoinOne($refModel, [$categoryKey => $categoryKey]);
                 $queryBuilder->orderBy($categoryKey.', name');
-                $queryBuilder->where($refKey." IN (".implode(",", $values).")");
+                $queryBuilder->andWhere($refKey." IN (".implode(",", $values).")");
                 $filterData = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result->toArray();
 
                 $acceptedFilters = [];

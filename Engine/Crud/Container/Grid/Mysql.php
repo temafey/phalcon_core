@@ -75,7 +75,7 @@ class Mysql extends Container implements GridContainer
 		}
 		if (is_array($model)) {
 			$primaryModel = array_shift($model);
-			$this->_setJoinModels($model);
+			$this->setJoinModels($model);
 			$model = $primaryModel;
 		} else {
 			if (!empty($this->_joins)) {
@@ -83,7 +83,7 @@ class Mysql extends Container implements GridContainer
 				if (!is_array($joins)) {
 					$joins = [$joins];
 				}
-				$this->_setJoinModels($joins);
+				$this->setJoinModels($joins);
 			}
 		}
 		if (!class_exists($model)) {
@@ -106,8 +106,14 @@ class Mysql extends Container implements GridContainer
         if (!$adapter) {
             return $this;
         }
-        $this->_model->setWriteConnectionService($adapter);
-        $this->_model->setReadConnectionService($adapter);
+        if ($this->_model instanceof Model) {
+            $this->_model->setWriteConnectionService($this->_adapter);
+            $this->_model->setReadConnectionService($this->_adapter);
+        }
+        foreach ($this->_joins as $model) {
+            $model->setWriteConnectionService($this->_adapter);
+            $model->setReadConnectionService($this->_adapter);
+        }
 
         return $this;
     }
@@ -353,7 +359,7 @@ class Mysql extends Container implements GridContainer
                     foreach ($record->getMessages() as $message)  {
                         $messages[] = $message->getMessage();
                     }
-                    return ['error' => implode(", ", $messages)];
+                    return ['error' => $messages];
                 }
             }
 			$results = $this->_updateJoins($ids, $data);
@@ -392,7 +398,7 @@ class Mysql extends Container implements GridContainer
                         foreach ($record->getMessages() as $message)  {
                             $messages[] = $message->getMessage();
                         }
-                        return ['error' => implode(", ", $messages)];
+                        return ['error' => $messages];
                     }
                 }
             }
@@ -422,7 +428,7 @@ class Mysql extends Container implements GridContainer
                     foreach ($record->getMessages() as $message)  {
                         $messages[] = $message->getMessage();
                     }
-                    return ['error' => implode(", ", $messages)];
+                    return ['error' => $messages];
                 }
             }
         } catch (\Engine\Exception $e) {
