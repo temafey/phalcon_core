@@ -24,7 +24,7 @@ class File extends \Phalcon\Forms\Element\File implements \Engine\Forms\ElementI
      *
      * @return bool
      */
-    public function useDefaultLayout(){
+    public function useDefaultLayout() {
         return true;
     }
 

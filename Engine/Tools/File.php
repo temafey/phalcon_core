@@ -23,7 +23,7 @@ class File
         $result = true;
         $root = str_replace("\\","/",$root);
         $root = (substr($root, -1 , 1) == '/') ? substr($root, 0, -1) : $root;
-        foreach ($dirs as $dir){
+        foreach ($dirs as $dir) {
             $path = $root.'/'.$dir;
             if (!is_dir($path)) {
                 if (!self::rmkdir($path, $mode, $recursive)) {
@@ -45,7 +45,7 @@ class File
         $result = true;
         $root = str_replace("\\","/",$root);
         $root = (substr($root, -1 , 1) == '/') ? substr($root, 0, -1) : $root;
-        foreach ($dirs as $dir){
+        foreach ($dirs as $dir) {
             $path = $root.'/'.$dir;
             if (!is_dir($path)) {
                 if (!mkdir($path, $mode, $recursive)) {
@@ -68,7 +68,7 @@ class File
     static function armdir(array $paths, $mode = 0755, $recursive = false) 
     {
         $result = true;
-        foreach ($paths as $path){
+        foreach ($paths as $path) {
             if (!is_dir($path)) {
                 if (!self::rmkdir($path, $mode, $recursive)) {
                     $result = false;
@@ -280,35 +280,35 @@ class File
      * @param null|string $funcloc
      * @return void
      */
-    static function dirmv($source, $dest, $overwrite = false, $funcloc = NULL, $permission = 0777){
+    static function dirmv($source, $dest, $overwrite = false, $funcloc = NULL, $permission = 0777) {
 
-        if (is_null($funcloc)){
+        if (is_null($funcloc)) {
             $funcloc = '/';
         }
 
         if (!is_dir($dest.$funcloc)) {
             mkdir($dest.$funcloc, $permission, true); // make subdirectory before subdirectory is copied
         }
-        if ($handle = opendir($source.$funcloc)){ // if the folder exploration is sucsessful, continue
-            while(false !== ($file = readdir($handle))){ // as long as storing the next file to $file is successful, continue
-                if ($file != '.' && $file != '..'){
+        if ($handle = opendir($source.$funcloc)) { // if the folder exploration is sucsessful, continue
+            while (false !== ($file = readdir($handle))) { // as long as storing the next file to $file is successful, continue
+                if ($file != '.' && $file != '..') {
                     $path  = $source.$funcloc.$file;
                     $path2 = $dest.$funcloc.$file;
 
-                    if (is_file($path)){
-                        if (!is_file($path2)){
-                            if (!@rename($path, $path2)){
+                    if (is_file($path)) {
+                        if (!is_file($path2)) {
+                            if (!@rename($path, $path2)) {
                                 echo '<font color="red">File ('.$path.') could not be moved, likely a permissions problem.</font>';
                             }
-                        } elseif ($overwrite){
-                            if (!@unlink($path2)){
+                        } elseif ($overwrite) {
+                            if (!@unlink($path2)) {
                                 echo 'Unable to overwrite file ("'.$path2.'"), likely to be a permissions problem.';
                             } else
-                                if (!@rename($path, $path2)){
+                                if (!@rename($path, $path2)) {
                                     echo '<font color="red">File ('.$path.') could not be moved while overwritting, likely a permissions problem.</font>';
                                 }
                         }
-                    } elseif (is_dir($path)){
+                    } elseif (is_dir($path)) {
                         self::dirmv($source, $dest, $overwrite, $funcloc.$file.'/'); //recurse!
                         rmdir($path);
                     }
@@ -322,7 +322,7 @@ class File
     {
         $directory = rtrim($directory, '/').'/';
         $handle = opendir($directory);
-        while(false !== ($resource = readdir($handle))) {
+        while (false !== ($resource = readdir($handle))) {
             if (!in_array(strtolower($resource),$exempt)) {
                 if (is_dir($directory.$resource.'/')) {
                     array_merge($files,

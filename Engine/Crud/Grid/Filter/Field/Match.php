@@ -68,7 +68,7 @@ class Match extends Standart
             $filters[] = $container->getFilter('compound', 'OR', $sub_filters);
         }
 
-        if(!is_array($filters)) {
+        if (!is_array($filters)) {
             return false;
         }
 
@@ -87,7 +87,7 @@ class Match extends Standart
 		if (strpos($value,';') !== false) {
 			$values = [];
 			$tmp_values = explode(';', $value);
-			foreach ($tmp_values as $value){
+			foreach ($tmp_values as $value) {
 				$values[] = $this->_normalizeValue($value);
 			}
 			return $values;			

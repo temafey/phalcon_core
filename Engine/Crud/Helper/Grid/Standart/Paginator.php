@@ -111,10 +111,10 @@ class Paginator extends \Engine\Crud\Helper
      */
     static function setUrlParam($url, $paramName, $paramValue = null, $urlDecode = false)
     {
-        if (!is_array($paramName)){
+        if (!is_array($paramName)) {
             $paramName = [$paramName];
         }
-        if ($paramValue !== null){
+        if ($paramValue !== null) {
             if (!is_array($paramValue)) {
                 $paramValue = array($paramValue);
             }
@@ -138,7 +138,7 @@ class Paginator extends \Engine\Crud\Helper
         }
         $parse_str = array_merge($parse_str, $paramsArray);
         $query = '';
-        if ($query = http_build_query($parse_str)){
+        if ($query = http_build_query($parse_str)) {
             $url .= '?'.$query;
         }
         if ($urlDecode) {
@@ -160,11 +160,11 @@ class Paginator extends \Engine\Crud\Helper
         $parse_url = parse_url($url);
         $url = $parse_url['scheme'].'://'.$parse_url['host'].$parse_url['path'];
         $parse_str = self::parseStr($parse_url['query']);
-        foreach ($clearArray as $paramName){
+        foreach ($clearArray as $paramName) {
             unset($parse_str[$paramName]);
         }
         $query = '';
-        if ($query = http_build_query($parse_str)){
+        if ($query = http_build_query($parse_str)) {
             $url .= '?'.$query;
         }
 

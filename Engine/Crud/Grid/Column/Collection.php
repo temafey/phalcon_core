@@ -77,7 +77,7 @@ class Collection extends Base
 		} else {
 			$value = $this->_na;
 		}
-		
+
 		return $value;
 	}
 	

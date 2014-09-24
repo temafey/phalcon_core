@@ -85,7 +85,7 @@ class Controller extends BaseHelper
         }
         $code .= "me.filter = this.getView('".static::getFilterName()."');
                 me.store.addBaseParams(me.baseParams);
-                /*me.storeLocal.addListener('load', function(){
+                /*me.storeLocal.addListener('load', function() {
                        me._onPingSuccess();
                     }, me);
                 me.storeLocal.load();*/
@@ -98,8 +98,8 @@ class Controller extends BaseHelper
 
                 localCnt = me.storeLocal.getCount();
 
-                if (localCnt > 0){
-                    for (i = 0; i < localCnt; i++){
+                if (localCnt > 0) {
+                    for (i = 0; i < localCnt; i++) {
                         var localRecord = me.storeLocal.getAt(i);
                         var deletedId   = localRecord.data.id;
                         delete localRecord.data.id;
@@ -107,7 +107,7 @@ class Controller extends BaseHelper
                         localRecord.data.id = deletedId;
                     }
                     me.store.sync();
-                    for (i = 0; i < localCnt; i++){
+                    for (i = 0; i < localCnt; i++) {
                         me.localStore.removeAt(0);
                     }
                 }

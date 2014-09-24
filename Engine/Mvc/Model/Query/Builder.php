@@ -219,13 +219,15 @@ class Builder extends PhBuilder
         $this->groupBy($this->getAlias().".".$this->_model->getPrimary());
 
         $prevRef = array_pop($relationPath);
-        $refModel = $prevRef->getReferencedModel();
+        $refModel = trim($prevRef->getReferencedModel(). "\\");
         $refOptions = $prevRef->getOptions();
         $refAlias = (isset($refOptions['alias'])) ? $refOptions['alias'] : $refModel;
         if ($fieldAlias == null) {
             $fieldAlias = $refAlias;
         }
         $refModel = new $refModel;
+        $adapter = $this->_model->getReadConnectionService();
+        $refModel->setConnectionService($adapter);
         $field = ($tableField !== null) ? $tableField : $refModel->getNameExpr();
 
         if ($separator === null) {
@@ -256,6 +258,8 @@ class Builder extends PhBuilder
         $prevRef = array_shift($relationPath);
         $refModel = $prevRef->getReferencedModel();
         $refModel = new $refModel;
+        $adapter = $this->_model->getReadConnectionService();
+        $refModel->setConnectionService($adapter);
         $query = $refModel->queryBuilder("m");
         $field = ($tableField !== null) ? $tableField : $refModel->getNameExpr();
 
@@ -282,7 +286,7 @@ class Builder extends PhBuilder
             $prevRef = array_pop($joinPathRev);
             $alias = $prevRef->getReferencedModel();
         }
-        $query->where($alias.".".$prevRef->getReferencedFields()." = ".$this->getAlias().".".$prevRef->getFields());
+        $query->andWhere($alias.".".$prevRef->getReferencedFields()." = ".$this->getAlias().".".$prevRef->getFields());
 
         if ($fieldAlias == null) {
             $fieldAlias = get_class($refModel);
@@ -303,10 +307,12 @@ class Builder extends PhBuilder
     {
         $model = $this->getAlias();
         $joinColumns = false;
+        $alias = false;
+        $adapter = $this->_model->getReadConnectionService();
         foreach ($joinPath as $rule => $relation) {
             $joinColumns = true;
             $fields = $relation->getFields();
-            $refModel = $relation->getReferencedModel();
+            $refModel = trim($relation->getReferencedModel(), "\\");
             $refFields = $relation->getReferencedFields();
             $options = $relation->getOptions();
             $alias = (isset($options['alias'])) ? $options['alias'] : $refModel;
@@ -321,7 +327,9 @@ class Builder extends PhBuilder
             $model = $alias;
         }
         if ($joinColumns) {
-            $this->joinColumns($columns, new $refModel, $alias);
+            $refModel = new $refModel;
+            $refModel->setConnectionService($adapter);
+            $this->joinColumns($columns, $refModel, $alias);
         }
 
         return $this;
@@ -382,7 +390,6 @@ class Builder extends PhBuilder
         if (!$correlationNameKeys) {
             return $this->getAlias();
         }
-        $modelName = $this->getFrom();
         foreach ($correlationNameKeys as $modelName) {
             $model = new $modelName[0];
             $cols = $model->getAttributes();
@@ -411,7 +418,7 @@ class Builder extends PhBuilder
                 $direction = [$direction];
             }
             $orderPre = [];
-            foreach ($order as $i => $key){
+            foreach ($order as $i => $key) {
                 $direction[$i] = ($direction[$i] ^ $reverse) ? "ASC" : "DESC";
                 $alias = $this->getCorrelationName($key);
                 $orderPre[] = $alias.".".$key." ".$direction[$i];
@@ -446,7 +453,7 @@ class Builder extends PhBuilder
     /**
      * Returns the query built
      *
-     * @return \Phalcon\Mvc\Model\Query
+     * @return \Engine\Mvc\Model\Query
      */
     public function getQuery()
     {

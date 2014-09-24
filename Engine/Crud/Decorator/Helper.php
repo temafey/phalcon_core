@@ -64,7 +64,6 @@ class Helper
          * if the specified class cannot be loaded.
          */
         if (!class_exists($helperName)) {
-            var_dump($helperName, get_class($element));die;
             throw new \Engine\Exception("FAILED TO FIND $helperName");
         }
 
@@ -91,7 +90,7 @@ class Helper
      */
     static function getHelperNamespace($object)
     {
-        if($object instanceof Grid) {
+        if ($object instanceof Grid) {
             return '\Engine\Crud\Helper\Grid';
         } elseif ($object instanceof Filter) {
             return '\Engine\Crud\Helper\Filter';

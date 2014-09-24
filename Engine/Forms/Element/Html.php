@@ -24,7 +24,7 @@ class Html extends \Engine\Forms\Element\Text implements \Engine\Forms\ElementIn
      *
      * @return bool
      */
-    public function useDefaultLayout(){
+    public function useDefaultLayout() {
         return false;
     }
 
@@ -34,7 +34,7 @@ class Html extends \Engine\Forms\Element\Text implements \Engine\Forms\ElementIn
      */
     public function __construct($name, $attributes=null)
     {
-        if (isset($attributes['html']) ){
+        if (isset($attributes['html']) ) {
             $this->_html = $attributes['html'];
             unset($attributes['html']);
         }

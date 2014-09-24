@@ -28,6 +28,6 @@ class Element extends \Engine\Crud\Helper
         }
         $code = $field->getElement()->render();
 
-		return $code;
+		return '<td>'.$code.'</td>';
 	}
 }

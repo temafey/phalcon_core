@@ -119,7 +119,7 @@ class Password extends Field
             return false;
         }
         $value = ($this->_security) ? $this->getHashValue() : $this->getCryptValue();
-        //var_dump($value);die;
+
         return ['key' => $this->getName(), 'value' => $value];
     }
 

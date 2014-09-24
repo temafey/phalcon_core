@@ -50,7 +50,7 @@ This adapter uses a Memcache backend to store session data:
 
 ```php
 
-$di->set('session', function(){
+$di->set('session', function() {
 
     $memcache = new Phalcon\Session\Adapter\Memcache(array(
         'host'          => '127.0.0.1',     // mandatory

@@ -116,7 +116,6 @@ class Filter
 			$this->addFields($fields);
 		}
         $this->_method = $method;
-        $this->_autoloadInitMethods();
 	}
 
     /**
@@ -128,6 +127,11 @@ class Filter
     public function init(\Engine\Crud\Grid $grid)
     {
         $this->_grid = $grid;
+        $this->_autoloadInitMethods();
+
+        foreach ($this->_fields as $key => $field) {
+            $field->init($this, $key);
+        }
     }
 
     /**
@@ -273,7 +277,6 @@ class Filter
     	if (is_numeric($key) || is_null($key)) {
 			$key = $field->getName();
 		}
-    	$field->init($this, $key);
 		$this->_fields[$key] = $field;
     }
 
@@ -431,7 +434,7 @@ class Filter
 		
 		$this->_form = new Form();
 		
-		if ($this->_multi){
+		if ($this->_multi) {
 			$prefix = ($this->_prefix) ? $this->_prefix."[1]" : $prefix = "[1]";
 		} else {
 			$prefix = $this->_prefix;

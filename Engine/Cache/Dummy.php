@@ -79,7 +79,7 @@ class Dummy extends \Phalcon\Cache\Backend
      *
      * @return boolean
      */
-    public function isStarted(){
+    public function isStarted() {
         return true;
     }
 

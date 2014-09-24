@@ -52,7 +52,7 @@ class Search extends AbstractFilter
 		$exprEq = $adapter->escapeString($this->_value);
 		$exprLike = $adapter->escapeString("%$this->_value%");
 		$exprBegins = $adapter->escapeString("$this->_value%");
-		
+
 		$model = $dataSource->getModel();
 		foreach ($this->_columns as $column => $criteria) {		    
 			if ($column === self::COLUMN_ID) {
@@ -60,7 +60,7 @@ class Search extends AbstractFilter
 				$column = $model->getPrimary();
 			} elseif ($column === self::COLUMN_NAME) {
 			    $alias = $dataSource->getAlias();
-				$column = $model->getNameExpr();$t = true;
+				$column = $model->getNameExpr();
 			} else {
 			    $alias = $dataSource->getCorrelationName($column);
 			}

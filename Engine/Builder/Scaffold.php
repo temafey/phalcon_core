@@ -85,8 +85,8 @@ class Scaffold extends Component
 		$options = $this->_options;
 
 		$path = '';
-		if(isset($this->_options['directory'])){
-			if($this->_options['directory']){
+		if (isset($this->_options['directory'])) {
+			if ($this->_options['directory']) {
 				$path = $this->_options['directory'].'/';
 			}
 		}
@@ -123,31 +123,31 @@ class Scaffold extends Component
 			return new $adapterName($configArray);
 		});
 
-		if(isset($config->application->modelsDir)){
+		if (isset($config->application->modelsDir)) {
 			$options['modelsDir'] = $path . $config->application->modelsDir;
 		} else {
 			throw new BuilderException("The builder is unable to know where is the views directory");
 		}
 
-		if(isset($config->application->controllersDir)){
+		if (isset($config->application->controllersDir)) {
 			$options['controllersDir'] = $path . $config->application->controllersDir;
 		} else {
 			throw new BuilderException("The builder is unable to know where is the controllers directory");
 		}
 
-		if(isset($config->application->viewsDir)){
+		if (isset($config->application->viewsDir)) {
 			$options['viewsDir'] = $path . $config->application->viewsDir;
 		} else {
 			throw new BuilderException("The builder is unable to know where is the views directory");
 		}
 
-        if(isset($config->application->gridsDir)){
+        if (isset($config->application->gridsDir)) {
             $options['gridsDir'] = $path . $config->application->gridsDir;
         } else {
             throw new BuilderException("The builder is unable to know where is the grids directory");
         }
 
-        if(isset($config->application->formsDir)){
+        if (isset($config->application->formsDir)) {
             $options['formsDir'] = $path . $config->application->formsDir;
         } else {
             throw new BuilderException("The builder is unable to know where is the forms directory");
@@ -175,7 +175,7 @@ class Scaffold extends Component
 			$modelBuilder->build();
 		}
 
-		if(!class_exists($modelClass)){
+		if (!class_exists($modelClass)) {
 			require $modelPath;
 		}
 
@@ -294,7 +294,7 @@ class Scaffold extends Component
 			}
 
 			$code .= '$'.$var.'->';
-			if($useGetSetters) {
+			if ($useGetSetters) {
 				$code .= 'set' . Text::camelize($field).'('.$fieldCode.')';
 			} else {
 				$code .= $field.' = '.$fieldCode;
@@ -310,7 +310,7 @@ class Scaffold extends Component
 		$code = '';
 		foreach ($fields as $field => $dataType) {
 
-			if($useGetSetters) {
+			if ($useGetSetters) {
 				$accessor = 'get' . Text::camelize($field).'()';
 			} else {
 				$accessor = $field;
@@ -329,7 +329,7 @@ class Scaffold extends Component
 				"\t\t".'</td>' . PHP_EOL .
 				"\t\t".'<td align="left">';
 
-		if(isset($relationField[$attribute])){
+		if (isset($relationField[$attribute])) {
 			$code .= PHP_EOL."\t\t\t\t".'<?php echo $this->tag->select(array("'.$attribute.'", $'.$selectDefinition[$attribute]['varName'] .
 				', "using" => "'.$selectDefinition[$attribute]['primaryKey'].','.$selectDefinition[$attribute]['detail'].'", "useDummy" => true)) ?>';
 		} else {
@@ -368,7 +368,7 @@ class Scaffold extends Component
 				"\t\t".'</td>' . PHP_EOL .
 				"\t\t".'<td align="left">';
 
-		if(isset($relationField[$attribute])){
+		if (isset($relationField[$attribute])) {
 			$code .= PHP_EOL."\t\t\t\t".'{{ select("'.$attribute.'", '.$selectDefinition[$attribute]['varName'] .
 				', "using" :[ "'.$selectDefinition[$attribute]['primaryKey'].','.$selectDefinition[$attribute]['detail'].'", "useDummy" => true]) }}';
 		} else {

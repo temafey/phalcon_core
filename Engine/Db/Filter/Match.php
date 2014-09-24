@@ -59,7 +59,7 @@ class Match extends AbstractFilter
     {
         $adapter =  $dataSource->getModel()->getReadConnection();
         $fields = [];
-		foreach($this->_fields as $field){
+		foreach ($this->_fields as $field) {
 			$fields[] = $adapter->escapeIdentifier($field);
 		}
 		$expr = implode(',', $fields);

@@ -102,7 +102,7 @@ class ManyToOne extends ArrayToSelect
         $name = false,
         $optionName =  null,
         $desc = null,
-        $required = false,
+        $required = true,
         $width = 280,
         $default = null
     ) {
@@ -174,10 +174,16 @@ class ManyToOne extends ArrayToSelect
      */
     protected function _setOptions()
     {
+        $adapter = $this->_form->getContainer()->getModel()->getReadConnectionService();
         if (is_string($this->_model)) {
-            $this->_model = new $this->_model;
+            $model = new $this->_model;
+        } elseif (is_array($this->_model)) {
+            $models = $this->_model;
+            $model = array_pop($models);
+            $model = new $model;
         }
-        $queryBuilder = $this->_model->queryBuilder();
+        $model->setReadConnectionService($adapter);
+        $queryBuilder = $model->queryBuilder();
         $this->_options = \Engine\Crud\Tools\Multiselect::prepareOptions($queryBuilder, $this->_optionName, $this->category, $this->categoryName, $this->where, $this->emptyCategory, $this->emptyItem, $this->fields);
     }
 }

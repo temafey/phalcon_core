@@ -27,7 +27,7 @@ class Columns extends BaseHelper
 	static public function _(Grid $grid)
 	{
         $code = "
-            columnsGet: function(){
+            columnsGet: function() {
                 return [";
 
         $columns = [];

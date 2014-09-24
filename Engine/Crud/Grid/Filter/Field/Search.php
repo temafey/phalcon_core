@@ -21,6 +21,12 @@ class Search extends Standart
 	 * @var array
 	 */
 	protected $_fields = [];
+
+    /**
+     * Use smart search logic
+     * @var bool
+     */
+    protected $_smartFiltering = true;
 	
 	/**
 	 * Constuctor
@@ -40,10 +46,12 @@ class Search extends Standart
         $desc = null,
         $width = 280,
         $default = null,
-        $length = 255)
-	{
+        $length = 255,
+        $smartFiltering = true
+    ) {
 		parent::__construct($label, $name, $desc, Criteria::CRITERIA_EQ, $width, $default, $length);
         $this->_fields = $fields;
+        $this->_smartFiltering = $smartFiltering;
 	}
 
     /**
@@ -62,35 +70,23 @@ class Search extends Standart
 			$values = $this->_parseValue($values);
 		}
 		$filters = [];
-		foreach ($values as $sub_values){
+		foreach ($values as $sub_values) {
 			$sub_filters = [];
-			foreach ($sub_values as $value){
+			foreach ($sub_values as $value) {
 				if (empty($value)) {
 					continue;
 				}
 				$value = trim($value);
 				$tmp_filters = [];
-				foreach($this->_fields as $field => $filterSetting) {
-                    if (!is_array($filterSetting) && !is_array($filterSetting)) {
-                        $filterSetting = ((int) $field !== $field) ? [$field => $filterSetting] : [$filterSetting => Criteria::CRITERIA_LIKE];
+                if ($this->_smartFiltering) {
+                    $tmp_filters = $this->_analyzing($this->_fields, $container, $value);
+                    if (!empty($tmp_filters)) {
+                        $sub_filters[] = $container->getFilter('compound', 'OR', $tmp_filters);;
                     }
-					if (isset($filterSetting['path']) && $filterSetting['path'] !== null) {
-						$tmp_filters[] = $container->getFilter('path', $filterSetting['path'], $container->getFilter('search', $filterSetting['filters'], $value));
-					} elseif (isset($filterSetting['cache']) && $filterSetting['cache'] !== null) {
-						$cfilter = $container->getFilter('cache', $value, $filterSetting['field'], $filterSetting['cache'], $filterSetting['criteria']);
-						if (true === $cfilter->isCached()){
-							$tmp_filters[] = $cfilter;
-							break;
-						}
-					} else {
-                        $credentials = (isset($filterSetting['filters'])) ? $filterSetting['filters'] : $filterSetting;
-                        $tmp_filters[] = $container->getFilter('search', $credentials, $value);
-                    }
-				}
-				if (empty($tmp_filters)) {
-					continue;
-				}
-				$sub_filters[] = $container->getFilter('compound', 'OR', $tmp_filters);
+                } else {
+                    $sub_filters[] = $container->getFilter('search', $this->_fields, $value, false);
+                }
+
 			}
 			if (count($sub_filters) == 0) {
 				continue;
@@ -104,6 +100,38 @@ class Search extends Standart
 
 		return $container->getFilter('compound', 'OR', $filters);
 	}
+
+    /**
+     * Analyze fields and build filters
+     *
+     * @param array $fields
+     * @param Container $container
+     * @param string|integer $value
+     * @return array
+     */
+    protected function _analyzing(array $fields, Container $container, $value)
+    {
+        $filters = [];
+        foreach ($fields as $field => $filterSetting) {
+            if (!is_array($filterSetting) && !is_array($filterSetting)) {
+                $filterSetting = ((int) $field !== $field) ? [$field => $filterSetting] : [$filterSetting => Criteria::CRITERIA_LIKE];
+            }
+            if (isset($filterSetting['path']) && $filterSetting['path'] !== null) {
+                $filters[] = $container->getFilter('path', $filterSetting['path'], $container->getFilter('search', $filterSetting['filters'], $value));
+            } elseif (isset($filterSetting['cache']) && $filterSetting['cache'] !== null) {
+                $cfilter = $container->getFilter('cache', $value, $filterSetting['field'], $filterSetting['cache'], $filterSetting['criteria']);
+                if (true === $cfilter->isCached()) {
+                    $filters[] = $cfilter;
+                    break;
+                }
+            } else {
+                $credentials = (isset($filterSetting['filters'])) ? $filterSetting['filters'] : $filterSetting;
+                $filters[] = $container->getFilter('search', $credentials, $value);
+            }
+        }
+
+        return $filters;
+    }
 	
 	/**
 	 * Parse value string
@@ -116,8 +144,8 @@ class Search extends Standart
 		if (strpos($value, ';') !== false) {
 			$values = [];
 			$tmp_values = explode(';', $value);
-			foreach ($tmp_values as $value){
-				$values[] = $this->subParseValue($value);
+			foreach ($tmp_values as $value) {
+				$values[] = $this->_subParseValue($value);
 			}
 			return $values;			
 		} else {

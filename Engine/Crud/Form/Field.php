@@ -180,7 +180,7 @@ abstract class Field implements FieldInterface
 	public function getRenderValue()
 	{
 		$value = $this->getValue();
-		if(null !== $this->_separator && is_array($value)) {
+		if (null !== $this->_separator && is_array($value)) {
 			$value = implode($this->_separator, $value);
 		}
 		

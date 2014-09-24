@@ -27,8 +27,8 @@ class Standart extends \Engine\Crud\Helper
         $form = $filter->getForm();
         $code = '<form method="'.$filter->getMethod().'" action="'.$filter->getAction().'" class="form-inline">';
         $code .= "
-            <fieldset>
-            <legend>".$filter->getTitle()."</legend>";
+            <legend>".$filter->getTitle()."</legend>
+            <table>";
 
 		return $code;
 	}
@@ -41,6 +41,6 @@ class Standart extends \Engine\Crud\Helper
     static public function endTag()
     {
         return '
-        </form>';
+        </table></form>';
     }
 }

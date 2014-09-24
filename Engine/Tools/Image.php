@@ -159,7 +159,7 @@ class Image
                     }
 
                 }
-            }else{
+            } else {
                 $wm_image = imagecreatefrompng($watermark);
                 var_dump(__FILE__);
             }
@@ -381,7 +381,7 @@ function imagecreatefrombmp($file)
             $y = $Height;
             $pocetb = 0;
 
-            while(true) {
+            while (true) {
                 $y--;
                 $prefix = freadbyte($f);
                 $suffix = freadbyte($f);
@@ -399,7 +399,7 @@ function imagecreatefrombmp($file)
                     break;
                 }
 
-                while(!(($prefix == 0) and($suffix == 0))) {
+                while (!(($prefix == 0) and($suffix == 0))) {
                     if ($prefix == 0) {
                         $pocet = $suffix;
                         $Data .= fread($f, $pocet);
@@ -438,9 +438,9 @@ function imagecreatefrombmp($file)
             $y = $Height;
             $pocetb = 0;
 
-            /*while(!feof($f))
+            /*while (!feof($f))
              echo freadbyte($f)."_".freadbyte($f)."<BR>";*/
-            while(true) {
+            while (true) {
                 //break;
                 $y --;
                 $prefix = freadbyte($f);
@@ -459,7 +459,7 @@ function imagecreatefrombmp($file)
                     break;
                 }
 
-                while(!(($prefix == 0) and($suffix == 0))) {
+                while (!(($prefix == 0) and($suffix == 0))) {
                     if ($prefix == 0) {
                         $pocet = $suffix;
 
