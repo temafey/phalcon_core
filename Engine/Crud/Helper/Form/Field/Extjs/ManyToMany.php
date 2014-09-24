@@ -67,8 +67,9 @@ class ManyToMany extends BaseHelper
         $fieldCode[] = "rowMin: 20";
         //$fieldCode[] = "growMax: 24";
         $fieldCode[] = "queryMode: 'remote'";
-        $fieldCode[] = "forceSelection: true";
+        //$fieldCode[] = "forceSelection: true";
         $fieldCode[] = "pageSize: 10";
+        $fieldCode[] = "minChars: 1";
         //$fieldCode[] = "triggerOnClick": false";
         $fieldCode[] = "listConfig: {
                             tpl: [
