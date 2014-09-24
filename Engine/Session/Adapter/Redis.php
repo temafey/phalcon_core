@@ -25,7 +25,7 @@ class Redis extends Adapter implements AdapterInterface
 	 */
 	public function __construct($options=null)
 	{
-		if(!isset($options['path'])){
+		if (!isset($options['path'])) {
 			throw new Exception("The parameter 'save_path' is required");
 		}
 

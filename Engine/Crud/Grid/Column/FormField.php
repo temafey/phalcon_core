@@ -61,7 +61,7 @@ class FormField extends Base
 	public function init() 
 	{
 		$field = (!empty($this->_name)) ? $this->_form->getFieldByName($this->_name) : $this->_form->getFieldByKey($this->_key);
-		if(!$field) {
+		if (!$field) {
 			throw new \Engine\Exception('Field like '.$this->name.' does not exists in '.get_class($this->_form).' form!');
 		}
 		
@@ -106,7 +106,7 @@ class FormField extends Base
 		}
 		$fieldName = (!empty($this->name)) ? $this->_form->getField\NameByColumn\Name ( $this->name ) : $this->_form->getField\NameByField\Name ( $this->key );
 		$value = $this->_form->fields [$fieldName]->setValue ( $row [$this->key] )->getValue ();
-		if(is_array($value)) {
+		if (is_array($value)) {
 			$value = $row [$this->key];
 		}
 		$helper = $this->_elementHelper;
@@ -146,7 +146,7 @@ class FormField extends Base
 	 */
 	public function setForm($form)
 	{
-		if(!($form instanceof Form)) {
+		if (!($form instanceof Form)) {
 			$form = \Tools\Registry::singleton($form);
 		}
 	    $this->_form = $form;

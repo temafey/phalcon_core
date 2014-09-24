@@ -141,13 +141,13 @@ final class Color
 	{
 		$flag = false;
 
-		if(isset($_ENV['TERM'])){
-			if(isset(self::$_supportedShells[$_ENV['TERM']])){
+		if (isset($_ENV['TERM'])) {
+			if (isset(self::$_supportedShells[$_ENV['TERM']])) {
 				$flag = true;
 			}
 		} else {
-			if(isset($_SERVER['TERM'])){
-				if(isset(self::$_supportedShells[$_SERVER['TERM']])){
+			if (isset($_SERVER['TERM'])) {
+				if (isset(self::$_supportedShells[$_SERVER['TERM']])) {
 					$flag = true;
 				}
 			}

@@ -546,7 +546,7 @@ class Inflector {
 
         if (function_exists('mb_strtolower')) {
             $string = mb_strtolower($string, 'UTF-8');
-        }else {
+        } else {
             $string = strtolower($string);
         }
 

@@ -25,11 +25,11 @@ class Check extends \Phalcon\Forms\Element\Check implements \Engine\Forms\Elemen
      */
     public function __construct($name, $attributes=null)
     {
-        if (isset($attributes['value']) && $attributes['value'] == true){
+        if (isset($attributes['value']) && $attributes['value'] == true) {
             $attributes['checked'] = 'checked';
         }
 
-        if (isset($attributes['options'])){
+        if (isset($attributes['options'])) {
             $attributes['value'] = $attributes['options'];
             unset($attributes['options']);
         }

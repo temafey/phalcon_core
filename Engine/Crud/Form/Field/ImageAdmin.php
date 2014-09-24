@@ -227,7 +227,7 @@ class ImageAdmin extends Image
 			    \Engine\Tools\Image::resize($this->_fileFullName, $file_resize_middle, $this->_resizeSizes['middle']['width'], $this->_resizeSizes['middle']['height'], true, $watermark['middle'], $this->_watermarkPosition);
 			    \Engine\Tools\Image::resize($this->_fileFullName, $file_resize_small, $this->_resizeSizes['small']['width'], $this->_resizeSizes['small']['height'], true, $watermark['small'], $this->_watermarkPosition);
 			}
-			if ($this->_removeImgSource){
+			if ($this->_removeImgSource) {
 			    unlink($this->_fileFullName);
 			}
 

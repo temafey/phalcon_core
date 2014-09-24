@@ -93,7 +93,7 @@ class Number {
             case $size < 1024:
                 if ($size == 1) {
                     return sprintf('%d Byte', $size);
-                }else {
+                } else {
                     return sprintf('%d Bytes', $size);
                 }
             case round($size / 1024) < 1024:

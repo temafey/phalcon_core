@@ -11,9 +11,15 @@ namespace Engine\Crud\Container;
  * @package    Crud
  * @subpackage Container
  */
-abstract class AbstractContainer
+abstract class AbstractContainer implements
+    \Phalcon\Events\EventsAwareInterface,
+    \Phalcon\DI\InjectionAwareInterface
 {
+    use \Engine\Tools\Traits\DIaware,
+        \Engine\Tools\Traits\EventsAware;
+
 	const MODEL          = 'model';
+    const ADAPTER	     = 'adapter';
 	const JOINS          = 'joins';
 	const CONDITIONS	 = 'conditions';
 	
@@ -22,6 +28,12 @@ abstract class AbstractContainer
 	 * @var \Engine\Mvc\Model
 	 */
 	protected $_model;
+
+    /**
+     * Database model adpter
+     * @var string
+     */
+    protected $_adapter;
 	
 	/**
 	 * Joins to database
@@ -43,28 +55,24 @@ abstract class AbstractContainer
 	 */
 	public function setOptions(array $options)
 	{
-		foreach ($options as $key => $value) {
-            switch ($key) {
-                case self::MODEL:
-                    $this->setModel($value);
-                    break;
-                case self::JOINS:
-                    $this->setJoinModels($value);
-                    break;
-                case self::CONDITIONS:
-                	$this->setConditions($value);
-                	break;
-                default:
-                    // ignore unrecognized configuration directive
-                    break;
-            }
+        if (isset($options[self::ADAPTER])) {
+            $this->setAdapter($options[self::ADAPTER]);
+        }
+        if (isset($options[self::CONDITIONS])) {
+            $this->setConditions($options[self::CONDITIONS]);
+        }
+        if (isset($options[self::MODEL])) {
+            $this->setModel($options[self::MODEL]);
+        }
+        if (isset($options[self::JOINS])) {
+            $this->setJoinModels($options[self::JOINS]);
         }
         
         return $this;
 	}
 	
 	/**
-	 * Return database modle
+	 * Return database model
 	 * 
 	 * @return \Engine\Mvc\Model
 	 */
@@ -72,6 +80,16 @@ abstract class AbstractContainer
 	{
 		return $this->_model;
 	}
+
+    /**
+     * Return database model adapter
+     *
+     * @return \Engine\Mvc\Model
+     */
+    public function getAdapter()
+    {
+        return $this->_adapter;
+    }
 	
 	/**
 	 * Set container conditions
@@ -81,14 +99,14 @@ abstract class AbstractContainer
 	 */
 	public function setConditions($conditions)
 	{
-		if(null === $conditions || $conditions === false) {
+		if (null === $conditions || $conditions === false) {
 			return false;
 		}
-		if(!is_array($conditions)) {
+		if (!is_array($conditions)) {
 			$conditions = array($conditions);
 		}
 		foreach ($conditions as $cond) {
-			if($cond == "") {
+			if ($cond == "") {
 				continue;
 			}
 			$this->_conditions[] = $cond;
@@ -104,12 +122,20 @@ abstract class AbstractContainer
 	 * @return void
 	 */
 	abstract public function setModel($model = null);
+
+    /**
+     * Set model adapter
+     *
+     * @param string|object $model
+     * @return void
+     */
+    abstract public function setAdapter($adapder = null);
 	
 	/**
 	 * Set join models
 	 * 
-	 * @param array $models
+	 * @param array|string $models
 	 * @return void
 	 */
-	abstract public function setJoinModels(array $models);
+	abstract public function setJoinModels($models);
 }

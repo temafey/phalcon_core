@@ -68,10 +68,16 @@ class Model extends \Phalcon\Mvc\Model
         if (!$parameters) {
             return parent::find($conditions);
         }
-        if (is_string($parameters)) {
+        if (!$parameters) {
+            $parameters = $conditions;
+        } elseif (is_string($parameters)) {
             $parameters .= " AND ".$conditions;
         } else {
-            $parameters[0] .= " AND ".$conditions;
+            if (isset($parameters['conditions'])) {
+                $parameters['conditions'] .= " AND ".$conditions;
+            } elseif (isset($parameters[0])) {
+                $parameters[0] .= " AND ".$conditions;
+            }
         }
 
         return parent::find($parameters);
@@ -93,10 +99,16 @@ class Model extends \Phalcon\Mvc\Model
         if (!$parameters) {
             return parent::findFirst($conditions);
         }
-        if (is_string($parameters)) {
+        if (!$parameters) {
+            $parameters = $conditions;
+        } elseif (is_string($parameters)) {
             $parameters .= " AND ".$conditions;
         } else {
-            $parameters[0] .= " AND ".$conditions;
+            if (isset($parameters['conditions'])) {
+                $parameters['conditions'] .= " AND ".$conditions;
+            } elseif (isset($parameters[0])) {
+                $parameters[0] .= " AND ".$conditions;
+            }
         }
 
         return parent::findFirst($parameters);
@@ -228,6 +240,12 @@ class Model extends \Phalcon\Mvc\Model
         return $this->_attributes;
     }
 
+    public function skipAttributes(array $attributes)
+    {
+        parent::skipAttributes($attributes);
+        return $this;
+    }
+
     /**
      * Return default order column
      *
@@ -260,10 +278,26 @@ class Model extends \Phalcon\Mvc\Model
         $builder = new Builder($params);
         $builder->setModel($this, $alias);
         if (static::$_conditions !== null) {
-            $builder->where($this->normalizeConditions(static::$_conditions));
+            $builder->andWhere($this->normalizeConditions(static::$_conditions));
         }
 
         return $builder;
+    }
+
+    /**
+     * Create a criteria for a specific model
+     *
+     * @param \Phalcon\DiInterface $dependencyInjector
+     * @return \Phalcon\Mvc\Model\Criteria
+     */
+    public static function query($dependencyInjector=null)
+    {
+        $criteria = parent::query($dependencyInjector);
+        if (static::$_conditions !== null) {
+            $criteria->andWhere(static::normalizeConditions(static::$_conditions));
+        }
+
+        return $criteria;
     }
 
     /**
@@ -283,15 +317,16 @@ class Model extends \Phalcon\Mvc\Model
         if (!$refModel instanceof \Engine\Mvc\Model) {
             throw new \Engine\Exception("Model class '$refName' does not extend Engine\Mvc\Model");
         }
+        $refName = trim($refName, "\\");
         $relations = $this->getModelsManager()->getBelongsTo($this);
         foreach ($relations as $relation) {
-            if ($relation->getReferencedModel() == $refName) {
+            if (trim($relation->getReferencedModel(), "\\") == $refName) {
                 return $relation;
             }
         }
         $relations = $this->getModelsManager()->getHasMany($this);
         foreach ($relations as $relation) {
-            if ($relation->getReferencedModel() == $refName) {
+            if (trim($relation->getReferencedModel(), "\\") == $refName) {
                 return $relation;
             }
         }
@@ -327,6 +362,8 @@ class Model extends \Phalcon\Mvc\Model
         }
         $refModel = $relation->getReferencedModel();
         $refModel = new $refModel;
+        $adapter = $this->getReadConnectionService();
+        $refModel->setConnectionService($adapter);
         $tail = $refModel->getRelationPath($path);
 
         return array_merge($relationPath, $tail);

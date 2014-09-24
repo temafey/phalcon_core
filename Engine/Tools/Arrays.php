@@ -337,7 +337,7 @@ class Arrays
         }
 
         if (count($arrays) == 2) {
-            if ($sub_variants){
+            if ($sub_variants) {
                 $result = self::getValuesVariantsFrom2Array($arrays[0], false);
                 $results = array_merge($results, $result);
                 $result = self::getValuesVariantsFrom2Array($arrays[1], false);
@@ -351,11 +351,11 @@ class Arrays
 
         foreach ($arrays as $x => $array1) {
             $d_array = [];
-            foreach ($arrays as $y => $array2){
+            foreach ($arrays as $y => $array2) {
                 if ($inverted === false && $y < $x) {
                     continue;
                 }
-                if ($x == $y){
+                if ($x == $y) {
                     if ($sub_variants) {
                         $array2 = false;
                     } else {
@@ -370,12 +370,12 @@ class Arrays
                 $d_array[] = $result;
             }
             if ($sub_variants) {
-                foreach ($d_array as &$array){
+                foreach ($d_array as &$array) {
                     $results = array_merge($results, $array);
                 }
             }
             $t_array =($sub_variants) ? $d_array[1] : $d_array[0];
-            for ($i=$x+2; $i < count($arrays); $i++){
+            for ($i=$x+2; $i < count($arrays); $i++) {
                 $t_array = self::getValuesVariantsFrom2Array($t_array, $arrays[$i]);
                 if (!$sub_variants &&($i+1 < count($arrays))) {
                     continue;
@@ -421,16 +421,16 @@ class Arrays
         if (!is_array($array2) && $array2 !== false) {
             $array2 = array( $array2);
         }
-        foreach ($array1 as $value1){
-            if (!is_array($value1)){
+        foreach ($array1 as $value1) {
+            if (!is_array($value1)) {
                 $value1 = array($value1);
             }
-            if ($array2 === false){
+            if ($array2 === false) {
                 $results[] = $value1;
                 continue;
             }
-            foreach ($array2 as $value2){
-                if (!is_array($value2)){
+            foreach ($array2 as $value2) {
+                if (!is_array($value2)) {
                     $value2 = array($value2);
                 }
                 $results[] = array_merge($value1, $value2);
@@ -489,14 +489,14 @@ class Arrays
     {
         $result = [];
 
-        foreach ($data as $key => $value){
-            if (strpos($key, $separator) !== false){
+        foreach ($data as $key => $value) {
+            if (strpos($key, $separator) !== false) {
                 $str = explode($separator, $key, 2);
                 $result[$str[0]][$str[1]] = $value;
-                if (strpos($str[1], $separator)){
+                if (strpos($str[1], $separator)) {
                     $result[$str[0]] = self::unshorten($result[$str[0]], $separator);
                 }
-            }else{
+            } else {
                 $result[$key] = is_array($value)?  self::unshorten($value, $separator) : $value;
             }
         }

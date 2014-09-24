@@ -199,21 +199,21 @@ class IpCheck
 		$this->_allow = [];
 		$this->_deny = [];
 
-		foreach($this->_data['allow'] as $namespace => &$lines) {
+		foreach ($this->_data['allow'] as $namespace => &$lines) {
 			if (!isset($this->_allow [$namespace])) {
 				$this->_allow [$namespace] = [];
 			}
-			foreach($lines as &$line) {				
+			foreach ($lines as &$line) {
 				$item = $this->_processItem($line);
 				$this->_allow [$namespace][] = $item;
 			}
 		}
 		
-		foreach($this->_data['deny'] as $namespace => &$lines) {
+		foreach ($this->_data['deny'] as $namespace => &$lines) {
 			if (!isset($this->_deny [$namespace])) {
 				$this->_deny [$namespace] = [];
 			} 
-			foreach($lines as &$line) {
+			foreach ($lines as &$line) {
 				$item = $this->_processItem($line);
 				$this->_deny [$namespace][] = $item;
 			}
@@ -291,9 +291,9 @@ class IpCheck
 	{
 	    $result = false;
 	    
-	    if ($item ['eq'] !== false){
+	    if ($item ['eq'] !== false) {
 			$result = $this->_checkEqual($this->_ipValue, $item ['eq']);
-		} elseif (($item ['from'] !== false) && ($item ['to'] !== false)){
+		} elseif (($item ['from'] !== false) && ($item ['to'] !== false)) {
 			$result = $this->_checkInterval($this->_ipValue, $item ['from'], $item ['to']);
 		}
 		
@@ -338,7 +338,7 @@ class IpCheck
 		    //now all the intger values are separated
 		    $parts=explode(".",$ip);
 		    //now we need to check each part can range from 0-255
-		    foreach($parts as $ip_parts)
+		    foreach ($parts as $ip_parts)
 		    {
 		      if (intval($ip_parts)>255 || intval($ip_parts)<0)
 		      return false; //if number is not within range of 0-255

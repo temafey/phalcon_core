@@ -67,7 +67,7 @@ class ArrayToSelect extends Field
         $name = null,
         $options = [],
         $desc = null,
-        $required = false,
+        $required = true,
         $width = 280,
         $default = null
     ) {

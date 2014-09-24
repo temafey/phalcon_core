@@ -24,7 +24,7 @@ class Hidden extends \Phalcon\Forms\Element\Hidden implements \Engine\Forms\Elem
      *
      * @return bool
      */
-    public function useDefaultLayout(){
+    public function useDefaultLayout() {
         return true;
     }
 

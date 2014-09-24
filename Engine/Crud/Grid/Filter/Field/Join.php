@@ -133,6 +133,26 @@ class Join extends ArrayToSelect
 	}
 
     /**
+     * Initialize field (used by extending classes)
+     *
+     * @return void
+     */
+    protected function _init()
+    {
+        parent::_init();
+        $this->_path = ($this->_path) ? $this->_path : $this->_model;
+        if (!$this->_name) {
+            $mainModel = $this->_gridFilter->getContainer()->getModel();
+            $relations = $mainModel->getRelationPath($this->_path);
+            if (!$relations) {
+                throw new \Engine\Exception("Relations for model '".get_class($mainModel)."' by path '".implode(", ", $this->_path)."' not valid");
+            }
+            $relation = array_pop($relations);
+            $this->_name = $relation->getFields();
+        }
+    }
+
+    /**
      * Update field
      *
      * return void
@@ -151,21 +171,9 @@ class Join extends ArrayToSelect
 	 */
 	public function applyFilter($dataSource, Container $container)
 	{
-        $path = ($this->_path) ? $this->_path : $this->_model;
-        if (!$this->_name) {
-            $model = $dataSource->getModel();
-            $relations = $model->getRelationPath($path);
-            if (!$relations) {
-                throw new \Engine\Exception("Relations for model '".get_class($model)."' by path '".implode(", ", $path)."' not valid");
-            }
-            $relation = array_pop($relations);
-            $this->_name = $relation->getFields();
-        }
-
 		if ($filters = $this->getFilter($container)) {
 			if ($this->_separatedQueries === false) {
-                $dataSource->columnsJoinOne($path);
-                $filterPath = $container->getFilter('path', $path, $filters);
+                $filterPath = $container->getFilter('path', $this, $filters, $this->category);
                 $filterPath->applyFilter($dataSource);
 			} else {
 				$filters = $this->_getSeparateFilters($filters, $dataSource->getModel(), $container);
@@ -184,22 +192,13 @@ class Join extends ArrayToSelect
      */
     public function getFilter(Container $container)
     {
-    	$values = $this->getValue();
-		if ($values === null || $values === false || (is_string($values) && trim($values) == "")) {
-		    return false;
-		}
-		$filters = [];
-		if (!is_array($values)) {
-			$values = [$values];
-		}
+    	$values = $this->normalizeValues($this->getValue());
+
+        if (!$values) {
+            return false;
+        }
 
 		foreach ($values as $val) {
-			if (trim($val) == "" || $val == -1 || $val === false  || array_search($val, $this->_exceptionValues, empty($val) && $val !== '0')) {
-				continue;
-			}
-			if ($val == '{{empty}}') {
-			    $val = '';
-			}
 			$filters[] = $container->getFilter('standart', $this->_name, $val, $this->_criteria);
 		}
 		
@@ -208,6 +207,40 @@ class Join extends ArrayToSelect
 		}
 
         return $container->getFilter('compound', $this->_glue, $filters);
+    }
+
+    /**
+     * Normalize array of values
+     *
+     * @param array|string $values
+     * @return array|bool
+     */
+    public function normalizeValues($values)
+    {
+        if ($values === null || $values === false || (is_string($values) && trim($values) == "")) {
+            return false;
+        }
+        $filters = [];
+        if (!is_array($values)) {
+            $values = [$values];
+        }
+        $normalizeValues = [];
+        foreach ($values as $val) {
+            if (trim($val) == "" || $val == -1 || $val === false  || array_search($val, $this->_exceptionValues, empty($val) && $val !== '0')) {
+                continue;
+            }
+            if ($val == '{{empty}}') {
+                $val = '';
+            }
+            if ((int) $val == $val) {
+                $val = (int) $val;
+            } elseif (is_float($val)) {
+                $val = floatval($val);
+            }
+            $normalizeValues[] = $val;
+        }
+
+        return $normalizeValues;
     }
 
     /**
@@ -226,6 +259,8 @@ class Join extends ArrayToSelect
         $relation = array_shift($relations);
         $fields = $relation->getFields();
         $refModel = new $relation->getReferencedModel();
+        $adapter = $model->getReadConnectionService();
+        $refModel->setConnectionService($adapter);
         $refFields = $relation->getReferencedFields();
         $options = $relation->getOptions();
 
@@ -255,7 +290,7 @@ class Join extends ArrayToSelect
   	*/	
 	public function getOptions()
 	{
-		if(empty($this->_options)) {
+		if (empty($this->_options)) {
 			$this->_setOptions();
 		}
 		return $this->_options;
@@ -270,9 +305,23 @@ class Join extends ArrayToSelect
 	{
 		if (is_string($this->_model)) {
 			$this->_model = new $this->_model;
+            $modelAdapter = $this->_gridFilter->getGrid()->getModelAdapter();
+            if ($modelAdapter) {
+                $this->_model->setConnectionService($modelAdapter);
+            }
 		}
 		$queryBuilder = $this->_model->queryBuilder();
 			
 		$this->_options = \Engine\Crud\Tools\Multiselect::prepareOptions($queryBuilder, $this->_optionName, $this->category, $this->categoryName, $this->where, $this->emptyCategory, $this->emptyItem, $this->fields);
 	}
+
+    /**
+     * Return field join path
+     *
+     * @return array|null|string
+     */
+    public function getPath()
+    {
+        return $this->_path;
+    }
 }

@@ -28,9 +28,9 @@ class Name extends Field
 	 * @param string $desc
 	 * @param int $width
 	 */
-	public function __construct($label = null, $desc = null, $width = 280, $default = '')
+	public function __construct($label = null, $desc = null, $required = true, $width = 280, $default = '')
     {
-		parent::__construct($label, false, $desc, false, $width, $default);
+		parent::__construct($label, false, $desc, $required, $width, $default);
 	}
 
     /**

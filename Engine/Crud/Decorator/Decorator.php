@@ -87,11 +87,11 @@ class Decorator
      */
     static function getDecoratorNamespace($object)
     {
-    	if($object instanceof Grid) {
+    	if ($object instanceof Grid) {
     		return '\Engine\Crud\Decorator\Grid';
-    	} elseif($object instanceof Form) {
+    	} elseif ($object instanceof Form) {
     		return '\Engine\Crud\Decorator\Form';
-    	} elseif($object instanceof Filter) {
+    	} elseif ($object instanceof Filter) {
             return '\Engine\Crud\Decorator\Filter';
         } else {
     		throw new \Engine\Exception("Decorator object '".get_class($object)."' not instance");

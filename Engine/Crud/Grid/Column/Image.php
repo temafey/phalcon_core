@@ -92,7 +92,7 @@ class Image extends Base
      */
 	public function render($row)
 	{	
-		if ($this->_template){			
+		if ($this->_template) {
 			$image = \Engine\Tools\String::generateStringTemplate($this->_template, $row, '{', '}');
 		} else {
 		    $image = $this->_empty;
@@ -118,7 +118,7 @@ class Image extends Base
         $src = ' src="'.$image.'"';
         $alt = ($alt) ? ' alt="'.$alt.'"' : "";
         $width = 'width: '.$this->width .'px;';
-        if($this->height) {
+        if ($this->height) {
             $height = 'height: '.$this->height .'px;';
         } else {
             $height = '';

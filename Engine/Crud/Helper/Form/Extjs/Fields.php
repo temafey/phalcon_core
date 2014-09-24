@@ -26,7 +26,7 @@ class Fields extends BaseHelper
 	{
         $code = "
 
-            fieldsGet: function(){
+            fieldsGet: function() {
                 return [";
 
         $fields = [];

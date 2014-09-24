@@ -20,7 +20,7 @@ class Container
      *
      * @param  .
      * @param  mixed $config  OPTIONAL; an array or \Zend\Config\Config object with adapter parameters.
-     * @return \Engine\Crud\Container\Interface
+     * @return \Engine\Crud\Container\Grid\Adapter || \Engine\Crud\Container\Form\Adapter
      */
     public static function factory($object, $config = [])
     {
@@ -48,6 +48,10 @@ class Container
         }
     	if ($config['model'] == '') {
         	throw new \Engine\Exception("Empty container model class name in config options array");
+        }
+        if ($config['modelAdapter']) {
+            $config['adapter'] = $config['modelAdapter'];
+            unset($config['modelAdapter']);
         }
         //$containerModel = $config['model'];
         //unset($config['model']);
@@ -97,9 +101,9 @@ class Container
      */
     static function getContainerNamespace($object)
     {
-    	if($object instanceof Grid) {
+    	if ($object instanceof Grid) {
     		return '\Engine\Crud\Container\Grid';
-    	} elseif($object instanceof Form) {
+    	} elseif ($object instanceof Form) {
     		return '\Engine\Crud\Container\Form';
     	} else {
     		throw new \Engine\Exception("Container object '".get_class($object)."' not instance");

@@ -23,7 +23,7 @@ class Label extends \Engine\Crud\Helper
 	 */
 	static public function _(Field $field)
 	{
-        $code = '<label>'. $field->getLabel().'</label>';
+        $code = '<td><label>'. $field->getLabel().'</label></td>';
 		return $code;
 	}
 }
