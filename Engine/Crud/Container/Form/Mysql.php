@@ -200,7 +200,7 @@ class Mysql extends Container implements FormContainer
         $fields = $this->_form->getFields();
         $notRequeired = [];
         foreach ($fields as $field) {
-            if ($field instanceof Field\ManyToMany || $field instanceof Field\Primary) {
+            if ($field instanceof Field\ManyToMany || $field instanceof Field\Primary || $field instanceof Field\PasswordConfirm) {
                 continue;
             }
             if ($field instanceof Field) {
@@ -211,9 +211,9 @@ class Mysql extends Container implements FormContainer
             }
         }
         $source = $this->_model->getSource();
-        $this->_model->skipAttributes(array_intersect($this->_fields[$source], $notRequeired));
+        $this->_model->_skipAttributes(array_intersect($this->_fields[$source], $notRequeired));
         foreach ($this->_joins as $key => $model) {
-            $model->skipAttributes(array_intersect($this->_fields[$key], $notRequeired));
+            $model->_skipAttributes(array_intersect($this->_fields[$key], $notRequeired));
         }
     }
 
