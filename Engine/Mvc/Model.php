@@ -240,9 +240,28 @@ class Model extends \Phalcon\Mvc\Model
         return $this->_attributes;
     }
 
-    public function skipAttributes(array $attributes)
+    /**
+     * Sets a list of attributes that must be skipped from the
+     * generated INSERT/UPDATE statement
+     *
+     *<code>
+     *
+     *class Robots extends \Phalcon\Mvc\Model
+     *{
+     *
+     *   public function initialize()
+     *   {
+     *       $this->skipAttributes(array('price'));
+     *   }
+     *
+     *}
+     *</code>
+     *
+     * @param array $attributes
+     */
+    public function _skipAttributes(array $attributes, $replace = NULL)
     {
-        parent::skipAttributes($attributes);
+        parent::skipAttributes($attributes, $replace);
         return $this;
     }
 
@@ -354,7 +373,7 @@ class Model extends \Phalcon\Mvc\Model
             $rule = get_class($rule);
         }
         if (!$relation = $this->getReferenceRelation($rule)) {
-            return $relationPath;
+            throw new \Engine\Exception("Relation between '".get_class($this)."' and '".$rule."' not found!");
         }
         $relationPath[$rule] = $relation;
         if (!$path) {

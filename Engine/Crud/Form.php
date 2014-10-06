@@ -267,6 +267,9 @@ abstract class Form implements
         $this->_fieldNames = [];
         foreach ($this->_fields as $key => $field) {
             $field->init($this, $key);
+            if ($field instanceof Field\PasswordConfirm || $field instanceof Field\ManyToMany) {
+                continue;
+            }
             $this->_fieldNames[$key] = $field->getName();
         }
         if (null !== $this->_id) {

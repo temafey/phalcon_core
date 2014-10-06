@@ -49,7 +49,7 @@ class Container
     	if ($config['model'] == '') {
         	throw new \Engine\Exception("Empty container model class name in config options array");
         }
-        if ($config['modelAdapter']) {
+        if (isset($config['modelAdapter'])) {
             $config['adapter'] = $config['modelAdapter'];
             unset($config['modelAdapter']);
         }
