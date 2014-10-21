@@ -138,6 +138,51 @@ class String
 
         return null;
 	}
+
+    /**
+     * Build and return where sql condition with
+     *
+     * @param array|string $params
+     * @param string $paramName
+     * @param string $alias
+     * @param string $condition
+     * @param string $conditionIn
+     * @return bool|string
+     * @throws \Engine\Exception
+     *
+     * @return string
+     */
+    static function processWhereParam($params, $paramName, $condition = "=", $alias = null, $conditionForArray = "IN")
+    {
+        $where = false;
+        $condition = trim($condition);
+        if ($condition == "!=") {
+            $conditionIn = "NOT IN";
+        } elseif ($condition != "=") {
+            $conditionForArray = false;
+        }
+        if (is_array($params)) {
+            if (isset($params[$paramName])) {
+                $where = static::processWhereParam($params[$paramName], $paramName, $condition, $alias, $conditionForArray);
+            } else {
+                if (!$conditionForArray) {
+                    $where = [];
+                    foreach ($params as $param) {
+                        $where[] = static::processWhereParam($param, $paramName, $condition, $alias, $conditionForArray);
+                    }
+                    if (!empty($param)) {
+                        $where = "(".implode(" OR ", $where).")";
+                    }
+                } else {
+                    $where = "`".$alias."`.`".$paramName."` ".$conditionForArray." (" . static::quote($params).")";
+                }
+            }
+        } else {
+            $where = "`".$alias."`.`".$paramName."` ".$condition." ".static::quote($params);
+        }
+
+        return $where;
+    }
 	
 	/**
 	 * Quoting string
