@@ -30,8 +30,8 @@ abstract class AbstractContainer implements
 	protected $_model;
 
     /**
-     * Database model adpter
-     * @var string
+     * Database model adapter
+     * @var string|array
      */
     protected $_adapter;
 	

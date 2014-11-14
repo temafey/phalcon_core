@@ -4,7 +4,8 @@
  */
 namespace Engine\Crud\Grid\Column;
 
-use Engine\Crud\Grid\Column;
+use Engine\Crud\Grid\Column,
+    Engine\Mvc\Model;
 
 /**
  * Join one column
@@ -101,7 +102,10 @@ class JoinOne extends Collection
 	 */
 	public function updateDataSource($dataSource)
 	{
-		$columns =  [$this->_key => $this->_column];
+		$columns =  [
+            $this->_key => $this->_column,
+            $this->_key.'_'.Model::JOIN_PRIMARY_KEY_PREFIX => \Engine\Mvc\Model::ID
+        ];
 		if (!empty($this->_columns)) {
 		    $columns = (is_array($this->_columns)) ? array_merge($columns, $this->_columns) : array_merge($columns, [$this->_columns => $this->_columns]);
 		}

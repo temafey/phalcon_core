@@ -350,17 +350,24 @@ class Indexer
         foreach ($columns as $column) {
             $column->updateDataSource($dataSource);
         }
-        $data = $container->getData($dataSource);
-        $pages = $data['pages'];
+        $filter = $grid->getFilter();
+        $params = $grid->getFilterParams();
+        $filter->setParams($params);
+        $filter->applyFilters($dataSource);
+
         $i = 0;
+        $pages = false;
         do {
+            ++$i;
+            $grid->clearData();
+            $grid->setParams(['page' => $i]);
+            $data = $container->getData($dataSource);
+            if  (!$pages) {
+                $pages = $data['pages'];
+            }
             foreach ($data['data'] as $values) {
                 $this->addItem($values->toArray(), $grid);
             }
-            ++$i;
-            $grid->clearData();
-            $grid->setParams(['page' => $i+1]);
-            $data = $container->getData($dataSource);
         } while ($i < $pages);
     }
 
@@ -524,7 +531,7 @@ class Indexer
                     ) {
                         $item[$key] = [];
                         $item[$key] = $data[$key];
-                        $item[$key."_id"] = $data[$key.'_id'];
+                        $item[$key."_id"] = $data[$key."_".\Engine\Mvc\Model::JOIN_PRIMARY_KEY_PREFIX];
                     } else {
                         $item[$key] = $data[$key];
                     }
@@ -534,7 +541,7 @@ class Indexer
                 $item[$name] = $data[$dataKey];
             } else {
                 $dataKey = $grid->getColumnByName($name)->getKey();
-                if (!isset($data[$dataKey])) {
+                if (!array_key_exists($dataKey, $data)) {
                     throw new \Engine\Exception("Value by filter key '".$dataKey."' not found in data from grid '".get_class($grid)."'");
                 }
                 $item[$name] = $data[$dataKey];

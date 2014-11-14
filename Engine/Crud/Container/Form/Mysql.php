@@ -4,7 +4,7 @@
  */
 namespace Engine\Crud\Container\Form;
 
-use Engine\Crud\Container\AbstractContainer as Container,
+use Engine\Crud\Container\Mysql as Container,
     Engine\Crud\Container\Form\Adapter as FormContainer,
     Engine\Crud\Form,
     Engine\Crud\Form\Field,
@@ -24,18 +24,6 @@ class Mysql extends Container implements FormContainer
 	 * @var \Engine\Crud\Form
 	 */
 	protected $_form;
-
-    /**
-     * Datasource object
-     * @var \Engine\Mvc\Model\Query\Builder
-     */
-    protected $_dataSource = null;
-
-    /**
-     * Data source columns
-     * @var array
-     */
-    protected $_columns = [];
 
     /**
      * @var array
@@ -58,76 +46,6 @@ class Mysql extends Container implements FormContainer
 	}
 
     /**
-     * Initialize container model
-     *
-     * @param string $model
-     * @throws \Engine\Exception
-     * @return \Engine\Crud\Container\Form\Mysql
-     */
-    public function setModel($model = null)
-    {
-        if (null === $model) {
-            if (null === $this->_model) {
-                throw new \Engine\Exception("Container model class not set");
-            }
-            $model = $this->_model;
-        }
-        if (is_object($model)) {
-            if (!$model instanceof Model) {
-                throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
-            }
-            $this->_model = $model;
-        }
-        if (is_array($model)) {
-            $primaryModel = array_shift($model);
-            $this->setJoinModels($model);
-            $model = $primaryModel;
-        } else {
-            if (!empty($this->_joins)) {
-                $joins = $this->_joins;
-                $this->setJoinModels($joins);
-            }
-        }
-        if (!class_exists($model)) {
-            throw new \Engine\Exception("Container model class '$model' does not exists");
-        }
-        if ($this->_adapter) {
-            $model->setWriteConnectionService($this->_adapter);
-            $model->setReadConnectionService($this->_adapter);
-        }
-        $this->_model = new $model;
-
-        $source = $this->_model->getSource();
-        $this->_fields[$source] = $this->_model->getAttributes();
-
-        return $this;
-    }
-
-    /**
-     * Set model adapter
-     *
-     * @param string $adapter
-     * @return \Engine\Crud\Container\Form\Mysql
-     */
-    public function setAdapter($adapter = null)
-    {
-        if (!$adapter) {
-            return $this;
-        }
-        $this->_adapter = $adapter;
-        if ($this->_model instanceof Model) {
-            $this->_model->setWriteConnectionService($this->_adapter);
-            $this->_model->setReadConnectionService($this->_adapter);
-        }
-        foreach ($this->_joins as $model) {
-            $model->setWriteConnectionService($this->_adapter);
-            $model->setReadConnectionService($this->_adapter);
-        }
-
-        return $this;
-    }
-
-    /**
      * Set join models
      *
      * @param array|string $models
@@ -135,23 +53,8 @@ class Mysql extends Container implements FormContainer
      */
     public function setJoinModels($models)
     {
-        if (!is_array($models)) {
-            $models = [$models];
-        }
-        foreach ($models as $model) {
-            if (!is_object($model)) {
-                $model = new $model;
-                if ($this->_adapter) {
-                    $model->setReadConnectionService($this->_adapter);
-                    $model->setWriteConnectionService($this->_adapter);
-                }
-            }
-            if (!($model instanceof Model)) {
-                throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
-            }
-            $key = $model->getSource();
-            $this->_joins[$key] = $model;
-
+        parent::setJoinModels($models);
+        foreach ($this->_joins as $key => $model) {
             $this->_fields[$key] = $model->getAttributes();
         }
 
@@ -167,29 +70,12 @@ class Mysql extends Container implements FormContainer
      */
     public function addJoin($model)
     {
-        if (!($model instanceof Model)) {
-            throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
-        }
-        if (!is_object($model)) {
-            $model = new $model;
-            if ($this->_adapter) {
-                $model->setReadConnectionService($this->_adapter);
-                $model->setWriteConnectionService($this->_adapter);
-            }
-        }
-        $key = $model->getSource();
-        if (isset($this->_joins[$key])) {
-            return $this;
-        }
-        $this->_joins[$key] = $model;
-
-        $this->_fields[$key] = $model->getAttributes();
-
-        if (null !== $this->_dataSource) {
-            $this->_dataSource->columnsJoinOne($model);
+        $key = parent::addJoin($model);
+        if ($key) {
+            $this->_fields[$key] = $this->_joins[$key]->getAttributes();
         }
 
-        return $this;
+        return $key;
     }
 
     /**
@@ -215,45 +101,6 @@ class Mysql extends Container implements FormContainer
         foreach ($this->_joins as $key => $model) {
             $model->_skipAttributes(array_intersect($this->_fields[$key], $notRequeired));
         }
-    }
-
-    /**
-     * Set column
-     *
-     * @param string $key
-     * @param string $name
-     * @param boolean $useTableAlias
-     * @param boolean $useCorrelationTableName
-     * @return \Engine\Crud\Container\Form\Mysql
-     */
-    public function setColumn($key, $name, $useTableAlias = true, $useCorrelationTableName = false)
-    {
-        if (isset($this->_columns[$key])) {
-            return $this;
-        }
-        $this->_columns[$key] = [
-            $name,
-            'useTableAlias' => $useTableAlias,
-            'useCorrelationName' => $useCorrelationTableName
-        ];
-        if (null !== $this->_dataSource) {
-            $this->_dataSource->setColumn($name, $key, $useTableAlias, $useCorrelationTableName);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Return data source object
-     *
-     * @return \Engine\Mvc\Model\Query\Builder
-     */
-    public function getDataSource()
-    {
-        if (null === $this->_dataSource) {
-            $this->_setDataSource();
-        }
-        return $this->_dataSource;
     }
 
     /**
