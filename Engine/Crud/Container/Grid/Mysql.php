@@ -4,14 +4,14 @@
  */
 namespace Engine\Crud\Container\Grid;
 
-use Engine\Crud\Container\AbstractContainer as Container,
+use Engine\Crud\Container\Mysql as Container,
     Engine\Crud\Container\Grid\Adapter as GridContainer,
     Engine\Crud\Grid,
 	Engine\Mvc\Model,
     Engine\Mvc\Model\Query\Builder;
 
 /**
- * Class container for MySql.
+ * Class container for Mysql.
  *
  * @category   Engine
  * @package    Crud
@@ -24,12 +24,6 @@ class Mysql extends Container implements GridContainer
 	 * @var \Engine\Crud\Grid
 	 */
 	protected $_grid;
-	
-	/**
-	 * Datasource object
-	 * @var \Engine\Mvc\Model\Query\Builder
-	 */
-	protected $_dataSource = null;
 
     /**
      * Data source columns
@@ -50,165 +44,6 @@ class Mysql extends Container implements GridContainer
             $options = [self::MODEL => $options];
         }
 		$this->setOptions($options);
-	}
-	
-	/**
-	 * Initialize container model
-	 * 
-	 * @param string $model
-	 * @throws \Engine\Exception
-	 * @return \Engine\Crud\Container\Grid\Mysql
-	 */
-    public function setModel($model = null)
-	{
-		if (null === $model) {
-			if (null === $this->_model) {
-				throw new \Engine\Exception("Container model class not set");
-			}
-			$model = $this->_model;
-		}
-		if (is_object($model)) {
-			if (!$model instanceof Model) {
-	            throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
-	        }
-	        $this->_model = $model;
-		}
-		if (is_array($model)) {
-			$primaryModel = array_shift($model);
-			$this->setJoinModels($model);
-			$model = $primaryModel;
-		} else {
-			if (!empty($this->_joins)) {
-				$joins = $this->_joins;
-				if (!is_array($joins)) {
-					$joins = [$joins];
-				}
-				$this->setJoinModels($joins);
-			}
-		}
-		if (!class_exists($model)) {
-			throw new \Engine\Exception("Container model class '$model' does not exists");
-        }
-        
-        $this->_model = new $model;
-
-        return $this;
-	}
-
-    /**
-     * Set model adapter
-     *
-     * @param string $adapter
-     * @return \Engine\Crud\Container\Grid\Mysql
-     */
-    public function setAdapter($adapter = null)
-    {
-        if (!$adapter) {
-            return $this;
-        }
-        if ($this->_model instanceof Model) {
-            $this->_model->setWriteConnectionService($this->_adapter);
-            $this->_model->setReadConnectionService($this->_adapter);
-        }
-        foreach ($this->_joins as $model) {
-            $model->setWriteConnectionService($this->_adapter);
-            $model->setReadConnectionService($this->_adapter);
-        }
-
-        return $this;
-    }
-	
-	/**
-	 * Set join models
-	 * 
-	 * @param array $models
-     * @return \Engine\Crud\Container\Grid\Mysql
-	 */
-    public function setJoinModels($models)
-	{
-	    foreach ($models as $model) {
-            if (!is_object($model)) {
-                $model = new $model;
-                $model->setReadConnectionService($this->_adapter);
-                $model->setWriteConnectionService($this->_adapter);
-            }
-		    if (!($model instanceof Model)) {
-	            throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
-	        }
-	    	$key = $model->getSource();
-	    	$this->_joins[$key] = $model;
-	    }
-
-        return $this;
-	}
-	
-	/**
-	 * Add join model
-	 * 
-	 * @param string $model
-	 * @throws \Exception
-	 * @return \Engine\Crud\Container\Grid\Mysql
-	 */
-	public function addJoin($model)
-	{
-        if (!is_object($model)) {
-            $model = new $model;
-            $model->setReadConnectionService($this->_adapter);
-            $model->setWriteConnectionService($this->_adapter);
-        }
-		if (!($model instanceof Model)) {
-            throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
-        }
-    	$key = $model->getSource();
-		if (isset($this->_joins[$key])) {
-			return $this;
-		}
-    	$this->_joins[$key] = $model;
-    	
-		if (null !== $this->_dataSource) {
-			$this->_dataSource->columnsJoinOne($model);
-		}
-    	
-    	return $this;
-	}
-	
-	/**
-	 * Set column
-	 * 
-	 * @param string $key
-	 * @param string $name
-     * @param boolean $useTableAlias
-     * @param boolean $useCorrelationTableName
-	 * @return \Engine\Crud\Container\Grid\Mysql
-	 */
-	public function setColumn($key, $name, $useTableAlias = true, $useCorrelationTableName = false)
-	{
-		if (isset($this->_columns[$key])) {
-			return $this;
-		}
-		$this->_columns[$key] = [
-            $name,
-            'useTableAlias' => $useTableAlias,
-            'useCorrelationName' => $useCorrelationTableName
-        ];
-		if (null !== $this->_dataSource) {
-			$this->_dataSource->setColumn($name, $key, $useTableAlias, $useCorrelationTableName);
-		}
-		
-		return $this;
-	}
-	
-	/**
-	 * Return data source object
-	 * 
-	 * @return \Engine\Mvc\Model\Query\Builder
-	 */
-	public function getDataSource()
-	{
-		if (null === $this->_dataSource) {
-			$this->_setDataSource();
-		}
-		return $this->_dataSource;
 	}
 	
 	/**

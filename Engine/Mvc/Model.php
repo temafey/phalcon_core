@@ -16,6 +16,7 @@ class Model extends \Phalcon\Mvc\Model
 {
     CONST ID = 'ID';
     CONST NAME = 'NAME';
+    CONST JOIN_PRIMARY_KEY_PREFIX = 'primary_id';
 
     /**
      * Additional model constant conditions

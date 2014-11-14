@@ -147,12 +147,13 @@ class String
      * @param string $alias
      * @param string $condition
      * @param string $conditionIn
+     * @param integer $valueType
      * @return bool|string
      * @throws \Engine\Exception
      *
      * @return string
      */
-    static function processWhereParam($params, $paramName, $condition = "=", $alias = null, $conditionForArray = "IN")
+    static function processWhereParam($params, $paramName, $condition = "=", $alias = null, $conditionForArray = "IN", $valueType = null)
     {
         $where = false;
         $condition = trim($condition);
@@ -163,26 +164,30 @@ class String
         }
         if (is_array($params)) {
             if (isset($params[$paramName])) {
-                $where = static::processWhereParam($params[$paramName], $paramName, $condition, $alias, $conditionForArray);
+                $where = static::processWhereParam($params[$paramName], $paramName, $condition, $alias, $conditionForArray, $valueType);
             } else {
                 if (!$conditionForArray) {
                     $where = [];
                     foreach ($params as $param) {
-                        $where[] = static::processWhereParam($param, $paramName, $condition, $alias, $conditionForArray);
+                        $where[] = static::processWhereParam($param, $paramName, $condition, $alias, $conditionForArray, $valueType);
                     }
                     if (!empty($param)) {
                         $where = "(".implode(" OR ", $where).")";
                     }
                 } else {
-                    $where = "`".$alias."`.`".$paramName."` ".$conditionForArray." (" . static::quote($params).")";
+                    $where = "`".$alias."`.`".$paramName."` ".$conditionForArray." (" . static::quote($params, $valueType).")";
                 }
             }
         } else {
-            $where = "`".$alias."`.`".$paramName."` ".$condition." ".static::quote($params);
+            $where = "`".$alias."`.`".$paramName."` ".$condition." ".static::quote($params, $valueType);
         }
 
         return $where;
     }
+
+    CONST QOUOTE_VALUE_TYPE_INT = 0;
+    CONST QOUOTE_VALUE_TYPE_STRING = 1;
+    CONST QOUOTE_VALUE_TYPE_FLOAT = 2;
 	
 	/**
 	 * Quoting string
