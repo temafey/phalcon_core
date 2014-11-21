@@ -318,7 +318,7 @@ abstract class Grid implements
         if (!$this->_form) {
             $grid = get_class($this);
             $form = str_replace("\\Grid\\", "\\Form\\", $grid);
-            if (class_exists($form)) {
+            if (class_exists($form) && $this->_form instanceof \Engine\Crud\Form) {
                 $this->_form = $form;
             }
         }

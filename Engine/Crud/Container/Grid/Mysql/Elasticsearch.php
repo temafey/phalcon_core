@@ -30,6 +30,12 @@ class Elasticsearch extends Container implements GridContainer
     protected $_elasticType;
 
     /**
+     * Use data from search index
+     * @var bool
+     */
+    protected $_useElasticData = false;
+
+    /**
      * Return data array
      *
      * @return array
@@ -59,11 +65,11 @@ class Elasticsearch extends Container implements GridContainer
             $pageTotal = ($position+$limit < $total) ? ($position+$limit) : $total;
             for ($i = $position; $i < $pageTotal; ++$i) {
                 $item = $results[$i]->getData();
-                $items[] = $item['id'];
+                $items[] = ($this->_useElasticData) ? (object) $item: $item['id'];
             }
         }
         $data = [
-            'data' => $this->_getData($dataSource, $items),
+            'data' => ($this->_useElasticData) ? $items : $this->_getData($dataSource, $items),
             'page' => $page,
             'limit' => $limit,
             'mess_now' => count($items)
@@ -184,9 +190,23 @@ class Elasticsearch extends Container implements GridContainer
         if (!$ids) {
             return false;
         }
+        foreach ($ids as &$id) {
+            $id = \Engine\Tools\String::quote($id);
+        }
         $source = $datasource->getModel()->getSource();
         $primayField = $datasource->getModel()->getPrimary();
 
         return $datasource->andWhere($source.".".$primayField." IN (".implode(", ", $ids).")")->orderBy("FIELD (".$source.".".$primayField." ,".implode(", ", $ids).")")->getQuery()->execute();
+    }
+
+    /**
+     * Set flag to use index data for build grid data
+     *
+     * @return \Engine\Crud\Container\Grid\Mysql\Elasticsearch
+     */
+    public function useIndexData()
+    {
+        $this->_useElasticData = true;
+        return $this;
     }
 }

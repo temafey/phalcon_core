@@ -4,8 +4,8 @@
  */
 namespace Engine\Search\Elasticsearch;
 
-use Engine\Exception;
-use Engine\Tools\Traits\DIaware,
+use Engine\Exception,
+    Engine\Tools\Traits\DIaware,
     Engine\Search\Elasticsearch\Query\Builder,
     Engine\Search\Elasticsearch\Type,
     Engine\Search\Elasticsearch\Query,
@@ -42,16 +42,31 @@ class Indexer
     protected $_adapter;
 
     /**
+     * Delete index type
+     * @var bool
+     */
+    protected $_deleteType = true;
+
+    /**
+     * Grid params
+     * @var array
+     */
+    protected $_params = [];
+
+    /**
      * Construct
      *
      * @param string $name
      * @param string $grid
+     * @param string $adapter
+     * @param array $params
      */
-    public function __construct($name, $grid, $adapter = 'elastic')
+    public function __construct($name, $grid, $adapter = 'elastic', array $params = [])
     {
         $this->_name = $name;
         $this->_grid = $grid;
         $this->_adapter = $adapter;
+        $this->_params = $params;
     }
 
     /**
@@ -61,7 +76,6 @@ class Indexer
      */
     public function createIndex()
     {
-
         $index = $this->getIndex();
         if ($index->exists()) {
             return;
@@ -141,7 +155,7 @@ class Indexer
 
         // Set mapping
         $properties = [];
-        $grid = ($this->_grid instanceof \Engine\Crud\Grid) ? $this->_grid : new $this->_grid([], $this->getDi());
+        $grid = ($this->_grid instanceof \Engine\Crud\Grid) ? $this->_grid : new $this->_grid($this->_params, $this->getDi());
         $filterFields = $grid->getFilter()->getFields();
         $gridColums = $grid->getColumns();
         foreach ($filterFields as $key => $field) {
@@ -201,8 +215,8 @@ class Indexer
             $property = $this->getFieldProperty($name, 'float', $sortable, 'analyzed', $store, true, 2.0);
         } else if ($field instanceof Field\Compound) {
             $property = [
-               'type' => 'multi_field',
-               'fields' => []
+                'type' => 'multi_field',
+                'fields' => []
             ];
             $fields = $field->getFields();
             foreach ($fields as $field) {
@@ -326,7 +340,7 @@ class Indexer
     public function setData()
     {
         $type = $this->getType();
-        if ($type->exists()) {
+        if ($this->_deleteType && $type->exists()) {
             $type->delete();
         }
         $this->setMapping();
@@ -362,7 +376,7 @@ class Indexer
             $grid->clearData();
             $grid->setParams(['page' => $i]);
             $data = $container->getData($dataSource);
-            if  (!$pages) {
+            if (!$pages) {
                 $pages = $data['pages'];
             }
             foreach ($data['data'] as $values) {
@@ -565,8 +579,20 @@ class Indexer
     {
         $index = $this->getIndex();
         if (!$index->exists()) {
-            return;
+            return false;
         }
         return $index->delete();
+    }
+
+    /**
+     * Set flag to delete index type before add new
+     *
+     * @param bool $deleteType
+     * @return $this
+     */
+    public function setDeleteIndexType($deleteType)
+    {
+        $this->_deleteType = (bool) $deleteType;
+        return $this;
     }
 }
