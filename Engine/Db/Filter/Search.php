@@ -48,11 +48,6 @@ class Search extends AbstractFilter
 	public function filterWhere(Builder $dataSource)
 	{
 		$where = [];
-        $adapter =  $dataSource->getModel()->getReadConnection();
-		$exprEq = $adapter->escapeString($this->_value);
-		$exprLike = $adapter->escapeString("%$this->_value%");
-		$exprBegins = $adapter->escapeString("$this->_value%");
-
 		$model = $dataSource->getModel();
 		foreach ($this->_columns as $column => $criteria) {		    
 			if ($column === self::COLUMN_ID) {
@@ -64,16 +59,18 @@ class Search extends AbstractFilter
 			} else {
 			    $alias = $dataSource->getCorrelationName($column);
 			}
+            $field = $alias.".".$column;
+            $key = $alias."_".$column;
 			if ($criteria === self::CRITERIA_EQ) {
-				$where[] = "$alias.$column = $exprEq";
+				$where[] = $field." = :".$key.":";
 			} elseif ($criteria === self::CRITERIA_LIKE) {
-				$where[] = "$alias.$column LIKE $exprLike";
+				$where[] = $field." LIKE :".$key.":";
 			} elseif ($criteria === self::CRITERIA_BEGINS) {
-				$where[] = "$alias.$column LIKE $exprBegins";
+				$where[] = $field." LIKE :".$key.":";
 			} elseif ($criteria === self::CRITERIA_MORE) {
-				$where[] = "`$alias`.`$column` > $exprEq";
+				$where[] = $field." > :".$key.":";
 			} elseif ($criteria === self::CRITERIA_LESS) {
-				$where[] = "$alias.$column < $exprEq";
+				$where[] = $field." < :".$key.":";
 			}
 		}
 		if (count($where) > 0) {
@@ -83,4 +80,50 @@ class Search extends AbstractFilter
 		
 		return false;
 	}
+
+    /**
+     * Return bound params array
+     *
+     * @param \Engine\Mvc\Model\Query\Builder $dataSource
+     * @return array
+     */
+    public function getBoundParams(Builder $dataSource)
+    {
+        $params = [];
+        $adapter =  $dataSource->getModel()->getReadConnection();
+        $exprEq = $adapter->escapeString($this->_value);
+        $exprLike = $adapter->escapeString("%$exprEq%");
+        $exprBegins = $adapter->escapeString("$exprEq%");
+
+        $model = $dataSource->getModel();
+        foreach ($this->_columns as $column => $criteria) {
+            if ($column === self::COLUMN_ID) {
+                $alias = $dataSource->getAlias();
+                $column = $model->getPrimary();
+            } elseif ($column === self::COLUMN_NAME) {
+                $alias = $dataSource->getAlias();
+                $column = $model->getNameExpr();
+            } else {
+                $alias = $dataSource->getCorrelationName($column);
+            }
+            $key = $alias."_".$column;
+            if ($criteria === self::CRITERIA_EQ) {
+                $params[$key] = $exprEq;
+            } elseif ($criteria === self::CRITERIA_LIKE) {
+                $params[$key] = $exprLike;
+            } elseif ($criteria === self::CRITERIA_BEGINS) {
+                $params[$key] = $exprBegins;
+            } elseif ($criteria === self::CRITERIA_MORE) {
+                $params[$key] = $exprEq;
+            } elseif ($criteria === self::CRITERIA_LESS) {
+                $params[$key] = $exprEq;
+            }
+        }
+
+        if (count($params) > 0) {
+            return $params;
+        }
+
+        return false;
+    }
 }

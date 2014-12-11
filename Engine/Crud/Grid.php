@@ -290,8 +290,12 @@ abstract class Grid implements
             $config['joins'] = $this->_containerJoins;
             $this->_container = Container::factory($this, $config);
         }
-        $this->_container->setDi($this->getDi());
-        $this->_container->setEventsManager($this->getEventsManager());
+        if (null !== $this->_di) {
+            $this->_container->setDi($this->_di);
+        }
+        if (null !== $this->_eventsManager) {
+            $this->_container->setEventsManager($this->_eventsManager);
+        }
         if ($this->_filter instanceof Filter) {
             $this->_filter->setContainer($this->_container);
         }

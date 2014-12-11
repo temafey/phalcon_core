@@ -47,23 +47,6 @@ class Standart extends AbstractFilter
 		$this->_criteria = $criteria;
 	}
 
-	/**
-	 * Return filter value string
-	 *
-     * @param \Engine\Mvc\Model\Query\Builder $dataSource
-	 * @return string
-	 */
-	protected function getFilterStr(Builder $dataSource)
-	{
-        $compare = $this->getCompareCriteria();
-		if ((strlen(floatval($this->_value)) !== strlen($this->_value)) || (strpos($this->_value, ' ') !== false)) {
-            $adapter =  $dataSource->getModel()->getReadConnection();
-            $this->_value = $adapter->escapeString($this->_value);
-		}
-
-		return $compare.$this->_value;
-	}
-
     /**
      * Apply filter to query builder
      *
@@ -86,10 +69,30 @@ class Standart extends AbstractFilter
         if (!$alias) {
             throw new \Engine\Exception("Field '".$this->_column."' not found in query builder");
         }
+        $compare = $this->getCompareCriteria();
+        $this->setBoundParamKey($alias."_".$expr);
 
-        return $alias.".".$expr." ".$this->getFilterStr($dataSource);
-
+        return $alias.".".$expr." ".$compare." :".$this->getBoundParamKey().":";
 	}
+
+    /**
+     * Return bound params array
+     *
+     * @param \Engine\Mvc\Model\Query\Builder $dataSource
+     * @return array
+     */
+    public function getBoundParams(Builder $dataSource)
+    {
+        $key = $this->getBoundParamKey();
+
+        if ((strlen(floatval($this->_value)) !== strlen($this->_value)) || (strpos($this->_value, ' ') !== false)) {
+            $adapter =  $dataSource->getModel()->getReadConnection();
+            $this->_value = $adapter->escapeString($this->_value);
+        }
+
+        return [$key => $this->_value];
+    }
+
 
     /**
      * Return compare criteria

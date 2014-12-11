@@ -22,12 +22,26 @@ abstract class AbstractFilter implements SearchFilterInterface, EventsAwareInter
         \Engine\Tools\Traits\EventsAware;
 
     /**
+     * Key for bound param
+     * @var string
+     */
+    protected $_boundParamKey;
+
+    /**
      * Apply filter to query builder
      *
      * @param \Engine\Mvc\Model\Query\Builder $dataSource
      * @return string
      */
 	abstract public function filterWhere(Builder $dataSource);
+
+    /**
+     * Apply filter to query builder
+     *
+     * @param \Engine\Mvc\Model\Query\Builder $dataSource
+     * @return string
+     */
+    abstract public function getBoundParams(Builder $dataSource);
 
 	/**
 	 * Apply filter to table select object
@@ -37,10 +51,36 @@ abstract class AbstractFilter implements SearchFilterInterface, EventsAwareInter
 	 */
 	public function applyFilter($dataSource)
 	{
-		$where = $this->filterWhere($dataSource);
-		if ($where) {
-			$dataSource->andWhere($where);
-		}
+        $where = $this->filterWhere($dataSource);
+        if (!$where) {
+            return false;
+        }
+        if (!$params = $this->getBoundParams($dataSource)) {
+            return false;
+        }
+        $dataSource->andWhere($where, $params);
 	}
+
+    /**
+     * Set key for bound param value
+     *
+     * @param string $key
+     * @return \Engine\Db\Filter\AbstractFilter
+     */
+    public function setBoundParamKey($key)
+    {
+        $this->_boundParamKey = $key;
+        return $this;
+    }
+
+    /**
+     * Return key for bound param value
+     *
+     * @return string
+     */
+    public function getBoundParamKey()
+    {
+        return $this->_boundParamKey;
+    }
 
 }

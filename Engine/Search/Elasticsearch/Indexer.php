@@ -401,6 +401,7 @@ class Indexer
         if (!$itemDocument) {
             return;
         }
+
         return $this->getType()->addDocument($itemDocument);
     }
 
@@ -453,7 +454,6 @@ class Indexer
         $gridColums = $grid->getColumns();
 
         $item = [];
-
         foreach ($filterFields as $key => $field) {
             if (
                 $field instanceof Field\Search ||
@@ -463,102 +463,13 @@ class Indexer
             ) {
                 continue;
             }
-            $name = $field->getName();
             // check if filter field is a join field
             if ($field instanceof Field\Join) {
-                $path = $field->getPath();
-                // if count of path models more than one, means that is many to many relations
-                if (count($path) > 1) {
-                    $workingModelClass = array_shift($path);
-                    $workingModel = new $workingModelClass;
-                    $refModelClass = array_shift($path);
-                    $refModel = new $refModelClass;
-                    $relationsRefModel = $workingModel->getRelationPath($refModel);
-                    if (!$relationsRefModel) {
-                        throw new \Engine\Exception("Did not find relations between '".get_class($workingModel)."' and '".$refModel."' for filter field '".$key."'");
-                    }
-                    $mainModel = $grid->getContainer()->getModel();
-                    $relationsMainModel = $workingModel->getRelationPath($mainModel);
-                    if (!$relationsMainModel) {
-                        throw new \Engine\Exception("Did not find relations between '".get_class($workingModel)."' and '".get_class($mainModel)."' for filter field '".$key."'");
-                    }
-                    $refKey = array_shift($relationsRefModel)->getFields();
-                    $keyParent = array_shift($relationsMainModel)->getFields();
-                    $queryBuilder = $workingModel->queryBuilder();
-                    $db = $workingModel->getReadConnection();
-                    $queryBuilder->columns([$keyParent,$refKey]);
-                    // if field have category model, we add each type of category like separate item values
-                    if ($field->category) {
-                        $category = $field->category;
-
-                        $temp = explode("\\", $category);
-                        $subKey = array_pop($temp);
-                        $name .= "_".strtolower($subKey);
-
-                        $model = new $category;
-                        $primary = $model->getPrimary();
-                        $relationsCategoryModel = $refModel->getRelationPath($category);
-                        $categoryKey = array_shift($relationsCategoryModel)->getFields();
-
-                        $queryBuilder->columnsJoinOne($refModelClass, [$categoryKey => $categoryKey]);
-                        $queryBuilder->orderBy($categoryKey.', name');
-                        $queryBuilder->andWhere($keyParent." = '".$data[$primaryKey]."'");
-                        $sql = $queryBuilder->getPhql();
-                        $sql = str_replace(
-                            [trim($workingModelClass, "\\"), trim($refModelClass, "\\"), "[", "]"],
-                            [$workingModel->getSource(), $refModel->getSource(), "", ""],
-                            $sql
-                        );
-                        $filterData = $db->fetchAll($sql);
-                        //$filterData = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result->toArray();
-
-                        foreach ($filterData as $filter) {
-                            $newName = $name."_".$filter[$categoryKey];
-                            if (!isset($item[$newName])) {
-                                $item[$newName] = [];
-                            }
-                            $item[$newName][] = $filter[$refKey];
-                        }
-                    } else {
-                        $queryBuilder->andWhere($keyParent." = '".$data[$primaryKey]."'");
-                        $queryBuilder->columnsJoinOne($refModel, ['name' => 'name', 'id' => 'id']);
-                        $queryBuilder->orderBy('name');
-                        $sql = $queryBuilder->getPhql();
-                        $sql = str_replace(
-                            [trim($workingModelClass, "\\"), trim($refModelClass, "\\"), "[", "]"],
-                            [$workingModel->getSource(), $refModel->getSource(), "", ""],
-                            $sql
-                        );
-                        $savedData = $db->fetchAll($sql);
-                        //$savedData = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result->toArray();
-                        $item[$key] = \Engine\Tools\Arrays::assocToLinearArray($savedData, 'name');
-                        $item[$key."_id"] = \Engine\Tools\Arrays::assocToLinearArray($savedData, 'id');
-                        //$item[$key] = \Engine\Tools\Arrays::resultArrayToJsonType($savedData);
-                    }
-                } else {
-                    if (
-                        (
-                            (isset($gridColums[$key]) && $column = $gridColums[$key]) ||
-                            $column = $grid->getColumnByName($name)
-                        ) &&
-                        ($column instanceof \Engine\Crud\Grid\Column\JoinOne)
-                    ) {
-                        $item[$key] = [];
-                        $item[$key] = $data[$key];
-                        $item[$key."_id"] = $data[$key."_".\Engine\Mvc\Model::JOIN_PRIMARY_KEY_PREFIX];
-                    } else {
-                        $item[$key] = $data[$key];
-                    }
-                }
+                $this->_processJoinFieldData($item, $key, $field, $data, $grid);
             } elseif ($field instanceof Field\Date) {
-                $dataKey = $grid->getColumnByName($name)->getKey();
-                $item[$name] = $data[$dataKey];
+                $this->_processDateFieldData($item, $key, $field, $data, $grid);
             } else {
-                $dataKey = $grid->getColumnByName($name)->getKey();
-                if (!array_key_exists($dataKey, $data)) {
-                    throw new \Engine\Exception("Value by filter key '".$dataKey."' not found in data from grid '".get_class($grid)."'");
-                }
-                $item[$name] = $data[$dataKey];
+                $this->_processStandartFieldData($item, $key, $field, $data, $grid);
             }
         }
 
@@ -568,6 +479,146 @@ class Indexer
         $id = $item[$primaryKey];
 
         return $itemDocument = new \Elastica\Document($id, $item);
+    }
+
+    /**
+     * Process data in standart filter type field value for search document
+     *
+     * @param array $item
+     * @param string $key
+     * @param \Engine\Crud\Grid\Filter\Field $field
+     * @param array $data
+     * @param \Engine\Crud\Grid $grid
+     * @throws \Exception
+     * @return void
+     */
+    protected function _processStandartFieldData(array &$item, $key, Field $field, array $data, Grid $grid)
+    {
+        $name = $field->getName();
+        $dataKey = $grid->getColumnByName($name)->getKey();
+        if (!array_key_exists($dataKey, $data)) {
+            throw new \Engine\Exception("Value by filter key '".$dataKey."' not found in data from grid '".get_class($grid)."'");
+        }
+        $item[$name] = $data[$dataKey];
+    }
+
+    /**
+     * Process data in date filter type field value for search document
+     *
+     * @param array $item
+     * @param string $key
+     * @param \Engine\Crud\Grid\Filter\Field $field
+     * @param array $data
+     * @param \Engine\Crud\Grid $grid
+     * @throws \Exception
+     * @return void
+     */
+    protected function _processDateFieldData(array &$item, $key, Field\Date $field, array $data, Grid $grid)
+    {
+        $name = $field->getName();
+        $dataKey = $grid->getColumnByName($name)->getKey();
+        $item[$name] = $data[$dataKey];
+    }
+
+    /**
+     * Process data field value for search document
+     *
+     * @param array $item
+     * @param string $key
+     * @param \Engine\Crud\Grid\Filter\Field $field
+     * @param array $data
+     * @param \Engine\Crud\Grid $grid
+     * @throws \Exception
+     * @return void
+     */
+    protected function _processJoinFieldData(array &$item, $key, Field\Join $field, array $data, Grid $grid)
+    {
+        $name = $field->getName();
+        $path = $field->getPath();
+        $primaryKey = $grid->getPrimaryColumn()->getName();
+        // if count of path models more than one, means that is many to many relations
+        if (count($path) > 1) {
+            $workingModelClass = array_shift($path);
+            $workingModel = new $workingModelClass;
+            $refModelClass = array_shift($path);
+            $refModel = new $refModelClass;
+            $relationsRefModel = $workingModel->getRelationPath($refModel);
+            if (!$relationsRefModel) {
+                throw new \Engine\Exception("Did not find relations between '".get_class($workingModel)."' and '".$refModel."' for filter field '".$key."'");
+            }
+            $mainModel = $grid->getContainer()->getModel();
+            $relationsMainModel = $workingModel->getRelationPath($mainModel);
+            if (!$relationsMainModel) {
+                throw new \Engine\Exception("Did not find relations between '".get_class($workingModel)."' and '".get_class($mainModel)."' for filter field '".$key."'");
+            }
+            $refKey = array_shift($relationsRefModel)->getFields();
+            $keyParent = array_shift($relationsMainModel)->getFields();
+            $queryBuilder = $workingModel->queryBuilder();
+            $db = $workingModel->getReadConnection();
+            $queryBuilder->columns([$keyParent,$refKey]);
+            // if field have category model, we add each type of category like separate item values
+            if ($field->category) {
+                $category = $field->category;
+
+                $temp = explode("\\", $category);
+                $subKey = array_pop($temp);
+                $name .= "_".strtolower($subKey);
+
+                $model = new $category;
+                $primary = $model->getPrimary();
+                $relationsCategoryModel = $refModel->getRelationPath($category);
+                $categoryKey = array_shift($relationsCategoryModel)->getFields();
+
+                $queryBuilder->columnsJoinOne($refModelClass, [$categoryKey => $categoryKey]);
+                $queryBuilder->orderBy($categoryKey.', name');
+                $queryBuilder->andWhere($keyParent." = '".$data[$primaryKey]."'");
+                $sql = $queryBuilder->getPhql();
+                $sql = str_replace(
+                    [trim($workingModelClass, "\\"), trim($refModelClass, "\\"), "[", "]"],
+                    [$workingModel->getSource(), $refModel->getSource(), "", ""],
+                    $sql
+                );
+                $filterData = $db->fetchAll($sql);
+                //$filterData = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result->toArray();
+
+                foreach ($filterData as $filter) {
+                    $newName = $name."_".$filter[$categoryKey];
+                    if (!isset($item[$newName])) {
+                        $item[$newName] = [];
+                    }
+                    $item[$newName][] = $filter[$refKey];
+                }
+            } else {
+                $queryBuilder->andWhere($keyParent." = '".$data[$primaryKey]."'");
+                $queryBuilder->columnsJoinOne($refModel, ['name' => 'name', 'id' => 'id']);
+                $queryBuilder->orderBy('name');
+                $sql = $queryBuilder->getPhql();
+                $sql = str_replace(
+                    [trim($workingModelClass, "\\"), trim($refModelClass, "\\"), "[", "]"],
+                    [$workingModel->getSource(), $refModel->getSource(), "", ""],
+                    $sql
+                );
+                $savedData = $db->fetchAll($sql);
+                //$savedData = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result->toArray();
+                $item[$key] = \Engine\Tools\Arrays::assocToLinearArray($savedData, 'name');
+                $item[$key."_id"] = \Engine\Tools\Arrays::assocToLinearArray($savedData, 'id');
+                //$item[$key] = \Engine\Tools\Arrays::resultArrayToJsonType($savedData);
+            }
+        } else {
+            if (
+                (
+                    (isset($gridColums[$key]) && $column = $gridColums[$key]) ||
+                    $column = $grid->getColumnByName($name)
+                ) &&
+                ($column instanceof \Engine\Crud\Grid\Column\JoinOne)
+            ) {
+                $item[$key] = [];
+                $item[$key] = $data[$key];
+                $item[$key."_id"] = $data[$key."_".\Engine\Mvc\Model::JOIN_PRIMARY_KEY_PREFIX];
+            } else {
+                $item[$key] = $data[$key];
+            }
+        }
     }
 
     /**

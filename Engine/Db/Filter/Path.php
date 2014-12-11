@@ -67,9 +67,13 @@ class Path extends AbstractFilter
             return $this->_filter->filterWhere($dataSource);
         }
         $where = $this->filterWhere($dataSource);
-        if ($where) {
-            $dataSource->andWhere($where);
+        if (!$where) {
+            return false;
         }
+        if (!$params = $this->getBoundParams($dataSource)) {
+            return false;
+        }
+        $dataSource->andWhere($where, $params);
     }
 
     /**
@@ -98,10 +102,41 @@ class Path extends AbstractFilter
         if (!$ids = $this->_processJoins($relation, $joinPath)) {
             return false;
         }
-        $fields = $relation->getFields();
-        $alias = $dataSource->getCorrelationName($fields);
+        $expr = $relation->getFields();
+        $alias = $dataSource->getCorrelationName($expr);
+        $this->setBoundParamKey($alias."_".$expr);
 
-        return "(".$alias.".".$fields." IN (".implode($ids, ",")."))";
+        return "(".$alias.".".$expr." IN (:".$this->getBoundParamKey().":))";
+    }
+
+    /**
+     * Return bound params array
+     *
+     * @param \Engine\Mvc\Model\Query\Builder $dataSource
+     * @return array
+     */
+    public function getBoundParams(Builder $dataSource)
+    {
+        if ($this->_fullJoin) {
+            return $this->_filter->getBoundParams($dataSource);
+        }
+
+        $key = $this->getBoundParamKey();
+
+        $path = $this->_filterField->getPath();
+        $dataSource->columnsJoinOne($path);
+        $model = $dataSource->getModel();
+        $joinPath = $model->getRelationPath($path);
+
+        if (!$joinPath) {
+            throw new \Engine\Exception("Relations to model '".get_class($model)."' by path '".implode(", ", $path)."' not valid");
+        }
+        $relation = array_shift($joinPath);
+        if (!$ids = $this->_processJoins($relation, $joinPath)) {
+            return false;
+        }
+
+        return [$key => implode(",", $ids)];
     }
 
     /**
@@ -126,8 +161,8 @@ class Path extends AbstractFilter
             if (!$ids = $this->_processJoins($relation, $joinPath)) {
                 return false;
             }
-            $fields = $relation->getFields();
-            $where = "(".$fields." IN (".implode($ids, ",")."))";
+            $expr = $relation->getFields();
+            $where = "(".$expr." IN (".implode($ids, ",")."))";
         } else {
             //$dataSourceIn->joinPath($joinPath);
             $where = $this->_filter->filterWhere($dataSourceIn);
