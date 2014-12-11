@@ -453,7 +453,6 @@ class Indexer
         $gridColums = $grid->getColumns();
 
         $item = [];
-
         foreach ($filterFields as $key => $field) {
             if (
                 $field instanceof Field\Search ||
