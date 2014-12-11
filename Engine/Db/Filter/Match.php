@@ -38,18 +38,6 @@ class Match extends AbstractFilter
 	}
 
     /**
-     * Return filter value string
-     *
-     * @param \Engine\Mvc\Model\Query\Builder $dataSource
-     * @return string
-     */
-    protected function getFilterStr(Builder $dataSource)
-    {
-        $adapter =  $dataSource->getModel()->getReadConnection();
-        return $adapter->escapeString($this->_expr);
-	}
-
-    /**
      * Apply filter to query builder
      *
      * @param \Engine\Mvc\Model\Query\Builder $dataSource
@@ -63,8 +51,24 @@ class Match extends AbstractFilter
 			$fields[] = $adapter->escapeIdentifier($field);
 		}
 		$expr = implode(',', $fields);
+        $this->setBoundParamKey(implode('_', $fields));
 
-		return "MATCH (".$expr.") AGAINST (".$this->getFilterStr($dataSource).")";
+		return "MATCH (".$expr.") AGAINST (:".$this->getBoundParamKey().":)";
 	}
+
+    /**
+     * Return bound params array
+     *
+     * @param \Engine\Mvc\Model\Query\Builder $dataSource
+     * @return array
+     */
+    public function getBoundParams(Builder $dataSource)
+    {
+        $key = $this->getBoundParamKey();
+        $adapter =  $dataSource->getModel()->getReadConnection();
+        $this->_expr = $adapter->escapeString($this->_expr);
+
+        return [$key => $this->_expr];
+    }
 
 }

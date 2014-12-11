@@ -61,7 +61,24 @@ class Between extends Standart
     public function filterWhere(Builder $dataSource)
     {
         $adapter = $adapter =  $dataSource->getModel()->getReadConnection();
-		return $this->_field.($this->_criteria == self::CRITERIA_NOTEQ) ? " NOT " : " ". "BETWEEN ".$adapter->escapeString($this->_min)." AND ".$adapter->escapeString($this->_max);
+        $alias = $dataSource->getCorrelationName($this->_field);
+        $this->setBoundParamKey($alias."_".$this->_field);
+
+		return $alias.".".$this->_field.($this->_criteria == self::CRITERIA_NOTEQ) ? " NOT " : " ". "BETWEEN :".$this->getBoundParamKey()."_min: AND :".$this->getBoundParamKey()."_max:";
 	}
+
+    /**
+     * Return bound params array
+     *
+     * @param \Engine\Mvc\Model\Query\Builder $dataSource
+     * @return array
+     */
+    public function getBoundParams(Builder $dataSource)
+    {
+        $key = $this->getBoundParamKey();
+        $adapter = $adapter =  $dataSource->getModel()->getReadConnection();
+
+        return [$key."_min" => $adapter->escapeString($this->_min), $key."_max" => $adapter->escapeString($this->_max)];
+    }
 
 }

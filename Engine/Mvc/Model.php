@@ -310,7 +310,7 @@ class Model extends \Phalcon\Mvc\Model
      * @param \Phalcon\DiInterface $dependencyInjector
      * @return \Phalcon\Mvc\Model\Criteria
      */
-    public static function query($dependencyInjector=null)
+    public static function query($dependencyInjector = NULL)
     {
         $criteria = parent::query($dependencyInjector);
         if (static::$_conditions !== null) {
@@ -420,7 +420,7 @@ class Model extends \Phalcon\Mvc\Model
      * @param string $identityField
      * @return boolean
      */
-    protected function  _preSave($metaData, $exists, $identityField)
+    protected function _preSave(\Phalcon\Mvc\Model\MetadataInterface $metaData, $exists, $identityField)
     {
         $dataTypes = $metaData->getDataTypes($this);
         foreach ($dataTypes as $key => $type) {

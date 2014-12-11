@@ -459,6 +459,13 @@ class Builder extends PhBuilder
     {
         $query = new EnQuery($this->getPhql());
         $query->setDI($this->getDI());
+        if ($this->_bindParams) {
+            $query->setBindParams($this->_bindParams);
+        }
+        if ($this->_bindTypes) {
+            $query->setBindTypes($this->_bindTypes);
+        }
+        //$query->setType();
         return $query;
     }
 }

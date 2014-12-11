@@ -69,4 +69,36 @@ class Compound extends AbstractFilter
 		return $where;
 	}
 
+
+    /**
+     * Return bound params array
+     *
+     * @param \Engine\Mvc\Model\Query\Builder $dataSource
+     * @return array
+     */
+    public function getBoundParams(Builder $dataSource)
+    {
+        $params = [];
+        foreach ($this->_filters as $filter) {
+            $filterParams = $filter->getBoundParams($dataSource);
+            if ($filterParams) {
+                foreach ($filterParams as $key => $value) {
+                    if (isset($params[$key])) {
+                        if ($value != $params[$key]) {
+                            throw new \Engine\Exception("Filter '{$filter->getKey()}' with bound param '{$key}' has more then one value '{$params[$key]}' and '{$value}'");
+                        }
+                    } else {
+                        $params[$key] = $value;
+                    }
+                }
+            }
+        }
+
+        if (count($params) == 0) {
+            return false;
+        }
+
+        return $params;
+    }
+
 }
