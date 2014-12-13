@@ -32,7 +32,7 @@ class Elasticsearch extends Filter
     {
         $elasticSearchDataSource = $this->_container->getElasticDataSource();
         foreach ($this->_fields as $key => $field) {
-            $value = (isset($this->_params[$key])) ? $this->_params[$key] : null;
+            $value = (array_key_exists($key, $this->_params)) ? $this->_params[$key] : false;
             $field->setValue($value);
             $field->applyFilter($elasticSearchDataSource, $this->_container);
         }

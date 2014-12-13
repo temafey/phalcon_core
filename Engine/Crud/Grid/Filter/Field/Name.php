@@ -29,7 +29,7 @@ class Name extends Standart
         $desc = null,
         $criteria = Criteria::CRITERIA_BEGINS,
         $width = 280,
-        $defaultValue = null,
+        $defaultValue = false,
         $length = 100)
     {
         $this->_label = $label;

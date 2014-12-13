@@ -50,6 +50,12 @@ abstract class Column implements ColumnInterface
 	 * @var \Engine\Crud\Grid
 	 */
 	protected $_grid;
+
+    /**
+     * Use strict mode for render colum value
+     * @var bool
+     */
+    protected $_strict = true;
 	
 	/**
 	 * Is column sortable
@@ -201,6 +207,18 @@ abstract class Column implements ColumnInterface
 	protected function _init()
 	{
 	}
+
+    /**
+     * Set strict mode
+     *
+     * @param bool $strict
+     * @return \Engine\Crud\Grid\Column\Base
+     */
+    public function setStrictMode($strict = true)
+    {
+        $this->_strict = (bool) $strict;
+        return $this;
+    }
 
     /**
      * Return column title.

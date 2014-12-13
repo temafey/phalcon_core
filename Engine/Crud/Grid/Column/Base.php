@@ -7,8 +7,8 @@ namespace Engine\Crud\Grid\Column;
 use Engine\Crud\Grid\Column,
     Engine\Crud\Grid,
     Engine\Crud\Container\Grid as GridContainer,
-	Phalcon\Filter;
-	
+    Phalcon\Filter;
+
 /**
  * Class Base
  *
@@ -30,19 +30,28 @@ class Base extends Column
         return $this;
     }
 
-	/**
-	 * Return render value
-	 * (non-PHPdoc)
-	 * @see \Engine\Crud\Grid\Column::render()
-	 * @param mixed $row
-	 * @return string
-	 */
-	public function render($row)
-	{
-		$value = $row->{$this->_key};
-		$value = $this->filter($value);
-		
-		return $value;
-	}
-	
+    /**
+     * Return render value
+     * (non-PHPdoc)
+     * @see \Engine\Crud\Grid\Column::render()
+     * @param mixed $row
+     * @return string
+     */
+    public function render($row)
+    {
+        if (property_exists($row, $this->_key)) {
+            $value = $row->{$this->_key};
+        } else {
+            if ($this->_strict) {
+                throw new \Engine\Exception("Key '{$this->_key}' not exists in grid data row!");
+            } else{
+                return null;
+            }
+        }
+
+        $value = $this->filter($value);
+
+        return $value;
+    }
+
 }

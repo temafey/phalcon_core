@@ -58,6 +58,12 @@ abstract class Grid implements
     const DIRECTION_ASC     = 'asc';
     const DIRECTION_DESC    = 'desc';
 
+    /**
+     * Use strict mode for render colum value
+     * @var bool
+     */
+    protected $_strict = true;
+
 	/**
 	 * Array of grid columns
 	 * @var array
@@ -356,6 +362,7 @@ abstract class Grid implements
 			if (!$column instanceof Column) {
 			    throw new \Engine\Exception("Column '".$key."' not instance of Column interface");
 			}
+            $column->setStrictMode($this->_strict);
             if ($column instanceof Column\Primary) {
                 $this->_primaryColumn = $column;
             }
@@ -443,6 +450,18 @@ abstract class Grid implements
 		$data = $this->_container->getData($dataSource);
 		$this->_paginate($data);
 	}
+
+    /**
+     * Set strict mode
+     *
+     * @param bool $strict
+     * @return \Engine\Crud\Grid\Column\Base
+     */
+    public function setStrictMode($strict = true)
+    {
+        $this->_strict = (bool) $strict;
+        return $this;
+    }
 
     /**
      * Return container adapter
@@ -1198,7 +1217,7 @@ abstract class Grid implements
         }
         foreach ($this->_filter->getFields() as $field) {
             $key = $field->getKey();
-            if (isset($params[$key]) && $params[$key] !== '') {
+            if (array_key_exists($key, $params) && $params[$key] !== '') {
                 $normalizeParams[$key] = $params[$key];
             }
         }

@@ -45,7 +45,7 @@ class Search extends Standart
         array $fields,
         $desc = null,
         $width = 280,
-        $default = null,
+        $default = false,
         $length = 255,
         $smartFiltering = true
     ) {

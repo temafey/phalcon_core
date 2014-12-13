@@ -49,11 +49,11 @@ class InArray extends Standart
     public function getFilter(Container $container)
     {
         $values = $this->getValue();
-        if ($values === null || $values === false ||(is_string($values) && trim($values) == "")) {
+        if ($values === false || (is_string($values) && trim($values) == "")) {
             return false;
         }
 
-        if (!is_array($values)) {
+        if (null !== $values && !is_array($values)) {
             $values = explode($this->_delimiter, $values);
         }
 

@@ -50,7 +50,7 @@ class Standart extends Field
         $desc = null,
         $criteria = Criteria::CRITERIA_EQ,
         $width = 280,
-        $default = null,
+        $default = false,
         $length = 100)
 	{
         parent::__construct($label, $name, $desc, $criteria);
@@ -92,7 +92,7 @@ class Standart extends Field
     public function getFilter(Container $container)
     {
 		$values = $this->getValue();
-		if ($values === null || $values === false || (is_string($values) && $values == "")) {
+		if ($values === false || (is_string($values) && trim($values) == "")) {
 		    return false;
 		}
 		$filters = [];
@@ -101,7 +101,7 @@ class Standart extends Field
 		}
 
 		foreach ($values as $val) {
-			if (trim($val) == "" || array_search($val, $this->_exceptionsValues)) {
+			if (null !== $val && (trim($val) == "" || array_search($val, $this->_exceptionsValues))) {
 				continue;
 			}
 			$filters[] = $container->getFilter('search', [$this->_name => $this->_criteria], $val);

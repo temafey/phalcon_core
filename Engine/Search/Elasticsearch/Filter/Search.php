@@ -69,28 +69,38 @@ class Search extends AbstractFilter
                 } elseif ($field === self::COLUMN_NAME) {
                     $field = $model->getNameExpr();
                 }
-                if ($criteria === self::CRITERIA_EQ) {
-                    $filter = new \Elastica\Query\Term();
-                    $filter->setTerm($field, $this->_value);
+                if (null === $this->_value) {
+                    $filter = new \Elastica\Query\Filtered();
+                    $filterMissing = new \Elastica\Filter\Missing($field);
+                    //$filterMissing->addParam("existence", true);
+                    //$filterMissing->addParam("null_value", true);
+                    $filter->setFilter($filterMissing);
+
                     $filters[] = $filter;
-                } elseif ($criteria === self::CRITERIA_LIKE) {
-                    $filter = new \Elastica\Query\Match();
-                    $filter->setField($field, $this->_value);
-                    $filters[] = $filter;
-                } elseif ($criteria === self::CRITERIA_BEGINS) {
-                    //$filter = new \Elastica\Query\Prefix();
-                    //$filter->setPrefix($field, $this->_value);
-                    //$filters[] = $filter;
-                    $filter = new \Elastica\Query\QueryString();
-                    $filter->setQuery($this->_value);
-                    $filter->setDefaultField($field);
-                    $filters[] = $filter;
-                } elseif ($criteria === self::CRITERIA_MORE) {
-                    $filter = new \Elastica\Query\Range($field, ['from' => $this->_value]);
-                    $filters[] = $filter;
-                } elseif ($criteria === self::CRITERIA_LESS) {
-                    $filter = new \Elastica\Query\Range($field, ['to' => $this->_value]);
-                    $filters[] = $filter;
+                } else {
+                    if ($criteria === self::CRITERIA_EQ) {
+                        $filter = new \Elastica\Query\Term();
+                        $filter->setTerm($field, $this->_value);
+                        $filters[] = $filter;
+                    } elseif ($criteria === self::CRITERIA_LIKE) {
+                        $filter = new \Elastica\Query\Match();
+                        $filter->setField($field, $this->_value);
+                        $filters[] = $filter;
+                    } elseif ($criteria === self::CRITERIA_BEGINS) {
+                        //$filter = new \Elastica\Query\Prefix();
+                        //$filter->setPrefix($field, $this->_value);
+                        //$filters[] = $filter;
+                        $filter = new \Elastica\Query\QueryString();
+                        $filter->setQuery($this->_value);
+                        $filter->setDefaultField($field);
+                        $filters[] = $filter;
+                    } elseif ($criteria === self::CRITERIA_MORE) {
+                        $filter = new \Elastica\Query\Range($field, ['from' => $this->_value]);
+                        $filters[] = $filter;
+                    } elseif ($criteria === self::CRITERIA_LESS) {
+                        $filter = new \Elastica\Query\Range($field, ['to' => $this->_value]);
+                        $filters[] = $filter;
+                    }
                 }
             }
         } else {

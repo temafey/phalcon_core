@@ -70,7 +70,8 @@ class Path extends AbstractFilter
         if (!$where) {
             return false;
         }
-        if (!$params = $this->getBoundParams($dataSource)) {
+        $params = $this->getBoundParams($dataSource);
+        if ($params === false) {
             return false;
         }
         $dataSource->andWhere($where, $params);

@@ -63,13 +63,13 @@ trait FormElements
      * Field value
      * @var string|integer|array
      */
-    protected $_value;
+    protected $_value = false;
 
     /**
      * Default field value
      * @var mixed
      */
-    protected $_default;
+    protected $_default = false;
 
     /**
      * Error message after validation
@@ -162,14 +162,22 @@ trait FormElements
      */
     public function getValue()
     {
-        $value = ((null !== $this->_value) ? $this->_value : $this->_default);
+        $value = ((false !== $this->_value) ? $this->_value : $this->_default);
         if ($this->_element instanceof Element) {
             $this->_element->setDefault($value);
             $value = $this->_element->getValue();
-            if (null === $value) {
+            if (false === $value) {
                 $value = $this->_element->getDefault();
             }
         }
+
+        if (null === $value) {
+            return null;
+        }
+        if (false === $value) {
+            return false;
+        }
+
         $value = $this->normalizeValue($value);
 
         return $this->filter($value);
@@ -260,7 +268,7 @@ trait FormElements
     public function clearField()
     {
         $this->_id = null;
-        $this->_value = null;
+        $this->_value = false;
         if ($this->_element instanceof Element) {
             $this->_element->setDefault($this->_default);
         }

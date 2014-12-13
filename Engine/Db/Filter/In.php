@@ -40,7 +40,12 @@ class In extends Standart
         if (!$alias) {
             throw new \Engine\Exception("Field '".$this->_column."' not found in query builder");
         }
-        $compare = $this->getCompareCriteria();
+        $compare = $this->getCompareCriteria($this->_criteria, $this->_value);
+
+        if (null == $this->_value) {
+            return $alias.".".$expr." ".$compare." NULL";
+        }
+
         $this->setBoundParamKey($alias."_".$expr);
 
         return $alias.".".$expr." ".$compare." (:".$this->getBoundParamKey().":)";
@@ -54,6 +59,9 @@ class In extends Standart
      */
     public function getBoundParams(Builder $dataSource)
     {
+        if (null == $this->_value) {
+            return null;
+        }
         $key = $this->getBoundParamKey();
 
         $values = $this->_value;

@@ -123,11 +123,11 @@ class JoinOne extends Collection
      */
     public function render($row)
     {
-		if (!isset($row[$this->_key])) {
-			 return $this->_na;
-		}
-		$value = $row[$this->_key];
-		if (isset($this->_extraOptions[$value])) {
+        if (!property_exists($row, $this->_key)) {
+            return $this->_na;
+        }
+		$value = $row->{$this->_key};
+		if (array_key_exists($value, $this->_extraOptions)) {
             $value = $this->_extraOptions[$value];
         }
 

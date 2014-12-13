@@ -55,7 +55,8 @@ abstract class AbstractFilter implements SearchFilterInterface, EventsAwareInter
         if (!$where) {
             return false;
         }
-        if (!$params = $this->getBoundParams($dataSource)) {
+        $params = $this->getBoundParams($dataSource);
+        if ($params === false) {
             return false;
         }
         $dataSource->andWhere($where, $params);
@@ -81,6 +82,62 @@ abstract class AbstractFilter implements SearchFilterInterface, EventsAwareInter
     public function getBoundParamKey()
     {
         return $this->_boundParamKey;
+    }
+
+    /**
+     * Return compare criteria
+     *
+     * @param string $criteria
+     * @param mixed $value
+     * @return string
+     */
+    public function getCompareCriteria($criteria, $value)
+    {
+        if (null == $value) {
+            if ($criteria == self::CRITERIA_NOTEQ || $criteria == self::CRITERIA_NOTIN) {
+                $compare = "IS NOT";
+            } else {
+                $compare = "IS";
+            }
+        } else {
+            switch ($criteria) {
+                case self::CRITERIA_EQ:
+                    $compare = "=";
+                    break;
+                case self::CRITERIA_NOTEQ:
+                    $compare = "!=";
+                    break;
+                case self::CRITERIA_MORE:
+                    $compare = ">=";
+                    break;
+                case  self::CRITERIA_LESS:
+                    $compare = "<=";
+                    break;
+                case self::CRITERIA_MORER:
+                    $compare = ">";
+                    break;
+                case self::CRITERIA_LESSER:
+                    $compare = "<";
+                    break;
+                case  self::CRITERIA_LIKE:
+                    $compare = "LIKE";
+                    break;
+                case self::CRITERIA_BEGINS:
+                    $compare = "LIKE";
+                    break;
+                case self::CRITERIA_IN;
+                    $compare = "IN";
+                    break;
+                case self::CRITERIA_NOTIN:
+                    $compare = "<";
+                    break;
+                default:
+                    $compare = "NOT IN";
+                    break;
+            }
+        }
+
+        return $compare;
     }
 
 }
