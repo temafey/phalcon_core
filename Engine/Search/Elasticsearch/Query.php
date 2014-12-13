@@ -69,7 +69,7 @@ class Query extends ElQuery
             if (is_array(($value))) {
                 $value = $this->normalizeParams($value);
             }
-            if ($value === false || $value === "" || $value === null || (is_array($value) && count($value) == 0)) {
+            if ($value === false || $value === "" || (is_array($value) && count($value) == 0)) {
                 unset($params[$key]);
             } else {
                 $params[$key] = $value;

@@ -69,7 +69,12 @@ class Standart extends AbstractFilter
         if (!$alias) {
             throw new \Engine\Exception("Field '".$this->_column."' not found in query builder");
         }
-        $compare = $this->getCompareCriteria();
+        $compare = $this->getCompareCriteria($this->_criteria, $this->_value);
+
+        if (null == $this->_value) {
+            return $alias.".".$expr." ".$compare." NULL";
+        }
+
         $this->setBoundParamKey($alias."_".$expr);
 
         return $alias.".".$expr." ".$compare." :".$this->getBoundParamKey().":";
@@ -83,6 +88,10 @@ class Standart extends AbstractFilter
      */
     public function getBoundParams(Builder $dataSource)
     {
+        if (null == $this->_value) {
+            return null;
+        }
+
         $key = $this->getBoundParamKey();
 
         if ((strlen(floatval($this->_value)) !== strlen($this->_value)) || (strpos($this->_value, ' ') !== false)) {
@@ -91,46 +100,5 @@ class Standart extends AbstractFilter
         }
 
         return [$key => $this->_value];
-    }
-
-
-    /**
-     * Return compare criteria
-     *
-     * @return string
-     */
-    public function getCompareCriteria()
-    {
-        switch ($this->_criteria) {
-            case self::CRITERIA_EQ:
-                $compare = " = ";
-                break;
-            case self::CRITERIA_NOTEQ:
-                $compare = " != ";
-                break;
-            case self::CRITERIA_MORE:
-                $compare = " >= ";
-                break;
-            case  self::CRITERIA_LESS:
-                $compare = " <= ";
-                break;
-            case self::CRITERIA_MORER:
-                $compare = " > ";
-                break;
-            case self::CRITERIA_LESSER:
-                $compare = " < ";
-                break;
-            case self::CRITERIA_IN;
-                $compare = " IN ";
-                break;
-            case self::CRITERIA_NOTIN:
-                $compare = " < ";
-                break;
-            default:
-                $compare = " NOT IN ";
-                break;
-        }
-
-        return $compare;
     }
 }

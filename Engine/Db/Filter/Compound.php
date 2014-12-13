@@ -79,8 +79,12 @@ class Compound extends AbstractFilter
     public function getBoundParams(Builder $dataSource)
     {
         $params = [];
+        $returnNull = false;
         foreach ($this->_filters as $filter) {
             $filterParams = $filter->getBoundParams($dataSource);
+            if (null === $filterParams) {
+                $returnNull = true;
+            }
             if ($filterParams) {
                 foreach ($filterParams as $key => $value) {
                     if (isset($params[$key])) {
@@ -95,7 +99,7 @@ class Compound extends AbstractFilter
         }
 
         if (count($params) == 0) {
-            return false;
+            return $returnNull;
         }
 
         return $params;

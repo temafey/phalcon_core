@@ -64,31 +64,39 @@ class Standart extends AbstractFilter
 			$expr = $this->_field;
 		}
 
-        $filterBool = new \Elastica\Query\Bool();
-        if ($this->_criteria === self::CRITERIA_EQ) {
-            $filter = new \Elastica\Query\Term();
-            $filter->setTerm($expr, $this->_value);
-            $filterBool->addMust($filter);
-        } elseif ($this->_criteria === self::CRITERIA_LIKE) {
-            $filter = new \Elastica\Query\QueryString($this->_value);
-            $filter->setDefaultField($expr);
-            $filterBool->addMust($filter);
-        } elseif ($this->_criteria === self::CRITERIA_BEGINS) {
-            //$filter = new \Elastica\Query\Prefix();
-            //$filter->setPrefix($expr, $this->_value);
-            //$filterBool->addMust($filter);
-            $filter = new \Elastica\Query\QueryString($this->_value);
-            $filter->setDefaultField($expr);
-            $filterBool->addMust($filter);
-        } elseif ($this->_criteria === self::CRITERIA_MORE) {
-            $filter = new \Elastica\Query\Range($expr, ['from' => $this->_value]);
-            $filterBool->addMust($filter);
-        } elseif ($this->_criteria === self::CRITERIA_LESS) {
-            $filter = new \Elastica\Query\Range($expr, ['to' => $this->_value]);
-            $filterBool->addMust($filter);
+        if (null === $this->_value) {
+            $filter = new \Elastica\Query\Filtered();
+            $filterMissing = new \Elastica\Filter\Missing($expr);
+            //$filterMissing->addParam("existence", true);
+            //$filterMissing->addParam("null_value", true);
+            $filter->setFilter($filterMissing);
+        } else {
+            $filter = new \Elastica\Query\Bool();
+            if ($this->_criteria === self::CRITERIA_EQ) {
+                $filterTerm = new \Elastica\Query\Term();
+                $filterTerm->setTerm($expr, $this->_value);
+                $filter->addMust($filterTerm);
+            } elseif ($this->_criteria === self::CRITERIA_LIKE) {
+                $filterQueryString = new \Elastica\Query\QueryString($this->_value);
+                $filterQueryString->setDefaultField($expr);
+                $filter->addMust($filterQueryString);
+            } elseif ($this->_criteria === self::CRITERIA_BEGINS) {
+                //$filter = new \Elastica\Query\Prefix();
+                //$filter->setPrefix($expr, $this->_value);
+                //$filterBool->addMust($filter);
+                $filterQueryString = new \Elastica\Query\QueryString($this->_value);
+                $filterQueryString->setDefaultField($expr);
+                $filter->addMust($filterQueryString);
+            } elseif ($this->_criteria === self::CRITERIA_MORE) {
+                $filterRange = new \Elastica\Query\Range($expr, ['from' => $this->_value]);
+                $filter->addMust($filterRange);
+            } elseif ($this->_criteria === self::CRITERIA_LESS) {
+                $filterRange = new \Elastica\Query\Range($expr, ['to' => $this->_value]);
+                $filter->addMust($filterRange);
+            }
         }
 
-        return $filterBool;
+        return $filter;
 
 	}
 }

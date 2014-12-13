@@ -60,18 +60,14 @@ class Search extends AbstractFilter
 			    $alias = $dataSource->getCorrelationName($column);
 			}
             $field = $alias.".".$column;
-            $key = $alias."_".$column;
-			if ($criteria === self::CRITERIA_EQ) {
-				$where[] = $field." = :".$key.":";
-			} elseif ($criteria === self::CRITERIA_LIKE) {
-				$where[] = $field." LIKE :".$key.":";
-			} elseif ($criteria === self::CRITERIA_BEGINS) {
-				$where[] = $field." LIKE :".$key.":";
-			} elseif ($criteria === self::CRITERIA_MORE) {
-				$where[] = $field." > :".$key.":";
-			} elseif ($criteria === self::CRITERIA_LESS) {
-				$where[] = $field." < :".$key.":";
-			}
+            if (null == $this->_value) {
+                $compare = $this->getCompareCriteria($criteria, $this->_value);
+                $where[] = $field." ".$compare." NULL";
+            } else {
+                $key = $alias . "_" . $column;
+                $compare = $this->getCompareCriteria($criteria, $this->_value);
+                $where[] = $field." ".$compare." :".$key.":";
+            }
 		}
 		if (count($where) > 0) {
 			$where = implode(" OR ", $where);
@@ -89,6 +85,9 @@ class Search extends AbstractFilter
      */
     public function getBoundParams(Builder $dataSource)
     {
+        if (null == $this->_value) {
+            return null;
+        }
         $params = [];
         $adapter =  $dataSource->getModel()->getReadConnection();
         $exprEq = $adapter->escapeString($this->_value);

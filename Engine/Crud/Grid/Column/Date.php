@@ -91,8 +91,8 @@ class Date extends Base
      */
 	public function render($row)
 	{
-		$value = $row[$this->_key];
-		$value = $this->filter($value);
+        $value = $row->{$this->_key};
+        $value = $this->filter($value);
 		$timestamp = strtotime($value);
 
 		return date($this->_format, $timestamp);

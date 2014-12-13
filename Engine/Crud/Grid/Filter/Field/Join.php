@@ -117,7 +117,7 @@ class Join extends ArrayToSelect
         $width = 280,
         $loadSelectOptions = true,
         $separatedQueries = false,
-        $default = null
+        $default = false
     ) {
         $this->_label = $label;
         $this->_name = $name;
@@ -192,16 +192,19 @@ class Join extends ArrayToSelect
      */
     public function getFilter(Container $container)
     {
-    	$values = $this->normalizeValues($this->getValue());
+    	$values = $this->getValue();
 
-        if (!$values) {
+        if ($values === false) {
             return false;
         }
+        if (!is_array($values)) {
+            $values = [$values];
+        }
 
+        $filters = [];
 		foreach ($values as $val) {
 			$filters[] = $container->getFilter('standart', $this->_name, $val, $this->_criteria);
 		}
-		
 		if (!empty($filters) && $this->_enableDefaultValue) {
 			$filters[] = $container->getFilter('standart', $this->_name, $this->_default, $this->_criteria);
 		}

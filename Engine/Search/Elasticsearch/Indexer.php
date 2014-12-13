@@ -499,7 +499,9 @@ class Indexer
         if (!array_key_exists($dataKey, $data)) {
             throw new \Engine\Exception("Value by filter key '".$dataKey."' not found in data from grid '".get_class($grid)."'");
         }
-        $item[$name] = $data[$dataKey];
+        if (null !== $data[$dataKey]) {
+            $item[$name] = $data[$dataKey];
+        }
     }
 
     /**
@@ -517,7 +519,9 @@ class Indexer
     {
         $name = $field->getName();
         $dataKey = $grid->getColumnByName($name)->getKey();
-        $item[$name] = $data[$dataKey];
+        if (null !== $data[$dataKey]) {
+            $item[$name] = $data[$dataKey];
+        }
     }
 
     /**
@@ -600,9 +604,11 @@ class Indexer
                 );
                 $savedData = $db->fetchAll($sql);
                 //$savedData = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result->toArray();
-                $item[$key] = \Engine\Tools\Arrays::assocToLinearArray($savedData, 'name');
-                $item[$key."_id"] = \Engine\Tools\Arrays::assocToLinearArray($savedData, 'id');
-                //$item[$key] = \Engine\Tools\Arrays::resultArrayToJsonType($savedData);
+                if (!$savedData) {
+                    $item[$key] = \Engine\Tools\Arrays::assocToLinearArray($savedData, 'name');
+                    $item[$key . "_id"] = \Engine\Tools\Arrays::assocToLinearArray($savedData, 'id');
+                    //$item[$key] = \Engine\Tools\Arrays::resultArrayToJsonType($savedData);
+                }
             }
         } else {
             if (
@@ -612,11 +618,15 @@ class Indexer
                 ) &&
                 ($column instanceof \Engine\Crud\Grid\Column\JoinOne)
             ) {
-                $item[$key] = [];
-                $item[$key] = $data[$key];
-                $item[$key."_id"] = $data[$key."_".\Engine\Mvc\Model::JOIN_PRIMARY_KEY_PREFIX];
+                if (null !== $data[$key]) {
+                    $item[$key] = [];
+                    $item[$key] = $data[$key];
+                    $item[$key . "_id"] = $data[$key . "_" . \Engine\Mvc\Model::JOIN_PRIMARY_KEY_PREFIX];
+                }
             } else {
-                $item[$key] = $data[$key];
+                if (null !== $data[$key]) {
+                    $item[$key] = $data[$key];
+                }
             }
         }
     }

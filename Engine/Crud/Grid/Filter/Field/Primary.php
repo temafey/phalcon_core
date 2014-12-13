@@ -29,7 +29,7 @@ class Primary extends Standart
         $desc = null,
         $criteria = Criteria::CRITERIA_EQ,
         $width = 280,
-        $defaultValue = null,
+        $defaultValue = false,
         $length = 100)
     {
         $this->_label = $label;
