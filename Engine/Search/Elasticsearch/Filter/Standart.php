@@ -12,40 +12,40 @@ use \Engine\Search\Elasticsearch\Query\Builder;
  * @category   Engine
  * @package    Db
  * @subpackage Filter
- */ 
-class Standart extends AbstractFilter 
+ */
+class Standart extends AbstractFilter
 {
-	/**
-	 * Filter field
-	 * @var array
-	 */
-	protected $_field;
-	
-	/**
-	 * Filter value
-	 * @var string|integer
-	 */
-	protected $_value;
-	
-	/**
-	 * Filter criteria
-	 * @var string
-	 */
-	protected $_criteria;
+    /**
+     * Filter field
+     * @var array
+     */
+    protected $_field;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param string $field
-	 * @param string $value
-	 * @param string $criteria
-	 */
-	public function __construct($field, $value, $criteria = self::CRITERIA_EQ)
-	{
-		$this->_field = $field;
-		$this->_value = $value;
-		$this->_criteria = $criteria;
-	}
+    /**
+     * Filter value
+     * @var string|integer
+     */
+    protected $_value;
+
+    /**
+     * Filter criteria
+     * @var string
+     */
+    protected $_criteria;
+
+    /**
+     * Constructor
+     *
+     * @param string $field
+     * @param string $value
+     * @param string $criteria
+     */
+    public function __construct($field, $value, $criteria = self::CRITERIA_EQ)
+    {
+        $this->_field = $field;
+        $this->_value = $value;
+        $this->_criteria = $criteria;
+    }
 
     /**
      * Apply filter to query builder
@@ -53,16 +53,16 @@ class Standart extends AbstractFilter
      * @param \Engine\Search\Elasticsearch\Query\Builder $dataSource
      * @return string
      */
-	public function filter(Builder $dataSource)
-	{
-		$model = $dataSource->getModel();
-		if ($this->_field === self::COLUMN_ID) {
+    public function filter(Builder $dataSource)
+    {
+        $model = $dataSource->getModel();
+        if ($this->_field === self::COLUMN_ID) {
             $expr = $model->getPrimary();
-		} elseif ($this->_field === self::COLUMN_NAME) {
-			$expr = $model->getNameExpr();
-		} else {
-			$expr = $this->_field;
-		}
+        } elseif ($this->_field === self::COLUMN_NAME) {
+            $expr = $model->getNameExpr();
+        } else {
+            $expr = $this->_field;
+        }
 
         if (null === $this->_value) {
             $filter = new \Elastica\Query\Filtered();
@@ -88,15 +88,21 @@ class Standart extends AbstractFilter
                 $filterQueryString->setDefaultField($expr);
                 $filter->addMust($filterQueryString);
             } elseif ($this->_criteria === self::CRITERIA_MORE) {
-                $filterRange = new \Elastica\Query\Range($expr, ['from' => $this->_value]);
+                $filterRange = new \Elastica\Query\Range($expr, ['gt' => $this->_value]);
                 $filter->addMust($filterRange);
             } elseif ($this->_criteria === self::CRITERIA_LESS) {
-                $filterRange = new \Elastica\Query\Range($expr, ['to' => $this->_value]);
+                $filterRange = new \Elastica\Query\Range($expr, ['lt' => $this->_value]);
                 $filter->addMust($filterRange);
+            } elseif ($this->_criteria === self::CRITERIA_MORER) {
+                $filterRange = new \Elastica\Query\Range($expr, ['gte' => $this->_value]);
+                $filters[] = $filter;
+            } elseif ($this->_criteria === self::CRITERIA_LESSER) {
+                $filterRange = new \Elastica\Query\Range($expr, ['lte' => $this->_value]);
+                $filters[] = $filter;
             }
         }
 
         return $filter;
 
-	}
+    }
 }
