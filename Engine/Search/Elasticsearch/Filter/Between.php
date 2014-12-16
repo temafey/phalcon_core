@@ -45,12 +45,12 @@ class Between extends Standart
      * @param string $criteria
      */
     public function __construct($field, $min, $max, $criteria = self::CRITERIA_EQ)
-	{
-		$this->_field = $field;
-		$this->_min = $min;
-		$this->_max = $max;
-		$this->_criteria = $criteria;
-	}
+    {
+        $this->_field = $field;
+        $this->_min = $min;
+        $this->_max = $max;
+        $this->_criteria = $criteria;
+    }
 
     /**
      * Apply filter to query builder
@@ -60,9 +60,9 @@ class Between extends Standart
      */
     public function filter(Builder $dataSource)
     {
-        $filter = new \Elastica\Query\Range($this->_field, ['from' => $this->_min, 'to' => $this->_max]);
+        $filter = new \Elastica\Query\Range($this->_field, ['gte' => $this->_min, 'lte' => $this->_max]);
 
         return $filter;
-	}
+    }
 
 }

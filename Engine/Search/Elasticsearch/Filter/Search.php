@@ -95,10 +95,16 @@ class Search extends AbstractFilter
                         $filter->setDefaultField($field);
                         $filters[] = $filter;
                     } elseif ($criteria === self::CRITERIA_MORE) {
-                        $filter = new \Elastica\Query\Range($field, ['from' => $this->_value]);
+                        $filter = new \Elastica\Query\Range($field, ['gt' => $this->_value]);
                         $filters[] = $filter;
                     } elseif ($criteria === self::CRITERIA_LESS) {
-                        $filter = new \Elastica\Query\Range($field, ['to' => $this->_value]);
+                        $filter = new \Elastica\Query\Range($field, ['lt' => $this->_value]);
+                        $filters[] = $filter;
+                    } elseif ($criteria === self::CRITERIA_MORER) {
+                        $filter = new \Elastica\Query\Range($field, ['gte' => $this->_value]);
+                        $filters[] = $filter;
+                    } elseif ($criteria === self::CRITERIA_LESSER) {
+                        $filter = new \Elastica\Query\Range($field, ['lte' => $this->_value]);
                         $filters[] = $filter;
                     }
                 }
