@@ -211,6 +211,12 @@ abstract class Grid implements
 	 */
 	protected $_isCountQuery = true;
 
+    /**
+     * Limit for using in data container query
+     * @var int
+     */
+    protected $_extraLimit = 100;
+
 	/**
      * Constructor
      *
@@ -1106,6 +1112,16 @@ abstract class Grid implements
 		}
 		return $this->_limitParamValue;
 	}
+
+    /**
+     * Return limit that use for store query like base limit
+     * @return integer
+     */
+    public function getExtraLimit()
+    {
+        $limit = $this->getLimit();
+        return ($limit > $this->_extraLimit) ? $limit : $this->_extraLimit;
+    }
 
     /**
      * Return sort direction param name
