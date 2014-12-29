@@ -43,8 +43,8 @@ class Elasticsearch extends Container implements GridContainer
     public function getData($dataSource)
     {
         $limit = $this->_grid->getLimit();
-        //$extraLimit = $this->_grid->getExtraLimit();
-        $extraLimit = 100;
+        $extraLimit = $this->_grid->getExtraLimit();
+
         $page = $this->_grid->getPage();
         $extraPage = (int) ceil(($limit*$page)/$extraLimit);
         $extraOffset = ($extraPage - 1)*$extraLimit;

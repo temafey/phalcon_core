@@ -96,8 +96,8 @@ class Mysql extends Container implements GridContainer
 	public function getData($dataSource)
 	{
 		$limit = $this->_grid->getLimit();
-        //$extraLimit = $this->_grid->getExtraLimit();
-        $extraLimit = 100;
+        $extraLimit = $this->_grid->getExtraLimit();
+
         $page = $this->_grid->getPage();
         $extraPage = (int) ceil(($limit*$page)/$extraLimit);
 		$paginator = $this->_getPaginator($dataSource, $extraLimit, $extraPage);
