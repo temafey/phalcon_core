@@ -335,15 +335,18 @@ class Indexer
     /**
      * Add data from grid to search index
      *
-     * @return void
+     * @param integer $page
+     * @param integer $pages
+     * @param integer $breakPage
+     * @return array
      */
-    public function setData()
+    public function setData($page = 0, $pages = false, $breakPage = 0)
     {
         $type = $this->getType();
         if ($this->_deleteType && $type->exists()) {
             $type->delete();
+            $this->setMapping();
         }
-        $this->setMapping();
         $grid = ($this->_grid instanceof \Engine\Crud\Grid) ? $this->_grid : new $this->_grid([], $this->getDi());
 
         $config = [];
@@ -369,20 +372,25 @@ class Indexer
         $filter->setParams($params);
         $filter->applyFilters($dataSource);
 
-        $i = 0;
-        $pages = false;
         do {
-            ++$i;
+            ++$page;
             $grid->clearData();
-            $grid->setParams(['page' => $i]);
+            $grid->setParams(['page' => $page]);
+
             $data = $container->getData($dataSource);
+
             if (!$pages) {
                 $pages = $data['pages'];
             }
             foreach ($data['data'] as $values) {
                 $this->addItem($values->toArray(), $grid);
             }
-        } while ($i < $pages);
+            if ($page == $breakPage) {
+                break;
+            }
+        } while ($page < $pages);
+
+        return [$page, $pages];
     }
 
     /**
@@ -539,7 +547,7 @@ class Indexer
     {
         $name = $field->getName();
         $path = $field->getPath();
-        $primaryKey = $grid->getPrimaryColumn()->getName();
+        $primaryKey = $grid->getPrimaryColumn()->getKey();
         // if count of path models more than one, means that is many to many relations
         if (count($path) > 1) {
             $workingModelClass = array_shift($path);
@@ -593,18 +601,12 @@ class Indexer
                     $item[$newName][] = $filter[$refKey];
                 }
             } else {
-                $queryBuilder->andWhere($keyParent." = '".$data[$primaryKey]."'");
-                $queryBuilder->columnsJoinOne($refModel, ['name' => 'name', 'id' => 'id']);
+                $queryBuilder->andWhere($keyParent." = :".$keyParent.":");
+                $queryBuilder->columnsJoinOne($refModel, ['name' => \Engine\Mvc\Model::NAME, 'id' => \Engine\Mvc\Model::ID]);
                 $queryBuilder->orderBy('name');
-                $sql = $queryBuilder->getPhql();
-                $sql = str_replace(
-                    [trim($workingModelClass, "\\"), trim($refModelClass, "\\"), "[", "]"],
-                    [$workingModel->getSource(), $refModel->getSource(), "", ""],
-                    $sql
-                );
-                $savedData = $db->fetchAll($sql);
+                $savedData =  $queryBuilder->getQuery()->execute([$keyParent => $data[$primaryKey]])->toArray();
                 //$savedData = (($result = $queryBuilder->getQuery()->execute()) === null) ? [] : $result->toArray();
-                if (!$savedData) {
+                if ($savedData) {
                     $item[$key] = \Engine\Tools\Arrays::assocToLinearArray($savedData, 'name');
                     $item[$key . "_id"] = \Engine\Tools\Arrays::assocToLinearArray($savedData, 'id');
                     //$item[$key] = \Engine\Tools\Arrays::resultArrayToJsonType($savedData);

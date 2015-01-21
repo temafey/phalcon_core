@@ -163,6 +163,12 @@ abstract class Grid implements
 		
 	protected $_pageParamName = null;
 	protected $_pageParamValue = null;
+
+    /**
+     * Limit for using in data container query
+     * @var int
+     */
+    protected $_extraLimit = 100;
 	
 	/**
 	 * Default grid params
@@ -210,12 +216,6 @@ abstract class Grid implements
 	 * @var bool
 	 */
 	protected $_isCountQuery = true;
-
-    /**
-     * Limit for using in data container query
-     * @var int
-     */
-    protected $_extraLimit = 100;
 
 	/**
      * Constructor
@@ -1112,6 +1112,18 @@ abstract class Grid implements
 		}
 		return $this->_limitParamValue;
 	}
+
+    /**
+     * Set limit that will use in container model query
+     *
+     * @param int $limit
+     * @return \Engine\Crud\Grid
+     */
+    public function setExtraLimit($limit)
+    {
+        $this->_extraLimit = $limit;
+        return $this;
+    }
 
     /**
      * Return limit that use for store query like base limit
