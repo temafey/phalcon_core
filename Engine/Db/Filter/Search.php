@@ -90,9 +90,9 @@ class Search extends AbstractFilter
         }
         $params = [];
         $adapter =  $dataSource->getModel()->getReadConnection();
-        $exprEq = $adapter->escapeString($this->_value);
-        $exprLike = $adapter->escapeString("%$exprEq%");
-        $exprBegins = $adapter->escapeString("$exprEq%");
+        $exprEq = $this->_value;
+        $exprLike = "%$exprEq%";
+        $exprBegins = "$exprEq%";
 
         $model = $dataSource->getModel();
         foreach ($this->_columns as $column => $criteria) {

@@ -78,7 +78,7 @@ class Between extends Standart
         $key = $this->getBoundParamKey();
         $adapter = $adapter =  $dataSource->getModel()->getReadConnection();
 
-        return [$key."_min" => $adapter->escapeString($this->_min), $key."_max" => $adapter->escapeString($this->_max)];
+        return [$key."_min" => $this->_min, $key."_max" => $this->_max];
     }
 
 }

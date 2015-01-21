@@ -94,10 +94,10 @@ class Standart extends AbstractFilter
 
         $key = $this->getBoundParamKey();
 
-        if ((strlen(floatval($this->_value)) !== strlen($this->_value)) || (strpos($this->_value, ' ') !== false)) {
+        /*if ((strlen(floatval($this->_value)) !== strlen($this->_value)) || (strpos($this->_value, ' ') !== false)) {
             $adapter =  $dataSource->getModel()->getReadConnection();
             $this->_value = $adapter->escapeString($this->_value);
-        }
+        }*/
 
         return [$key => $this->_value];
     }
