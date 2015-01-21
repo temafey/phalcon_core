@@ -66,7 +66,6 @@ class Match extends AbstractFilter
     {
         $key = $this->getBoundParamKey();
         $adapter =  $dataSource->getModel()->getReadConnection();
-        $this->_expr = $adapter->escapeString($this->_expr);
 
         return [$key => $this->_expr];
     }
