@@ -46,6 +46,21 @@ class Mysql extends Container implements FormContainer
 	}
 
     /**
+     * Initialize container model
+     *
+     * @param string $model
+     * @throws \Engine\Exception
+     * @return \Engine\Crud\Container\Mysql
+     */
+    public function setModel($model = null)
+    {
+        parent::setModel($model);
+        $this->_fields[$this->_model->getSource()] = $this->_model->getAttributes();
+
+        return $this;
+    }
+
+    /**
      * Set join models
      *
      * @param array|string $models
