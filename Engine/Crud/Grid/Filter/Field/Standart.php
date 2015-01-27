@@ -17,11 +17,21 @@ use Engine\Crud\Grid\Filter\Field,
  */
 class Standart extends Field
 {
+    CONST VALUE_TYPE_INT    = 'integer';
+    CONST VALUE_TYPE_FLOAT  = 'float';
+    CONST VALUE_TYPE_STRING = 'string';
+
     /**
      * Element type
      * @var string
      */
     protected $_type = 'text';
+
+    /**
+     * Field value data type
+     * @var string
+     */
+    protected $_valueType = self::VALUE_TYPE_STRING;
 
 	/**
 	 * Max string length
@@ -91,25 +101,28 @@ class Standart extends Field
 	 */
     public function getFilter(Container $container)
     {
-		$values = $this->getValue();
-		if ($values === false || (is_string($values) && trim($values) == "")) {
-		    return false;
-		}
-		$filters = [];
-		if (!is_array($values)) {
-			$values = ($this->_delimeter) ? explode($this->_delimeter, $values) : [$values];
-		}
+        $values = $this->getValue();
+        if ($values === false || (is_string($values) && trim($values) == "")) {
+            return false;
+        }
+        $filters = [];
+        if (!is_array($values)) {
+            $values = ($this->_delimeter) ? explode($this->_delimeter, $values) : [$values];
+        }
+        if (count($values) > 1) {
+            foreach ($values as $val) {
+                if (null !== $val && (trim($val) == "" || array_search($val, $this->_exceptionsValues))) {
+                    continue;
+                }
+                $filters[] = $container->getFilter('search', [$this->_name => $this->_criteria], $val);
+            }
+            $filter = $container->getFilter('compound', 'OR', $filters);
+        } else {
+            $filter = $container->getFilter('standart', $this->_name, $values[0], $this->_criteria);
+        }
 
-		foreach ($values as $val) {
-			if (null !== $val && (trim($val) == "" || array_search($val, $this->_exceptionsValues))) {
-				continue;
-			}
-			$filters[] = $container->getFilter('search', [$this->_name => $this->_criteria], $val);
-		}
-		$filter = $container->getFilter('compound', 'OR', $filters);
-		
-		return $filter;
-	}
+        return $filter;
+    }
 
     /**
      * Set filter value delimeter
@@ -120,6 +133,29 @@ class Standart extends Field
     public function setDelimeter($delimeter)
     {
         $this->_delimeter = (string) $delimeter;
+
+        return $this;
+    }
+
+    /**
+     * Return filter field value data type
+     *
+     * @return string
+     */
+    public function getValueType()
+    {
+        return $this->_valueType;
+    }
+
+    /**
+     * Set filter field value data type
+     *
+     * @param string $type
+     * @return \Engine\Crud\Grid\Filter\Field\Standart
+     */
+    public function setValueType($type)
+    {
+        $this->_valueType = $type;
 
         return $this;
     }

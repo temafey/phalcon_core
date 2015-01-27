@@ -15,7 +15,13 @@ use Engine\Filter\SearchFilterInterface as Criteria,
  * @subpackage Grid
  */
 class Numeric extends Standart
-{	
+{
+    /**
+     * Field value data type
+     * @var string
+     */
+    protected $_valueType = self::VALUE_TYPE_INT;
+
 	/**
      * Initialize field (used by extending classes)
      *

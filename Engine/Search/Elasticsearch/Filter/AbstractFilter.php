@@ -21,6 +21,13 @@ abstract class AbstractFilter implements SearchFilterInterface, EventsAwareInter
     use \Engine\Tools\Traits\DIaware,
         \Engine\Tools\Traits\EventsAware;
 
+    CONST VALUE_TYPE_INT    = 'integer';
+    CONST VALUE_TYPE_DOUBLE = 'double';
+    CONST VALUE_TYPE_STRING = 'string';
+    CONST VALUE_TYPE_ARRAY  = 'array';
+    CONST VALUE_TYPE_DATE   = 'date';
+    CONST VALUE_TYPE_GEO    = 'geo';
+
     /**
      * Apply filter to query builder
      *

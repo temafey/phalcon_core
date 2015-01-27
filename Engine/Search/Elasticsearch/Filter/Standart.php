@@ -76,6 +76,10 @@ class Standart extends AbstractFilter
                 $filterTerm = new \Elastica\Query\Term();
                 $filterTerm->setTerm($expr, $this->_value);
                 $filter->addMust($filterTerm);
+            } elseif ($this->_criteria === self::CRITERIA_NOTEQ) {
+                $filterTerm = new \Elastica\Query\Term();
+                $filterTerm->setTerm($expr, $this->_value);
+                $filter->addMustNot($filterTerm);
             } elseif ($this->_criteria === self::CRITERIA_LIKE) {
                 $filterQueryString = new \Elastica\Query\QueryString($this->_value);
                 $filterQueryString->setDefaultField($expr);

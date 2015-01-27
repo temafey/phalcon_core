@@ -9,6 +9,7 @@ use Engine\Exception,
     Engine\Search\Elasticsearch\Query\Builder,
     Engine\Search\Elasticsearch\Type,
     Engine\Search\Elasticsearch\Query,
+    Engine\Search\Elasticsearch\Filter\AbstractFilter,
     Engine\Crud\Grid,
     Engine\Crud\Grid\Filter,
     Engine\Crud\Grid\Filter\Field;
@@ -56,15 +57,17 @@ class Indexer
     /**
      * Construct
      *
-     * @param string $name
      * @param string $grid
      * @param string $adapter
      * @param array $params
      */
-    public function __construct($name, $grid, $adapter = 'elastic', array $params = [])
+    public function __construct($grid, $adapter = 'elastic', array $params = [])
     {
-        $this->_name = $name;
         $this->_grid = $grid;
+        $grid = ($this->_grid instanceof \Engine\Crud\Grid) ? $this->_grid : new $this->_grid($this->_params, $this->getDi());
+        $model = $grid->getContainer()->getModel();
+        $this->_name = $model->getSearchSource();
+
         $this->_adapter = $adapter;
         $this->_params = $params;
     }
@@ -163,6 +166,7 @@ class Indexer
             $sortable = false;
             $store = false;
             $joinType = false;
+            $type = $field->getValueType();
             if ((isset($gridColums[$key]) && $column = $gridColums[$key]) || $column = $grid->getColumnByName($name)) {
                 $sortable = $column->isSortable();
                 $store = true;
@@ -170,7 +174,7 @@ class Indexer
                     $joinType = true;
                 }
             }
-            $property = $this->getFieldMap($field, $sortable, $store, $joinType);
+            $property = $this->getFieldMap($field, $sortable, $store, $joinType, $type);
             if (!$property) {
                 continue;
             }
@@ -194,9 +198,10 @@ class Indexer
      * @param bool $sortable
      * @param bool $store
      * @param bool $joinType
+     * @param bool|string $type
      * @return array|bool
      */
-    public function getFieldMap(Field $field, $sortable = false, $store = false, $joinType = false)
+    public function getFieldMap(Field $field, $sortable = false, $store = false, $joinType = false, $type = false)
     {
         $property = false;
         $key = $field->getKey();
@@ -208,11 +213,20 @@ class Indexer
         ) {
 
         } elseif ($field instanceof Field\Primary) {
-            $property = $this->getFieldProperty($name, 'integer', $sortable, 'analyzed', $store, true, 2.0);
+            if (!$type) {
+                $type = AbstractFilter::VALUE_TYPE_INT;
+            }
+            $property = $this->getFieldProperty($name, $type, $sortable, 'analyzed', $store, true, 2.0);
         } elseif ($field instanceof Field\Date) {
-            $property = $this->getFieldProperty($name, 'date', $sortable, 'analyzed', $store, true, 2.0, "YYYY-MM-dd HH:mm:ss");
+            if (!$type) {
+                $type = AbstractFilter::VALUE_TYPE_DATE;
+            }
+            $property = $this->getFieldProperty($name, $type, $sortable, 'analyzed', $store, true, 2.0, "YYYY-MM-dd HH:mm:ss");
         } elseif ($field instanceof Field\Between) {
-            $property = $this->getFieldProperty($name, 'float', $sortable, 'analyzed', $store, true, 2.0);
+            if (!$type || $type == Field\Standart::VALUE_TYPE_FLOAT) {
+                $type = AbstractFilter::VALUE_TYPE_DOUBLE;
+            }
+            $property = $this->getFieldProperty($name, $type, $sortable, 'analyzed', $store, true, 2.0);
         } else if ($field instanceof Field\Compound) {
             $property = [
                 'type' => 'multi_field',
@@ -249,15 +263,21 @@ class Indexer
                     }
                 } else {
                     $property[$key] = $this->getFieldProperty($key, 'string', $sortable, 'analyzed', $store, true, 2.0);
-                    $property[$key."_id"] = $this->getFieldProperty($key."_id", 'integer', $sortable, 'analyzed', $store, true, 2.0);
+                    $property[$key."_id"] = $this->getFieldProperty($key."_id", $type, $sortable, 'analyzed', $store, true, 2.0);
                 }
             } else {
                 $property = [];
                 if ($joinType) {
+                    if (!$type) {
+                        $type = AbstractFilter::VALUE_TYPE_INT;
+                    }
                     $property[$key] = $this->getFieldProperty($key, 'string', $sortable, 'analyzed', $store, true, 2.0);
-                    $property[$key."_id"] = $this->getFieldProperty($key."_id", 'integer', $sortable, 'analyzed', $store, true, 2.0);
+                    $property[$key."_id"] = $this->getFieldProperty($key."_id", $type, $sortable, 'analyzed', $store, true, 2.0);
                 } else {
-                    $property[$key] = $this->getFieldProperty($key, 'integer', $sortable, 'analyzed', $store, true, 2.0);
+                    if (!$type) {
+                        $type = AbstractFilter::VALUE_TYPE_INT;
+                    }
+                    $property[$key] = $this->getFieldProperty($key, $type, $sortable, 'analyzed', $store, true, 2.0);
                 }
             }
         } elseif (
@@ -266,12 +286,18 @@ class Indexer
             $field instanceof Field\ArrayToSelect ||
             $field instanceof Field\Checkbox
         ) {
-            $property = $this->getFieldProperty($name, 'integer', $sortable, 'analyzed', $store, true, 2.0);
+            if (!$type) {
+                $type = AbstractFilter::VALUE_TYPE_INT;
+            }
+            $property = $this->getFieldProperty($name, $type, $sortable, 'analyzed', $store, true, 2.0);
         } elseif (
             $field instanceof Field\Name ||
             $field instanceof Field\Standart
         ) {
-            $property = $this->getFieldProperty($name, 'string', $sortable, 'analyzed', $store, true, 2.0);
+            if (!$type) {
+                $type = AbstractFilter::VALUE_TYPE_STRING;
+            }
+            $property = $this->getFieldProperty($name, $type, $sortable, 'analyzed', $store, true, 2.0);
         }
 
         return $property;

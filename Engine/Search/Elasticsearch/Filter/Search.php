@@ -12,20 +12,20 @@ use \Engine\Search\Elasticsearch\Query\Builder;
  * @category   Engine
  * @package    Db
  * @subpackage Filter
- */ 
-class Search extends AbstractFilter 
+ */
+class Search extends AbstractFilter
 {
-	/**
-	 * Filter columns
-	 * @var array
-	 */
-	protected $_fields;
-	
-	/**
-	 * Filter value
-	 * @var string|integer
-	 */
-	protected $_value;
+    /**
+     * Filter columns
+     * @var array
+     */
+    protected $_fields;
+
+    /**
+     * Filter value
+     * @var string|integer
+     */
+    protected $_value;
 
     /**
      * Separate filters
@@ -33,19 +33,19 @@ class Search extends AbstractFilter
      */
     protected $_separated;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param string|array $fields
-	 * @param string|integer $value
+    /**
+     * Constructor
+     *
+     * @param string|array $fields
+     * @param string|integer $value
      * @param boolean $separated
-	 */
-	public function __construct($fields, $value, $separated = true)
-	{
-		$this->_fields = is_array($fields) ? $fields : [$fields => self::CRITERIA_EQ];
-		$this->_value = $value;
+     */
+    public function __construct($fields, $value, $separated = true)
+    {
+        $this->_fields = is_array($fields) ? $fields : [$fields => self::CRITERIA_EQ];
+        $this->_value = $value;
         $this->_separated = $separated;
-	}
+    }
 
     /**
      * Apply filter to query builder
@@ -53,8 +53,8 @@ class Search extends AbstractFilter
      * @param \Engine\Search\Elasticsearch\Query\Builder $dataSource
      * @return string
      */
-	public function filter(Builder $dataSource)
-	{
+    public function filter(Builder $dataSource)
+    {
         $model = $dataSource->getModel();
         $filters = [];
 
@@ -79,6 +79,10 @@ class Search extends AbstractFilter
                     $filters[] = $filter;
                 } else {
                     if ($criteria === self::CRITERIA_EQ) {
+                        $filter = new \Elastica\Query\Term();
+                        $filter->setTerm($field, $this->_value);
+                        $filters[] = $filter;
+                    } elseif ($criteria === self::CRITERIA_NOTEQ) {
                         $filter = new \Elastica\Query\Term();
                         $filter->setTerm($field, $this->_value);
                         $filters[] = $filter;
@@ -134,5 +138,5 @@ class Search extends AbstractFilter
 
 
         return $filters;
-	}
+    }
 }
