@@ -66,9 +66,12 @@ abstract class Mysql extends AbstractContainer
             if (isset($this->_adapter['master'])) {
                 $model->setWriteConnectionService($this->_adapter['master']);
             }
-        } else {
+        } elseif (is_string($this->_adapter)) {
             $model->setReadConnectionService($this->_adapter);
             $model->setWriteConnectionService($this->_adapter);
+        } else {
+            var_dump($this->_adapter);
+            throw new \Engine\Exception("Mysql adpter is not a string or array type!");
         }
     }
 
@@ -87,35 +90,45 @@ abstract class Mysql extends AbstractContainer
             }
             $model = $this->_model;
         }
+        $joins = false;
         if (is_object($model)) {
             if (!$model instanceof Model) {
                 throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
             }
             $this->_setModelAdapter($model);
             $this->_model = $model;
-        }
-        if (is_array($model)) {
+        } elseif (is_array($model)) {
             $primaryModel = array_shift($model);
-            $this->setJoinModels($model);
-            $model = $primaryModel;
-        } else {
-            if (!empty($this->_joins)) {
-                $joins = $this->_joins;
-                if (!is_array($joins)) {
-                    $joins = [$joins];
-                }
-                $this->setJoinModels($joins);
+            $joins = $model;
+            if (!class_exists($primaryModel)) {
+                throw new \Engine\Exception("Container model class '$primaryModel' does not exists");
             }
-        }
-        if (!class_exists($model)) {
-            throw new \Engine\Exception("Container model class '$model' does not exists");
+            $this->_model = new $primaryModel;
+        } else {
+            if (!class_exists($model)) {
+                throw new \Engine\Exception("Container model class '$model' does not exists");
+            }
+            $this->_model = new $model;
         }
 
-        $this->_model = new $model;
+        if (!$joins && !empty($this->_joins)) {
+            $joins = $this->_joins;
+            if (!is_array($joins)) {
+                $joins = [$joins];
+            }
+        }
+
         if ($this->_adapter) {
             $this->_setModelAdapter($this->_model);
         } else {
-            $this->_adapter = $this->_model->getWriteConnection();
+            $this->_adapter = [
+                'slave' => $this->_model->getReadConnectionService(),
+                'master' => $this->_model->getWriteConnectionService()
+            ];
+        }
+
+        if (!empty($joins)) {
+            $this->setJoinModels($joins);
         }
 
         return $this;
@@ -129,16 +142,21 @@ abstract class Mysql extends AbstractContainer
      */
     public function setJoinModels($models)
     {
+        if (!$models) {
+            return $this;
+        }
         if (!is_array($models)) {
             $models = [$models];
         }
+
+        $this->_joins = [];
         foreach ($models as $model) {
             if (!is_object($model)) {
                 $model = new $model;
+                if (!($model instanceof Model)) {
+                    throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
+                }
                 $this->_setModelAdapter($model);
-            }
-            if (!($model instanceof Model)) {
-                throw new \Engine\Exception("Container model class '$model' does not extend Engine\Mvc\Model");
             }
             $key = $model->getSource();
             $this->_joins[$key] = $model;
