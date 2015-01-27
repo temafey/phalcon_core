@@ -106,7 +106,7 @@ class Elasticsearch extends Container implements GridContainer
         $this->_elasticDataSource = new Builder();
         $this->_elasticDataSource->setModel($this->_model);
 
-        $this->_elasticType = new Type($this->_model->getSource());
+        $this->_elasticType = new Type($this->_model->getSearchSource());
         $this->_elasticType->setDi($this->getDi());
         $this->_elasticType->setEventsManager($this->getEventsManager());
     }
@@ -165,10 +165,15 @@ class Elasticsearch extends Container implements GridContainer
             if (null === $direction) {
                 $direction = ($this->_model->getOrderAsc()) ? "asc" : "desc";
             }
-            if ($direction) {
-                $query->setSort([$sort.".sort" => ['order' => $direction]]);
+            if ($filterField instanceof \Engine\Crud\Grid\Filter\Field\Join) {
+                $sortName = $sort;
             } else {
-                $query->setSort($sort.".sort");
+                $sortName = $filterField->getName();
+            }
+            if ($direction) {
+                $query->setSort([$sortName.".sort" => ['order' => $direction]]);
+            } else {
+                $query->setSort($sortName.".sort");
             }
         }
 

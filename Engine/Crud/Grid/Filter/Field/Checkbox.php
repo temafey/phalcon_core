@@ -16,6 +16,11 @@ use Engine\Filter\SearchFilterInterface as Criteria,
  */
 class Checkbox extends Standart
 {
+    /**
+     * Field value data type
+     * @var string
+     */
+    protected $_valueType = self::VALUE_TYPE_INT;
 
     /**
      * Element type

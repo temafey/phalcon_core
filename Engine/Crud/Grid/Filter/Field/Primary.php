@@ -17,6 +17,12 @@ use Engine\Filter\SearchFilterInterface as Criteria,
 class Primary extends Standart
 {
     /**
+     * Field value data type
+     * @var string
+     */
+    protected $_valueType = self::VALUE_TYPE_INT;
+
+    /**
      * Constructor
      *
      * @param string $title

@@ -17,6 +17,12 @@ use Engine\Filter\SearchFilterInterface as Criteria,
 class Between extends Standart
 {
     /**
+     * Field value data type
+     * @var string
+     */
+    protected $_valueType = self::VALUE_TYPE_FLOAT;
+
+    /**
      * Return datasource filters
      *
      * @param \Engine\Crud\Container\AbstractContainer $container

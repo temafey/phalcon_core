@@ -16,6 +16,12 @@ use Engine\Filter\SearchFilterInterface as Criteria,
  */
 class ArrayToSelect extends Standart
 {
+    /**
+     * Field value data type
+     * @var string
+     */
+    protected $_valueType = self::VALUE_TYPE_INT;
+
 	/**
 	 * Form element type
 	 * @var string
