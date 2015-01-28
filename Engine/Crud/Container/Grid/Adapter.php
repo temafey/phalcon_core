@@ -12,7 +12,22 @@ namespace Engine\Crud\Container\Grid;
  * @subpackage Container
  */
 interface Adapter
-{	
+{
+
+    /**
+     * Return database model
+     *
+     * @return \Engine\Mvc\Model
+     */
+    public function getModel();
+
+    /**
+     * Return database model adapter
+     *
+     * @return string|object
+     */
+    public function getAdapter();
+
 	/**
 	 * Return data array
 	 * 

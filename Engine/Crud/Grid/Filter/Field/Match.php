@@ -27,7 +27,7 @@ class Match extends Standart
      * @param string $label
      * @param string|array $fields
      */
-    public function __construct($label = null, $name =false, $fields)
+    public function __construct($label = null, $name = false, $fields)
 	{
 		parent::__construct($label, $name);
 		$this->_fields = is_array($fields) ? $fields : [$fields];

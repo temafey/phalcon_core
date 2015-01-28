@@ -646,10 +646,14 @@ class Indexer
                 ) &&
                 ($column instanceof \Engine\Crud\Grid\Column\JoinOne)
             ) {
-                if (null !== $data[$key]) {
-                    $item[$key] = [];
-                    $item[$key] = $data[$key];
-                    $item[$key . "_id"] = $data[$key . "_" . \Engine\Mvc\Model::JOIN_PRIMARY_KEY_PREFIX];
+                if ($column->isUseJoin()) {
+                    if (null !== $data[$key]) {
+                        $item[$key] = [];
+                        $item[$key] = $data[$key];
+                        $item[$key . "_id"] = $data[$key . "_" . \Engine\Mvc\Model::JOIN_PRIMARY_KEY_PREFIX];
+                    }
+                } else {
+                    $item[$key] = $column->getValue((object) $data);
                 }
             } else {
                 if (null !== $data[$key]) {

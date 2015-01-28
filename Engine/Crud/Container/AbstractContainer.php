@@ -84,7 +84,7 @@ abstract class AbstractContainer implements
     /**
      * Return database model adapter
      *
-     * @return \Engine\Mvc\Model
+     * @return string\object
      */
     public function getAdapter()
     {
