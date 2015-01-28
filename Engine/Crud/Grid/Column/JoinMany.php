@@ -49,11 +49,11 @@ class JoinMany extends Column
 	protected $_count;
 
     /**
-     * Load values by separate queries
+     * Not use join in models
      *
      * @var bool
      */
-    protected $_separateQueries = true;
+    protected $_noJoin = true;
 
     /**
      * @var \Engine\Mvc\Model\Query\Builder
@@ -108,7 +108,7 @@ class JoinMany extends Column
 	 */
 	public function updateDataSource($dataSource)
 	{
-        if (!$this->_separateQueries) {
+        if (!$this->_noJoin) {
 		    $dataSource->columnsJoinMany($this->_path, $this->_key, $this->_column, $this->_orderBy, $this->_separator);
         }
 
@@ -136,7 +136,7 @@ class JoinMany extends Column
      */
 	public function render($row)
 	{
-        if ($this->_separateQueries) {
+        if ($this->_noJoin) {
             $values = $this->_getManyValues($row['id']);
             $count = count($values);
         } else {
