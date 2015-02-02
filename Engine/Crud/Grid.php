@@ -217,6 +217,12 @@ abstract class Grid implements
 	 */
 	protected $_isCountQuery = true;
 
+    /**
+     * Static value for grid items count
+     * @var integer
+     */
+    protected $_staticCount;
+
 	/**
      * Constructor
      *
@@ -672,7 +678,7 @@ abstract class Grid implements
 			$page_num = $page_num + 1;
 		}
 		
-		$lines = ($this->_isCountQuery) ? $data['lines'] : $limit;
+		$lines = ($this->_isCountQuery) ? $data['total_items'] : $this->getStaticCount();
 		$pages = ($this->_isCountQuery) ? $data['pages'] : 1;
 		$mess_now = ($this->_isCountQuery) ? $data['mess_now'] : $limit;
 		
@@ -857,9 +863,10 @@ abstract class Grid implements
 	 * @param bool $flag
 	 * @return \Engine\Crud\Grid
 	 */
-	public function setNoCountQuery($flag = false)
+	public function setNoCountQuery($count)
 	{
-		$this->_isCountQuery = (bool) $flag;
+        $this->_staticCount = $count;
+		$this->_isCountQuery = false;
 		return $this; 
 	}
 	
@@ -872,6 +879,17 @@ abstract class Grid implements
 	{
 		return $this->_isCountQuery;
 	}
+
+    /**
+     * Set static grid items count
+     *
+     * @return integer
+     */
+    public function getStaticCount()
+    {
+        return (($this->_staticCount !== null) ? $this->_staticCount : $this->getLimit());
+    }
+
 
     /**
      * Is grid data can be edit
@@ -1490,7 +1508,7 @@ abstract class Grid implements
      */
     public function count()
     {
-    	return $this->_data['lines'];
+    	return $this->_data['total_items'];
     }
 
     /**

@@ -48,8 +48,15 @@ class Query extends PhQuery
     public function execute($bindParams=null, $bindTypes=null)
     {
         if ($this->getDi()->has('cache')) {
+            if ($bindParams) {
+                if ($this->_bindParams) {
+                    $bindParams = array_merge($this->_bindParams, $bindParams);
+                }
+            } elseif (!$this->_bindParams) {
+                $bindParams = $this->_bindParams;
+            }
             $key = $this->_createKey($bindParams);
-            $this->cache(["key" => $key, "lifetime" => 300]);
+            $this->cache(["key" => $key]);
         }
 
         return parent::execute($bindParams, $bindTypes);
