@@ -99,32 +99,12 @@ class Mysql extends Container implements GridContainer
         $extraLimit = $this->_grid->getExtraLimit();
 
         $page = $this->_grid->getPage();
-        $extraPage = (int) ceil(($limit*$page)/$extraLimit);
-		$paginator = $this->_getPaginator($dataSource, $extraLimit, $extraPage);
-
-        $items = [];
-        $position = $limit*($page-1)-($extraLimit*($extraPage-1));
-        if ($paginator->total_items > 0) {
-            for ($i = $position; $i < $position+$limit; ++$i) {
-                if (!isset($paginator->items[$i])) {
-                    break;
-                }
-                $items[] = $paginator->items[$i];
-            }
+        $total = false;
+        if (!$this->_grid->isCountQuery()) {
+            $total = $this->_grid->getStaticCount();
         }
-	    $data = [
-	    	'data' => $items,
-	    	'page' => $page,
-	    	'limit' => $limit,
-	    	'mess_now' => count($items)
-	    ];
-	    
-	    if ($this->_grid->isCountQuery()) {
-	    	$data['pages'] = (int) ceil($paginator->total_items/$limit);
-	    	$data['lines'] = $paginator->total_items;
-	    }
 
-	    return $data;
+		return $this->_getPaginator($dataSource, $extraLimit, $limit, $page, $total);
 	}
 	
 	/**
@@ -157,17 +137,26 @@ class Mysql extends Container implements GridContainer
 	
 	/**
 	 * Setup paginator.
-	 * 
-	 * @param \Engine\Mvc\Model\Query\Builder $queryBuilder
-	 * @return \ArrayObject
-	 */
-	protected function _getPaginator($queryBuilder, $limit, $page)
+	 *
+     * @param \Engine\Mvc\Model\Query\Builder $queryBuilder
+     * @param integer $extraLimit
+     * @param integer $limit
+     * @param integer $page
+     * @param integer $total
+     * @return array
+     */
+	protected function _getPaginator($queryBuilder, $extraLimit, $limit, $page, $total = false)
     {
-        $paginator = new \Phalcon\Paginator\Adapter\QueryBuilder([
+        $config = [
             'builder' => $queryBuilder,
+            'extra_limit' => $extraLimit,
             'limit' => $limit,
             'page' => $page
-        ]);
+        ];
+        if ($total) {
+            $config['total'] = $total;
+        }
+        $paginator = new \Engine\Paginator\Adapter\Grid($config);
 
     	return $paginator->getPaginate();
 	}

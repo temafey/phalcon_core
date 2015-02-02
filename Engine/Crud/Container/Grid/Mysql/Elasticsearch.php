@@ -46,38 +46,10 @@ class Elasticsearch extends Container implements GridContainer
         $extraLimit = $this->_grid->getExtraLimit();
 
         $page = $this->_grid->getPage();
-        $extraPage = (int) ceil(($limit*$page)/$extraLimit);
-        $extraOffset = ($extraPage - 1)*$extraLimit;
-        $paginator = $this->_getPaginator($this->getElasticDataSource(), $extraLimit, $extraOffset);
-        /*$paginator->setHighlight([
-            'pre_tags' => ['<b>'],
-            'post_tags' => ['</b>'],
-            'fields' => [
-                '_all' => []
-            ]
-        ]);*/
-        $items = [];
-        $position = $limit*($page-1)-($extraLimit*($extraPage-1));
-        $results = $this->_elasticType->search($paginator);
-        $total = $results->getTotalHits();
-        $pages = (int) ceil($total/$limit);
-        if ($total > 0) {
-            $pageTotal = ($position+$limit < $total) ? ($position+$limit) : $total;
-            for ($i = $position; $i < $pageTotal; ++$i) {
-                $item = $results[$i]->getData();
-                $items[] = ($this->_useElasticData) ? (object) $item: $item['id'];
-            }
-        }
-        $data = [
-            'data' => ($this->_useElasticData) ? $items : $this->_getData($dataSource, $items),
-            'page' => $page,
-            'limit' => $limit,
-            'mess_now' => count($items)
-        ];
+        $data = $this->_getPaginator($this->getElasticDataSource(), $extraLimit, $limit, $page);
 
-        if ($this->_grid->isCountQuery()) {
-            $data['pages'] = $pages;
-            $data['lines'] = $total;
+        if (!$this->_useElasticData) {
+            $data['data'] =  $this->_getData($dataSource, $data['data']);
         }
 
         return $data;
@@ -145,7 +117,7 @@ class Elasticsearch extends Container implements GridContainer
      * @param \Engine\Search\Elasticsearch\Query\Builder $queryBuilder
      * @return \ArrayObject
      */
-    protected function _getPaginator($queryBuilder, $limit, $offset)
+    protected function _getPaginator($queryBuilder, $extraLimit, $limit, $page, $total = false)
     {
         $query = new Query();
         $query->setQuery($queryBuilder->getQuery());
@@ -177,10 +149,45 @@ class Elasticsearch extends Container implements GridContainer
             }
         }
 
-        $query->setSize($limit);
-        $query->setFrom($offset);
+        $extraPage = (int) ceil(($limit*$page)/$extraLimit);
+        $extraOffset = ($extraPage - 1)*$extraLimit;
 
-        return $query;
+        $query->setSize($extraLimit);
+        $query->setFrom($extraOffset);
+
+        /*$paginator->setHighlight([
+            'pre_tags' => ['<b>'],
+            'post_tags' => ['</b>'],
+            'fields' => [
+                '_all' => []
+            ]
+        ]);*/
+
+        $items = [];
+        $position = $limit*($page-1)-($extraLimit*($extraPage-1));
+        $results = $this->_elasticType->search($query);
+        $total = $results->getTotalHits();
+        $pages = (int) ceil($total/$limit);
+        if ($total > 0) {
+            $pageTotal = ($position+$limit < $total) ? ($position+$limit) : $total;
+            for ($i = $position; $i < $pageTotal; ++$i) {
+                $item = $results[$i]->getData();
+                $items[] = ($this->_useElasticData) ? (object) $item: $item['id'];
+            }
+        }
+        $data = [
+            'data' => $items,
+            'page' => $page,
+            'limit' => $limit,
+            'mess_now' => count($items)
+        ];
+
+        if ($this->_grid->isCountQuery()) {
+            $data['pages'] = $pages;
+            $data['total_items'] = $total;
+        }
+
+        return $data;
     }
 
     /**

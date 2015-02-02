@@ -444,6 +444,15 @@ class Builder extends PhBuilder
                 case self::COLUMNS:
                     $this->_columns = [];
                     break;
+                case self::LIMIT_COUNT:
+                    $this->_limit = null;
+                    break;
+                case self::LIMIT_OFFSET:
+                    $this->_offset = null;
+                    break;
+                case self::ORDER:
+                    $this->_order = null;
+                    break;
             }
         }
 
