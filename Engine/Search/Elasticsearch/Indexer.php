@@ -172,6 +172,9 @@ class Indexer
                 $store = true;
                 if ($column instanceof \Engine\Crud\Grid\Column\JoinOne) {
                     $joinType = true;
+                    if (!$column->isUseJoin()) {
+                        $sortable = true;
+                    }
                 }
             }
             $property = $this->getFieldMap($field, $sortable, $store, $joinType, $type);
@@ -262,8 +265,8 @@ class Indexer
                         $property[$name.'_'.$filter[$primary]] = $this->getFieldProperty($name.'_'.$filter[$primary], 'integer', false, false, false, false);
                     }
                 } else {
-                    $property[$key] = $this->getFieldProperty($key, 'string', $sortable, 'analyzed', $store, true, 2.0);
-                    $property[$key."_id"] = $this->getFieldProperty($key."_id", $type, $sortable, 'analyzed', $store, true, 2.0);
+                    $property[$key] = $this->getFieldProperty($key, $type, $sortable, 'analyzed', $store, true, 2.0);
+                    $property[$key."_id"] = $this->getFieldProperty($key."_id", 'integer', $sortable, 'analyzed', $store, true, 2.0);
                 }
             } else {
                 $property = [];
@@ -271,8 +274,8 @@ class Indexer
                     if (!$type) {
                         $type = AbstractFilter::VALUE_TYPE_INT;
                     }
-                    $property[$key] = $this->getFieldProperty($key, 'string', $sortable, 'analyzed', $store, true, 2.0);
-                    $property[$key."_id"] = $this->getFieldProperty($key."_id", $type, $sortable, 'analyzed', $store, true, 2.0);
+                    $property[$key] = $this->getFieldProperty($key, $type, $sortable, 'analyzed', $store, true, 2.0);
+                    $property[$key."_id"] = $this->getFieldProperty($key."_id", 'integer', $sortable, 'analyzed', $store, true, 2.0);
                 } else {
                     if (!$type) {
                         $type = AbstractFilter::VALUE_TYPE_INT;
@@ -371,6 +374,9 @@ class Indexer
         $type = $this->getType();
         if ($this->_deleteType && $type->exists()) {
             $type->delete();
+
+        }
+        if (!$type->exists()) {
             $this->setMapping();
         }
         $grid = ($this->_grid instanceof \Engine\Crud\Grid) ? $this->_grid : new $this->_grid([], $this->getDi());
