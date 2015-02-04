@@ -226,7 +226,7 @@ abstract class Extjs extends Grid
             return true;
         }
 
-        $lines = ($this->_isCountQuery) ? $data['lines'] : $limit;
+        $lines = ($this->_isCountQuery) ? $data['total_items'] : $limit;
         $this->_data['results'] = $lines;
 
         return true;
