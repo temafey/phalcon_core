@@ -167,10 +167,11 @@ class Elasticsearch extends Container implements GridContainer
         $position = $limit*($page-1)-($extraLimit*($extraPage-1));
         $results = $this->_elasticType->search($query);
         $total = $results->getTotalHits();
+        $count = $results->count();
         $pages = (int) ceil($total/$limit);
         if ($total > 0) {
-            $pageTotal = ($position+$limit < $total) ? ($position+$limit) : $total;
-            for ($i = $position; $i < $pageTotal; ++$i) {
+            $itemsTotal = ($position+$limit < $count) ? ($position+$limit) : ($position+$count);
+            for ($i = $position; $i < $itemsTotal; ++$i) {
                 $item = $results[$i]->getData();
                 $items[] = ($this->_useElasticData) ? (object) $item: $item['id'];
             }
