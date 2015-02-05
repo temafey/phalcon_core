@@ -206,7 +206,7 @@ class Grid implements \Phalcon\Paginator\AdapterInterface
         $position = $this->_getCurrentPosition();
         if ($this->_getTotal() > 0) {
             $count = $this->_items->count();
-            $itemsTotal = ($position+$this->_limit < $count) ? ($position+$this->_limit) : ($position+$count);
+            $itemsTotal = ($position+$this->_limit < $count) ? ($position+$this->_limit) : $count;
             for ($i = $position; $i < $itemsTotal; ++$i) {
                 if (!isset($this->_items[$i])) {
                     break;
