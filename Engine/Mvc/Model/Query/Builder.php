@@ -78,6 +78,30 @@ class Builder extends PhBuilder
     }
 
     /**
+     * Return alias from joined table
+     *
+     * @param string|\Engine\Mvc\Model $model
+     * @return string
+     */
+    public function getJoinAlias($model)
+    {
+        if ($model instanceof \Engine\Mvc\Model) {
+            $model = get_class($model);
+        } elseif (is_string($model) and !class_exists($model)) {
+            throw new \Engine\Exception("'{$model}' class not exists!");
+        }
+        $model = trim($model, "\\");
+        foreach ($this->_joins as $join) {
+            $joinModel = trim($join[0], "\\");
+            if ($model == $joinModel) {
+                return $join[2];
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Set column to query
      *
      * @param string $column
@@ -156,7 +180,7 @@ class Builder extends PhBuilder
         }
         if (is_string($columns)) {
             if (strpos(strtolower($columns), "rowcount") !== false) {
-                parent::columns($columns);
+                parent::columns([$columns]);
                 return $this;
             }
             $columns = [$columns];
