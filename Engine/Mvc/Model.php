@@ -158,13 +158,11 @@ class Model extends \Phalcon\Mvc\Model
         $db = $model->getWriteConnection();
         if (is_array($ids)) {
             $ids = \Engine\Tools\String::quote($ids);
-            $credential = $primary." IN (".$ids.")";
-
-            return static::find($credential);
+            $credential = $primary." IN (:".$primary.":)";
+            return static::find([$credential, 'bind' => [$primary => $ids]]);
         } else {
-            $credential = $primary." = ".$db->escapeString($ids);
-
-            return static::findFirst($credential);
+            $credential = $primary." = :".$primary.":";
+            return static::findFirst([$credential, 'bind' => [$primary => $ids]]);
         }
     }
 
@@ -181,12 +179,12 @@ class Model extends \Phalcon\Mvc\Model
         $db = $model->getWriteConnection();
         if (is_array($values)) {
             $values = \Engine\Tools\String::quote($values);
-            $credential = $column." IN (".$values.")";
+            $credential = $column." IN (:".$column.":)";
         } else {
-            $credential = $column." = ".$db->escapeString($values);
+            $credential = $column." = :".$column.":";
         }
 
-        return static::find($credential);
+        return static::find([$credential, 'bind' => [$column => $values]]);
     }
 
     /**
